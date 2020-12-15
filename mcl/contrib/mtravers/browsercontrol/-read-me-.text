@@ -1,0 +1,21 @@
+-*- Mode: Text -*-
+
+This package contains some tools for interfacing MCL to web browsers.  
+It replaces the file netscape-control.lisp.  The main changes are:
+
+- support for other browsers
+- support for multiple browser windows
+- reorganized into main and extension files
+
+browser-control.lisp is the main file. It proivdes functions for controlling
+a Netscape or Internet Explorer browser and getting information from back from it.  
+
+browser-edit.lisp connects browser-control to Bill St. Clair's HTML-Editor
+extension, so you can view the results of your editing in a real browser
+with no extra overhead.  
+
+browser-control-clhttp.lisp lets you use CL-HTTP's preference system to set
+some variables that browser-control cares about (thanks to Rainer Joswig).
+
+Michael Travers (mt@media.mit.edu) 
+2/15/97 20:56

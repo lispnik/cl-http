@@ -1,0 +1,2968 @@
+HTTP Working Group                                     Koen Holtman, TUE
+Internet-Draft                              Andrew Mutz, Hewlett-Packard
+Expires: May 21, 1997                                  November 21, 1996
+
+
+                 Transparent Content Negotiation in HTTP
+
+                  draft-holtman-http-negotiation-04.txt
+
+
+STATUS OF THIS MEMO
+
+        This document is an Internet-Draft. Internet-Drafts are
+        working documents of the Internet Engineering Task Force
+        (IETF), its areas, and its working groups. Note that other
+        groups may also distribute working documents as
+        Internet-Drafts.
+
+        Internet-Drafts are draft documents valid for a maximum of
+        six months and may be updated, replaced, or obsoleted by
+        other documents at any time. It is inappropriate to use
+        Internet-Drafts as reference material or to cite them other
+        than as "work in progress".
+
+        To learn the current status of any Internet-Draft, please
+        check the "1id-abstracts.txt" listing contained in the
+        Internet-Drafts Shadow Directories on ftp.is.co.za
+        (Africa), nic.nordu.net (Europe), munnari.oz.au (Pacific
+        Rim), ds.internic.net (US East Coast), or ftp.isi.edu (US
+        West Coast).
+
+        Distribution of this document is unlimited.  Please send
+        comments to the HTTP working group at
+        <http-wg@cuckoo.hpl.hp.com>.  Discussions of the working
+        group are archived at
+        <URL:http://www.ics.uci.edu/pub/ietf/http/>.  General
+        discussions about HTTP and the applications which use HTTP
+        should take place on the <www-talk@w3.org> mailing list.
+
+        A HTML version of this document, and versions with change
+        bars, are available at
+        <URL:http://gewis.win.tue.nl/~koen/conneg/>.
+
+
+ABSTRACT
+
+        HTTP allows one to put multiple versions of the same
+        information under a single URL.  Transparent content
+        negotiation is a mechanism, layered on top of HTTP, for
+        automatically selecting the best version when the URL is
+        accessed.  This enables the smooth deployment of new web data
+        formats and markup tags.
+
+        Design goals for transparent content negotiation include: low
+        overhead on the request message size, downwards compatibility,
+        extensibility, enabling the rapid introduction of new areas of
+        negotiation, scalability, low cost for minimal support, end
+        user control, and good cacheability.
+
+
+TABLE OF CONTENTS
+
+   Note: the section numbering is this document is sometimes irregular
+   because it tries to preserve the numbering in the 02 version as
+   much as possible.
+
+       1  Introduction
+        1.1 Background
+        1.2 Note for readers
+        1.3 Revision History
+
+       2  Terminology
+        2.1 Terms from HTTP/1.1
+        2.2 New terms
+
+       3  Notation
+
+       4  Overview
+        4.1 Content negotiation
+        4.2 HTTP/1.0 style negotiation scheme
+        4.3 Transparent content negotiation scheme
+        4.4 Optimizing the negotiation process
+        4.4B Downwards compatibility with non-negotiating user agents
+        4.5 Retrieving a variant by hand
+        4.6 Dimensions of negotiation
+        4.7 Feature negotiation
+
+       5  Variant descriptions
+        5.1 Syntax
+        5.2 URI
+        5.3 Source-quality
+        5.4 Type, language, length, and charset.
+        5.5 Features
+        5.6 Description
+        5.7 Extension-attribute
+
+       6  Feature negotiation
+        6.1 Feature tags
+        6.2 Accept-Features header
+        6.3 Feature predicates
+        6.4 Features attribute
+
+       7  Feature negotiation examples
+        7.1 Use of feature tags
+        7.2 Use of numeric feature tags
+
+       8  Feature tag registration
+        8.1 Evolution of feature tags
+        8.2 Core set of feature tags
+        8.3 Feature tag design
+
+       9  Content negotiation response codes and headers
+        9.1 506 Variant Also Negotiates
+        9.2 Accept-Features
+        9.3 Content-Features
+        9.4 Alternates
+        9.6 Negotiate
+        9.7 Variant-Vary
+
+       9B Cache validators
+        9B.1 Variant list validators
+        9B.2 Structured entity tags
+        9B.3 Assigning entity tags to variants
+
+       10 Content negotiation responses
+        10.1 List response
+        10.2 Choice response
+        10.2B Ad hoc response
+        10.3 Reusing the Alternates header
+        10.4 Extracting a normal response from a choice response
+        10.5 Elaborate Vary headers
+        10.5.1 Construction of an elaborate Vary header
+        10.5.2 Caching of an elaborate Vary header
+        10.6 Negotiation on content encoding
+
+       11 The network negotiation algorithm
+        11.1 Input
+        11.2 Output
+        11.2.1 Output for proxies
+        11.2.2 Output for origin servers
+        11.2.3 Output for user agents
+        11.3 Computing the overall quality values
+        11.4 Definite and speculative quality values
+        11.5 Determining the result
+        11.5.1 Result for proxies and origin servers
+        11.5.2 Result for user agents
+        11.6 Construction of short requests
+
+       12 User agent support for transparent negotiation
+        12.1 Handling of responses
+        12.2 Presentation of a transparently negotiated resource
+
+       13 Origin server support for transparent negotiation
+        13.1 Requirements
+        13.2 Negotiation on transactions other than GET and HEAD
+
+       14 Proxy support for transparent negotiation
+
+       15 Security and privacy considerations
+        15.1 Accept headers revealing information of a private nature
+        15.2 Spoofing of responses from variant resources
+
+       16 Acknowledgments
+
+       17 References
+
+       18 Authors' addresses
+
+       19 Appendices
+        19.1 Adding an Expires header to ensure HTTP/1.0 compatibility
+        19.2 Origin server implementation considerations
+        19.2.1 Implementation with a CGI script
+        19.2.2 Direct support by HTTP servers
+        19.2.3 Web publishing tools
+        19.3 Open issues in transparent content negotiation
+        19.3B Server-side rendering engines
+        19.3C Quality factors in the Accept-Features header
+        19.4 Other negotiation specifications
+        19.4.1 User-Agent Display Attributes
+        19.4.2 HTTP/1.2 Extension Protocol (PEP)
+        19.5 Related issues
+        19.5.1 Current negotiation practice
+        19.5.2 Bandwidth negotiation
+
+
+1  Introduction
+
+   HTTP allows one to put multiple versions of the same information
+   under a single URI.  Each of these versions is called a `variant'.
+   Transparent content negotiation is a mechanism for automatically
+   and efficiently retrieving the best variant when a GET or HEAD
+   request is made.  This enables the smooth deployment of new web
+   data formats and markup tags.
+
+   This specification defines transparent content negotiation as an
+   extension on top of the HTTP/1.1 protocol [1].  However, use of
+   this extension does not require use of HTTP/1.1: transparent
+   content negotiation can also be done if some or all of the parties
+   are HTTP/1.0 [3] systems.
+
+   Transparent negotiation is called `transparent' because it makes
+   all variants inside the origin server visible to outside parties.
+
+
+1.1 Background
+
+   The addition of content negotiation to the web infrastructure has
+   been considered important since the early days of the web.  Among
+   the expected benefits of a sufficiently powerful system for content
+   negotiation are
+
+     * smooth deployment of new data formats and markup tags will
+       allow graceful evolution of the web
+
+     * eliminating the need to choose between a `state of the art
+       multimedia homepage' and one which can be viewed by all web
+       users
+
+     * enabling good service to a wider range of browsing
+       platforms (from low-end PDA's to high-end VR setups)
+
+     * eliminating error-prone and cache-unfriendly
+       User-Agent based negotiation
+
+     * enabling construction of sites without `click here for the X
+       version' links
+
+     * internationalization, and the ability to offer multi-lingual
+       content without a bias towards one language.
+
+   The development of content negotiation has been a slow process,
+   perhaps because the expected benefits are mostly long-term
+   benefits.  Also, all immediately obvious content negotiation
+   solutions involve sending larger HTTP request messages.  Larger
+   request messages are unacceptable to many people: a small overhead
+   on the request size is often cited as the main technical
+   requirement for any scheme which offers the above benefits.
+
+   Therefore, a low overhead on the request message size is one of the
+   main design goals of this specification. A large fraction of the
+   text below is devoted to the definition of mechanisms for meeting
+   this design goal.  The desire to provide for good cacheability in
+   all cases accounts for another considerable part of the content of
+   this document.
+
+   Other design goals include downwards compatibility, extensibility,
+   enabling the rapid introduction of new areas of negotiation,
+   scalability, low cost of minimal support, and end user control.
+   End user control, the option to manually select a variant if
+   desired, is the one redeeming quality of the `click here for the X
+   version' type of negotiation. Preserving this option is considered
+   important.
+
+
+1.2 Note for readers
+
+   Some sections in this document discuss requirements for proxy
+   caches only.  Implementers of origin servers and user agents (but
+   not implementers of user agent caches) can skip these sections.
+   The sections which can be skipped are:
+
+       10.3 Reusing the Alternates header
+       10.4 Extracting a normal response from a choice response
+       10.5.2 Caching of an elaborate Vary header
+       14 Proxy support for transparent negotiation
+
+   The skipping of these sections is also recommended on first
+   reading.
+
+
+1.3 Revision History
+
+   The change bars in this document reflect the changes with respect
+   to the 03 version of this draft.  Major functional changes are:
+
+    - The model for the caching of variant lists has been changed
+      extensively. (The previous version had a problem with downwards
+      compatibility.)
+
+    - The definition of the Negotiate header has been changed to
+      include a `trans' keyword.
+
+    - The form `ftag=<N-M>', with N-M a range of numeric values, was
+      added to the feature expressions and feature predicates.
+
+   Major changes in the presentation are:
+
+    - Feature tag registration is now covered in a separate draft
+
+    - Some new explanatory material was added
+
+    - Some existing text has been improved
+
+   In the text version of this document with change bars, all changes
+   are marked except changes in formatting and punctuation.
+
+   In the HTML version of this document with changes marked, all
+   changed words and symbols are typeset in bold text.  Deletions and
+   changes in punctuation are not marked in the HTML version.
+
+
+2  Terminology
+
+2.1 Terms from HTTP/1.1
+
+   This specification mostly uses the terminology of the HTTP/1.1
+   specification [1].  The definitions below were reproduced from [1].
+
+   request
+     An HTTP request message.
+
+   response
+     An HTTP response message.
+
+   resource
+     A network data object or service that can be identified by a URI.
+     Resources may be available in multiple representations
+     (e.g. multiple languages, data formats, size, resolutions) or
+     vary in other ways.
+
+   content negotiation
+     The mechanism for selecting the appropriate representation when
+     servicing a request.
+
+   variant
+     A resource may have one, or more than one, representation(s)
+     associated with it at any given instant.  Each of these
+     representations is termed a `variant.'  Use of the term `variant'
+     does not necessarily imply that the resource is subject to
+     content negotiation.
+
+   client
+     A program that establishes connections for the purpose of sending
+     requests.
+
+   user agent
+     The client which initiates a request.  These are often browsers,
+     editors, spiders (web-traversing robots), or other end user
+     tools.
+
+   server
+     An application program that accepts connections in order to
+     service requests by sending back responses.  Any given program may
+     be capable of being both a client and a server; our use of these
+     terms refers only to the role being performed by the program for
+     a particular connection, rather than to the program's
+     capabilities in general.  Likewise, any server may act as an
+     origin server, proxy, gateway, or tunnel, switching behavior
+     based on the nature of each request.
+
+   origin server
+     The server on which a given resource resides or is to be created.
+
+   proxy
+     An intermediary program which acts as both a server and a client
+     for the purpose of making requests on behalf of other
+     clients.  Requests are serviced internally or by passing them on,
+     with possible translation, to other servers.  A proxy must
+     implement both the client and server requirements of this
+     specification.
+
+   age
+     The age of a response is the time since it was sent by, or
+     successfully validated with, the origin server.
+
+   fresh
+     A response is fresh if its age has not yet exceeded its freshness
+     lifetime.
+
+2.2 New terms
+
+   transparently negotiable resource
+     A resource, identified by a single URI, which has multiple
+     representations (variants) associated with it.  When servicing a
+     request on its URI, it allows selection of the best
+     representation using the transparent content negotiation
+     mechanism.  A transparently negotiable resource always has a
+     variant list bound to it, which can be represented as an
+     Alternates header.
+
+   variant list
+     A list containing variant descriptions, which can be bound to a
+     transparently negotiable resource.
+
+   variant description
+     A machine-readable description of a variant resource, usually
+     found in a variant list.  A variant description contains the
+     variant resource URI and various attributes which describe
+     properties of the variant.  Variant descriptions are defined in
+     Section 5.
+
+   variant resource
+     A resource from which a variant of a negotiable resource can be
+     retrieved with a simple GET request.  A variant resource usually
+     has only one representation (variant) associated with it.
+
+   list response
+     A list response contains the variant list of the negotiable
+     resource, but no variant data.  It is generated when the server
+     does not (perhaps cannot) choose a particular best variant for the
+     request.  List responses are defined in Section 10.1.
+
+   choice response
+     A choice response contains both the variant list of the
+     negotiable resource and a representation of the best variant for
+     the request.  Choice responses are defined in Section 10.2.
+
+   ad hoc response
+     An ad hoc response contains the variant list of the negotiable
+     resource, and any other data the origin server wants to send.  It
+     can be generated as a response to a non-negotiating user agent if
+     the server does not (perhaps cannot) choose any particular
+     variant. Ad hoc responses are defined in Section 10.2B.
+
+   normal response
+     A HTTP response which is not a list response, choice response, or
+     ad hoc response.  Normal responses are never generated by
+     transparently negotiable resources, and are always generated by
+     variant resources.
+
+   Accept headers
+     The request headers: Accept, Accept-Charset, Accept-Language, and
+     Accept-Features.
+
+   network negotiation algorithm
+     A standardized algorithm by which a party in the negotiation
+     process can choose a best variant on behalf of another party.
+     The algorithm computes whether the Accept headers in the request
+     contain sufficient information to allow a choice, and if so,
+     which variant must be chosen.  The network negotiation algorithm
+     is defined in Section 11.
+
+   neighbor
+     Two resources are called neighbors if the absolute URI of the
+     first resource up to its last slash equals the absolute URI of
+     the second resource up to its last slash.  The neighboring
+     relation is important because of security considerations; see
+     Section 15.2.
+
+   [##Historical note: In the context of old versions of the HTTP/1.1
+   specification like [2], list responses can be called `pre-emptive
+   negotiation responses', and choice responses can be called
+   `reactive negotiation responses'.##]
+
+   [##Note: In the context of the HTTP/1.1 specification [1], both
+   list and choice responses are the result of server-driven
+   negotiation, though a list response is a server-driven negotiation
+   response meant to initiate agent-driven negotiation.##]
+
+
+3  Notation
+
+   The notation [## ... ##] in this document encloses an editorial
+   comment.  Such a comment will be either removed or replaced by real
+   text in the final version of this document.
+
+   The version of BNF used in this document is taken from [1], and
+   many of the nonterminals used are defined in [1].
+
+   One new BNF construct is added:
+
+      1%rule
+
+   stands for one or more instances of "rule", separated by
+   whitespace:
+
+      1%rule =  rule *( 1*LWS rule )
+
+
+4  Overview
+
+   This section gives an overview of transparent content negotiation.
+   It starts with a more general discussion of negotiation as provided
+   by HTTP.
+
+
+4.1 Content negotiation
+
+   HTTP/1.1 allows one to put multiple versions of the same
+   information under a single resource URI.  Each of these versions is
+   called a `variant'. For example, a resource http://x.org/paper
+   could bind to three different variants of a paper:
+
+         1. HTML, English
+         2. HTML, French
+         3. Postscript, English
+
+   Content negotiation is the process by which the best variant is
+   selected if the resource is accessed.  The selection is done by
+   matching the properties of the available variants to the
+   capabilities of the user agent and the preferences of the user.
+
+   It has always been possible under HTTP to have multiple
+   representations available for one resource, and to return the most
+   appropriate representation for each subsequent request.
+   HTTP/1.1 is the first version of HTTP which has provisions for
+   doing this in a cache-friendly way.  These provisions include the
+   Vary response header, entity tags, and the If-None-Match request
+   header.
+
+
+4.2 HTTP/1.0 style negotiation scheme
+
+   The HTTP/1.0 protocol elements allow for a negotiation scheme as
+   follows:
+
+      Server _____ proxy _____ proxy _____ user
+      x.org        cache       cache       agent
+
+        < ----------------------------------
+        |      GET http://x.org/paper
+        |          Accept headers
+      choose
+        |
+         ---------------------------------- >
+                    Best variant
+
+   When the resource is accessed, the user agent sends (along with its
+   request) various Accept headers which express the user agent
+   capabilities and the user preferences.  Then the origin server uses
+   these Accept headers to choose the best variant, which is returned
+   in the response.
+
+   The biggest problem with this scheme is that it does not scale
+   well.  For all but the most minimal user agents, Accept headers
+   expressing all capabilities and preferences would be very large,
+   and sending them in every request would be hugely inefficient, in
+   particular because only a small fraction of the resources on the
+   web have multiple variants.
+
+
+4.3 Transparent content negotiation scheme
+
+   The transparent negotiation scheme eliminates the need to send huge
+   Accept headers, and nevertheless allows for a selection process
+   that always yields either the best variant, or an error message
+   indicating that user agent is not capable of displaying any of the
+   available variants.
+
+   Under the transparent content negotiation scheme, the server sends
+   a list with the available variants and their properties to the user
+   agent.  An example of a list with three variants is
+
+     {"paper.html.en" 0.9 {type text/html} {language en}},
+     {"paper.html.fr" 0.7 {type text/html} {language fr}},
+     {"paper.ps.en"   1.0 {type application/postscript} {language en}}
+
+   The syntax and semantics of the variant descriptions in this list
+   are covered in depth in Section 5.  When the list is received, the
+   user agent can choose the best variant and retrieve it.
+   Graphically, the communication can be represented as follows:
+
+      Server _____ proxy _____ proxy _____ user
+      x.org        cache       cache       agent
+
+        < ----------------------------------
+        |      GET http://x.org/paper
+        |
+        ----------------------------------- >         [list response]
+                  return of list            |
+                                         choose
+                                            |
+        < ----------------------------------
+        |  GET http://x.org/paper.html.en
+        |
+         ---------------------------------- >         [normal response]
+                return of html.en
+
+   The first response returning the list of variants is called a `list
+   response'.  The second response is a normal HTTP response: it does
+   not contain special content negotiation related information.  Only
+   the user agent needs to know that the second request actually
+   retrieves a variant, for the other parties in the communication,
+   the second transaction is indistinguishable from a normal HTTP
+   transaction.
+
+   With this scheme, information about capabilities and user
+   preferences is only used by the user agent itself.  Therefore,
+   sending such information in large Accept headers is unnecessary.
+   Accept headers do have a limited use in transparent content
+   negotiation however; the sending of small Accept headers can often
+   speed up the negotiation process. This is covered in Section 4.4.
+
+   List responses are covered in depth in Section 10.1.  As an
+   example, the list response in the above picture could be:
+
+     HTTP/1.1 300 Multiple Choices
+     Date: Tue, 11 Jun 1996 20:02:21 GMT
+     Alternates: {"paper.html.en" 0.9 {type text/html} {language en}},
+                 {"paper.html.fr" 0.7 {type text/html} {language fr}},
+                 {"paper.ps.en"   1.0 {type application/postscript}
+                     {language en}}
+     Vary: negotiate, accept, accept-language
+     ETag: "blah;1234"
+     Cache-control: max-age=86400
+     Content-Type: text/html
+     Content-Length: 227
+
+     <h2>Multiple Choices:</h2>
+     <ul>
+     <li><a href=paper.html.en>HTML, English version</a>
+     <li><a href=paper.html.fr>HTML, French version</a>
+     <li><a href=paper.ps.en>Postscript, English version</a>
+     </ul>
+
+   The Alternates header in the response contains the variant list.
+   The Vary header is included to ensure correct caching by HTTP/1.1
+   caches not capable of transparent content negotiation (see Section
+   10.5).  The ETag header allows the response to be revalidated by
+   caches, the Cache-Control header controls this revalidation.  The
+   HTML entity included in the response allows the user to select the
+   best variant by hand if desired.
+
+
+4.4 Optimizing the negotiation process
+
+   The basic transparent negotiation scheme involves two HTTP
+   transactions: one to retrieve the list, and a second one to retrieve
+   the chosen variant.  There are however several ways to `cut corners'
+   in the data flow path of the basic scheme.
+
+   First, caching proxies can cache both variant lists and complete
+   responses.  Such caching can reduce the communication overhead, as
+   shown in the following example:
+
+      Server _____ proxy _____ proxy __________ user
+      x.org        cache       cache            agent
+
+                                 < --------------
+                                 |  GET ../paper
+                                 |
+                               has the list
+                               in cache
+                                 |
+                                  -------------  >  [list response]
+                                           list  |
+                                                 |
+                                              choose
+                                                 |
+                     < --------------------------
+                     |   GET ../paper.html.en
+                     |
+                  has the variant
+                  in cache
+                     |
+                      -------------------------- >  [normal response]
+                         return of html.en
+
+   Second, the user agent can send small Accept headers which could
+   allow a server to determine the choice the user agent would make on
+   receiving the list.  If the Accept headers contain enough
+   information, the origin server can send back the variant directly:
+
+      Server _____ proxy _____ proxy _____ user
+      x.org        cache       cache       agent
+
+        < ----------------------------------
+        |      GET http://x.org/paper
+        |       small Accept headers
+        |
+      able to choose on
+      behalf of user agent
+        |
+         ---------------------------------- >    [choice response]
+              return of html.en and list
+
+   This choosing based on small accept headers can be done with the
+   network negotiation algorithm (Section 11).  This algorithm takes
+   the variant list and the Accept headers as input.  It computes
+   whether the Accept headers contain sufficient information to choose
+   on behalf of the user agent, and if so, which variant must be
+   chosen.
+
+   The response in the above diagram is called a choice response. It
+   transmits both the chosen variant and the list of all variants
+   bound to the negotiable resource.  Choice responses are covered in
+   depth in Section 10.2.  For example, the choice response in the
+   above picture could be:
+
+     HTTP/1.1 200 OK
+     Date: Tue, 11 Jun 1996 20:05:31 GMT
+     Content-Type: text/html
+     Last-Modified: Mon, 10 Jun 1996 10:01:14 GMT
+     Content-Length: 5327
+     Cache-control: max-age=604800
+     Content-Location: paper.html.en
+     Alternates: {"paper.html.en" 0.9 {type text/html} {language en}},
+                 {"paper.html.fr" 0.7 {type text/html} {language fr}},
+                 {"paper.ps.en"   1.0 {type application/postscript}
+                     {language en}}
+     Etag: "gonkyyyy;1234"
+     Vary: negotiate, accept, accept-language
+     Expires: Thu, 01 Jan 1980 00:00:00 GMT
+
+     <title>A paper about ....
+
+   Finally, the above two kinds of optimization can be combined; a
+   caching proxy which has the list will sometimes be able to choose on
+   behalf of the user agent.  This could lead to the following
+   communication pattern:
+
+      Server _____ proxy _____ proxy __________ user
+      x.org        cache       cache            agent
+
+                                 < ---------------
+                                 |  GET ../paper
+                                 |  small Accept
+                                 |
+                              able to choose
+                                on behalf
+                                 |
+                     < ----------
+                     |  GET ../paper.html.en
+                     |
+                      ---------- >   [normal response]
+                        html.en  |
+                                  ---------------- >  [choice response]
+                                   html.en and list
+
+   In this case the proxy cache nearest to the user agent has
+   a cached variant list, and chooses on behalf of the user agent.
+
+   Note that this cutting of corners does not only save bandwidth. It
+   also eliminates delays due to packet round trip times, and reduces
+   the load on the origin server.
+
+
+4.4B Downwards compatibility with non-negotiating user agents
+
+   To handle requests from user agents not capable of transparent
+   content negotiation, transparent content negotiation basically
+   reverts to a HTTP/1.0 style negotiation scheme.  One optimization
+   remaining is that proxy caches may sometimes be able to perform
+   HTTP/1.0 style negotiation on behalf of the origin server.
+
+
+4.5 Retrieving a variant by hand
+
+   If a transparently negotiated resource is accessed, the user agent
+   will always at some point receive the list of available variants.
+   The user agent can use this list to make available a menu (in HTML or
+   not) of all variants and their characteristics to the user.
+   Such a menu can allow the user to randomly browse other variants,
+   and can make it possible to manually correct any sub-optimal
+   choice made by the automatic negotiation process.
+
+
+4.6 Dimensions of negotiation
+
+   Transparent content negotiation defines four dimensions of
+   negotiation:
+
+     1. Media type (MIME type)
+     2. Charset
+     3. Language
+     4. Features
+
+   The first three dimensions have traditionally been present in HTTP.
+   The fourth dimension is added by this specification.  Additional
+   dimensions, beyond the four mentioned above, could be added by
+   future specifications.
+
+   Negotiation on the content encoding of a response (gzipped,
+   compressed, etc.) is left outside of the realm of transparent
+   negotiation.   See Section 10.6 for more information.
+
+     [##Note: In earlier versions of this specification, content
+     encoding was a regular dimension in transparent content
+     negotiation.  It was removed mainly because negotiation on
+     content encoding can be done on a hop-by-hop basis under HTTP/1.1
+     [1].##]
+
+
+4.7 Feature negotiation
+
+   Feature negotiation intends to provide for all areas of negotiation
+   not covered by the type, charset, and language dimensions.
+   Examples are negotiation on
+
+       * HTML extensions
+       * Extensions of other media types
+       * Color capabilities of the user agent
+       * Screen size
+       * Output medium (screen, paper, ...)
+       * Preference for speed vs. preference for graphical detail
+
+   The feature negotiation framework is the principal means by which
+   transparent negotiation offers extensibility; a new dimension of
+   negotiation (really a sub-dimension of the feature dimension) can be
+   added without the need for a new standards effort by the simple
+   registration of a `feature tag'.  Feature registration is discussed
+   in Section 8.
+
+
+5  Variant descriptions
+
+5.1 Syntax
+
+   A variant can be described in a machine-readable way with a variant
+   description.
+
+       variant-description =
+                  "{" <"> URI <"> source-quality *variant-attribute "}"
+
+       source-quality = qvalue
+
+       variant-attribute = "{" "type" media-type "}"
+                         | "{" "charset" charset "}"
+                         | "{" "language"  1#language-tag "}"
+                         | "{" "length" 1*DIGIT "}"
+                         | "{" "features" feature-list "}"
+                         | "{" "description" quoted-string "}"
+                         | extension-attribute
+
+       extension-attribute = "{" extension-name extension-value "}"
+       extension-name      = token
+       extension-value     = *( token | quoted-string | LWS
+                              | extension-specials )
+
+       extension-specials  = <any element of tspecials except <"> and "}">
+
+   Examples are
+
+      {"paper.html.fr" 0.7 {type text/html} {language fr}}
+
+      {"paper.html.tables"  0.9 {type text/html} {features tables}}
+
+   The various attributes which can be present in a variant
+   description are covered in the subsections below.  Each attribute
+   may appear only once in a variant description.
+
+
+5.2 URI
+
+   The URI attribute gives the URI of the resource from which the
+   variant can be retrieved with a GET request.  It can be absolute or
+   relative to the Request-URI.  The variant resource may vary (on the
+   Cookie request header, for example), but must not engage in
+   transparent content negotiation itself.
+
+
+5.3 Source-quality
+
+   The source-quality attribute gives the quality of the variant, as a
+   representation of the negotiable resource, when this variant is
+   rendered with a perfect rendering engine on the best possible
+   output medium.
+
+   If the source-quality is less than 1, it often expresses a quality
+   degradation caused by a lossy conversion to a particular data
+   format.  For example, a picture originally in JPEG form would have
+   a lower source quality when translated to the XBM format, and a
+   much lower source quality when translated to an ASCII-art variant.
+   Note however, that degradation is a function of the source; an
+   original piece of ASCII-art may degrade in quality if it is
+   captured in JPEG form.
+
+   The source-quality could also represent a level of quality
+   caused by skill of language translation, ability of a feature
+   set to capture an artistic expression, or clarity of mathematical
+   expression using a particular character set.
+
+   It is important that content providers do not assign very low
+   source quality values without good reason, as this would limit the
+   ability of users to influence the negotiation process with their
+   own preference settings.  The following table should be used as a
+   guide when assigning source quality values:
+
+       1.000       perfect representation
+       0.999-0.900 near threshold of noticeable loss of quality
+       0.899-0.700 noticeable, but acceptable quality reduction
+       0.699-0.500 barely acceptable quality
+       0.499-0.000 severely degraded quality
+
+   Note that most meaningful values in this table are close to 1.
+   This is due to the fact that quality factors are combined by
+   multiplying them, not by adding them.
+
+   When assigning source-quality values, content providers must not
+   account for the size of the variant and its impact on transmission
+   and rendering delays.  Source-quality values are assigned assuming
+   instantaneous transmission and rendering.  This rule ensures that a
+   future mechanism for bandwidth negotiation (see Appendix 19.5.2)
+   can be cleanly added.
+
+
+5.4 Type, language, length, and charset.
+
+   The type, language, and length attributes of a variant description
+   can carry the same information as their Content-* response header
+   counterparts as defined in [1].  The counterpart of the charset
+   attribute is the charset parameter which can be present in the
+   Content-Type response header, for example
+
+      Content-Type: text/html; charset=ISO-8859-4
+
+   Though all of these attributes are optional, it is often desirable
+   to include as many attributes as possible as this will increase the
+   quality of the negotiation process.
+
+   The length attribute (if present) must reflect the length of the
+   variant alone, and not the sum of the lengths of the variant and
+   any objects inlined or embedded by the variant.
+
+      Note: A server is not required to maintain a one-to-one
+      correspondence between attributes in the description of a
+      variant and the Content-* headers in responses containing that
+      variant.  Examples: If the variant description contains a
+      language attribute, the response does not necessarily have to
+      contain a Content-Language header. If a Content-Language
+      header is present, it does not have to contain an exact copy of
+      the information in the language attribute.
+
+
+5.5 Features
+
+   The features attribute specifies how the presence or absence of
+   particular features in the user agent affects the overall quality of
+   the variant.  This attribute is covered in Section 6.4.
+
+
+5.6 Description
+
+   The description attribute gives a textual description of the
+   variant.  It can be included if the URI and normal attributes of a
+   variant are considered too opaque to allow interpretation by the
+   user.  If a user agent is showing a menu of available variants
+   compiled from a variant list, and if a variant has a description
+   attribute, the user agent should show the description attribute of
+   the variant instead of showing the normal attributes of the
+   variant.
+
+
+5.7 Extension-attribute
+
+   The extension-attribute allows future specifications to
+   incrementally define new dimensions of negotiation, and eases
+   content negotiation experiments under HTTP/1.1.  In experimental
+   situations, servers must only generate extension-attributes whose
+   names start with "x-".  User agents should ignore all extension
+   attributes they do not recognize.  Proxies must not run the network
+   negotiation algorithm if an unknown extension attribute is present
+   in the variant list.
+
+
+6  Feature negotiation
+
+   Feature negotiation has been introduced in Section 4.7.  This
+   section defines the feature negotiation mechanism.  Section 7
+   contains examples of its use.
+
+
+6.1 Feature tags
+
+   A feature tag (ftag) identifies a capability of a user agent or a
+   preference of a user.  A feature is said to be `present' in a user
+   agent if the corresponding capability is implemented, or if the
+   user has expressed corresponding preference.
+
+       ftag = 1*<any CHAR except CTLs or tspecials or "!">
+
+       tspecials      = "(" | ")" | "<" | ">" | "@"
+                      | "," | ";" | ":" | "\" | <">
+                      | "/" | "[" | "]" | "?" | "="
+                      | "{" | "}" | SP | HT
+
+        (tspecials definition reproduced from [1])
+
+   Examples are
+
+        tables, fonts, blebber, wolx, screenwidth, colordepth
+
+   An example of the use of feature tags in a variant description is:
+
+     {"index.html" 1.0 {type text/html} {features tables frames}}
+
+   Feature-tags are case-insensitive.  The definition of a feature tag
+   may state that a feature tag, if present, can have associated with
+   it one or more values which reflect a particular capability or
+   preference.  For example, a feature tag `paper' could be present
+   with the values `A4' and `A5'.
+
+   Note that context may determine whether a feature tag expresses a
+   capability or a preference.  The `textonly' tag is naturally
+   present for a text-only browser, but the user of a graphical
+   browser could set the tag to be present if text-only content is
+   preferred to graphical content.
+
+   As feature registration will be an ongoing process, it is generally
+   not possible for a user agent to know the meaning of all feature
+   tags it can possibly encounter in a variant description.  A user
+   agent should treat all features with tags unknown to it as absent.
+
+
+6.2 Accept-Features header
+
+   The Accept-Features request header can be used by a client to give
+   information about the presence or absence of certain features.
+
+       Accept-Features = "Accept-Features" ":"
+                   #( feature-expr *( ";" feature-extension ) )
+
+       feature-expr = [ "!" ] ftag [ "=" tag-value ]
+                    | ftag "=" "{" tag-value "}"
+                    | ftag "<=" number
+                    | ftag "=" "<" numeric-range ">"
+                    | "*"
+
+       tag-value  = token | quoted-string
+
+       number = 1*DIGIT
+
+       numeric-range = [ number ] "-" [ number ]
+
+       feature-extension = token [ "=" ( token | quoted-string ) ]
+
+       [##Note: an earlier version of this specification did not allow
+       quoted strings as values.  Quoted strings were added because
+       they make it easier to map existing negotiation dimensions and
+       formats onto the feature negotiation framework.##]
+
+   Tag values must be compared case-insensitively, and a token value
+   XYZ is equal to a quoted-string value "XYZ".  No feature extensions
+   are defined in this specification.  An example is:
+
+       Accept-Features: blex, !blebber, colordepth<=5, !screenwidth,
+                  UA-media={stationary}, paper=a4, !paper="a0",
+                  x_version=<100-205>, *
+
+   The different feature expressions have the following meaning:
+
+      ftag       ftag is present
+
+      !ftag      ftag is absent
+
+      ftag=V     ftag is present with the value V
+
+      !ftag=V    ftag is present, but not with the value V
+
+      ftag={V}   ftag is present with the value V, and not with any
+                 other values
+
+      ftag<=N    ftag is present with the numeric values from 0 up to
+                 and including N, and not with any other values
+
+      ftag=<N-M> ftag is present with the numeric values from N up to
+                 and including M, and not with any other values.  If N
+                 is missing, the lower bound is 0.  If M is missing,
+                 the upper bound is infinity.
+
+      *          makes true all feature predicates (Section 6.3) which
+                 were not assigned truth values by other elements of
+                 the header
+
+      [##Question to be resolved: is there an alternative to the
+      ftag=<N-M> notation which looks nicer?  We can't use ftag=N-M
+      because it would be syntactically ambiguous with ftag=V: N-M is
+      also a HTTP token value.  Maybe tag@N-M is a nicer notation.##]
+
+   Absence of the Accept-Features header in a request is equivalent to
+   the inclusion of
+
+       Accept-Features: *
+
+   [##Note: One possible use of the feature-extensions would be the
+   introduction of quality values on feature tags, see Appendix
+   19.3C##]
+
+
+6.3 Feature predicates
+
+   Feature predicates are used in the features attribute of a variant
+   description.
+
+      fpred = [ "!" ] ftag [ "=" tag-value ]
+            | ftag "=" "<" numeric-range ">"
+
+   Examples of feature predicates are
+
+      blebber, !blebber, paper=a4, colordepth=5, !blex=54,
+      dpi=<300-599>, colordepth=<24->
+
+   The network negotiation algorithm can compute the truth value of a
+   feature predicate by using the contents of the Accept-Features
+   header of the current request.
+
+   The truth value of a predicate is assigned as follows, depending on
+   its form, by using the information in the Accept-Features
+   header:
+
+      ftag       true if the feature is known to be present
+
+                 false if the feature is known to be absent
+
+      !ftag      true if the feature is known to be absent
+
+                 false if the feature is known to be present
+
+      ftag=V     true if the feature is known to be present with
+                 the value V,
+
+                 false if the feature is known not to be present with
+                 the value V
+
+      !ftag=V    true if the feature is known to be present, but known
+                 not to be present with the value V,
+
+                 false if the feature is known to be absent or present
+                 with the value V
+
+      ftag=<N-M> true if the feature is known to be present with some
+                 numeric values, while the highest value with which it
+                 is present is known and in the range N-M,
+
+                 false if the feature is known to be absent, or if it
+                 is known to be present with some numeric values,
+                 while the highest value with which it is present is
+                 known and not in the range N-M.
+
+                 If N is missing, the lower bound is 0.  If M is
+                 missing, the upper bound is infinity.
+
+   If the information in the Accept-Features header does not provide
+   sufficient knowledge to assign a value to a predicate using the
+   above rules, then the value is true if there is a "*" in the
+   Accept-Features header, false otherwise.
+
+   As an example, the header
+
+       Accept-Features: blex, !blebber, colordepth<=5, !screenwidth,
+                  UA-media={stationary}, paper=a4, !paper="a0",
+                  x_version=<100-205>, *
+
+   makes the following predicates true:
+
+       blex, colordepth=4, !colordepth=6, colordepth, !screenwidth,
+       UA-media=stationary, !UA-media=screen, paper=a4, !paper=a0,
+       colordepth=<4-6>, !colordepth=<10->, x_version="101",
+       blex=wox, !blex=wox,  paper=a5,
+       frtnbf, !frtnbf, frtnbf=4, !frtnbf=4, frtnbf=<1-42>
+
+   and makes the following predicates false:
+
+       !blex, blebber, colordepth=6, colordepth=foo, !colordepth,
+       screenwidth, screenwidth=640, !screenwidth=640, x_version=99,
+       UA-media=screen, paper=a0
+
+
+6.4 Features attribute
+
+   The features attribute
+
+            "{" "features" feature-list "}"
+
+   is used in a variant description to specify how the presence or
+   absence of particular features in the user agent affects the overall
+   quality of the variant.
+
+       feature-list = 1%feature-list-element
+
+       feature-list-element = ( fpred | fpred-bag )
+                              [ ":" true-improvement ]
+                              [ "/" false-degradation  ]
+
+       fpred-bag = "[" 1%fpred "]"
+
+       true-improvement   =  1*3DIGIT [ "." 0*3DIGIT ]
+       false-degradation  =  1*3DIGIT [ "." 0*3DIGIT ]
+
+   Examples are:
+
+       {features !textonly [blebber !wolx] colordepth=3:0.7 }
+
+       {features !blink/0.5 background:1.5  [blebber !wolx]:1.4/0.8 }
+
+   The default value for the true-improvement is 1.  The default value
+   for the false-degradation is 0, or 1 if a true-improvement value is
+   given.
+
+   The network negotiation algorithm can compute the quality
+   degradation factor associated with the features attribute by
+   multiplying all quality degradation factors of the elements of the
+   feature-list.  Note that the result can be a factor greater than 1.
+
+   A feature list element yields its true-improvement factor if the
+   corresponding feature predicate is true, or if at least one element
+   of the corresponding fpred-bag is true. The element yields its
+   false-degradation factor otherwise.
+
+   [##Note: The attribute grammar above was designed to be parseable
+   with simple non-recursive parsers.  The true-improvement construct
+   does not add expressive power in a theoretical sense, but does make
+   the (automatic) construction of variant lists more straightforward
+   in many cases.##]
+
+   [##Aside for mathematicians: note the similarity between the
+   feature-list
+
+            [f1 !f2] [!f1 f3]
+
+   and the conjunctive normal form of a boolean expression.  This
+   similarity implies good things about the expressive power of the
+   features attribute.##]
+
+
+7  Feature negotiation examples
+
+   This section contains examples of the use of feature tags in
+   variant descriptions.
+
+   [##Note: A future version of this document will probably revise and
+   extend this section.##]
+
+
+7.1 Use of feature tags
+
+   Feature tags can be used in variant lists to express the quality
+   degradation associated with the presence or absence of certain
+   features.  One example is
+
+     {"index.html.plain" 0.7 },
+     {"index.html"       1.0 {features tables frames}}
+
+   Here, the "{features tables frames}" part expresses that index.html
+   uses the features tagged as tables and frames.  If these features
+   are absent, the overall quality of index.html degrades to 0.
+   Another example is
+
+     {"home.graphics" 1.0 {features !textonly}},
+     {"home.textonly" 0.7 }
+
+   where the "{features !textonly}" part expresses that home.graphics
+   requires the absence of the textonly feature.  If the feature is
+   present, the overall quality of home.graphics degrades to 0.
+
+   The absence of a feature need not always degrade the overall quality
+   to 0.  In the example
+
+     {"x.html.1" 1.0 {features fonts/0.7}}
+
+   the absence of the fonts feature degrades the quality with a factor
+   of 0.7.  "fonts/0.7" can be pronounced as "fonts, or a degradation of
+   0.7".  In the example
+
+     {"x.html.2" 0.5 {features fonts:1.5}}
+
+   the presence of the fonts feature improves the overall quality with a
+   factor of 1.5. If the fonts feature is absent, the overall quality is
+   not affected.  "fonts:1.5" can be pronounced as "fonts improves with
+   1.5".  Finally, in the example
+
+      {"y.html" 1.0 {features [blebber wolx] }}
+
+   The "[blebber wolx]" expresses that y.html requires the presence of
+   the blebber feature or the wolx feature.  This construct can be
+   used in a number of cases:
+
+     1. blebber and wolx actually tag the same feature, but they
+        were registered by different people, and some browsers say
+        they support blebber while others say they support wolx.
+
+     2. blebber and wolx are HTML tags of different vendors which
+        implement the same functionality, and which were used
+        together in y.html without interference.
+
+     3. blebber and wolx are HTML tags of different vendors which
+        implement the same functionality, and y.html uses the tags in
+        a conditional HTML construct.
+
+     4. blebber is a complicated HTML tag with only a sketchy
+        definition, implemented by one browser vendor, and wolx
+        indicates implementation of a well-defined subset of the blebber
+        tag by some other vendor(s).  y.html uses only this well-defined
+        subset.
+
+
+7.2 Use of numeric feature tags
+
+   As an example of negotiation in a numeric area, the following
+   variant list describes four variants with title graphics designed
+   for increasing screen widths:
+
+     {"home.pda"    1.0 {features pagewidth=<-199> }},
+     {"home.narrow" 1.0 {features pagewidth=<200-599> }},
+     {"home.normal" 1.0 {features pagewidth=<600-999> }},
+     {"home.wide"   1.0 {features pagewidth=<1000-> }}
+
+   The accept header
+
+     Accept-Features: pagewidth<=250, *
+
+   which indicates that the pagewidth tag is present with the
+   numeric values from 0 up to and including 250, makes the following
+   feature predicates false:
+
+     pagewidth=<-199>  pagewidth=<600-999>  pagewidth=<1000->
+
+   and thereby degrades the overall quality of all above variants
+   except home.narrow to 0.  The above variant list has a serious
+   problem, however: a user agent not supporting pagewidth
+   negotiation is given no guidance on which variant to select.  The
+   header
+
+     Accept-Features: !pagewidth, *
+
+   degrades the overall quality of all above variants to 0.
+
+   A variant list which solves this problem is
+
+     {"home.pda"    1.0 {features pagewidth=<-199> }},
+     {"home.narrow" 1.0 {features pagewidth=<200-599> }},
+     {"home.normal" 0.99 },
+     {"home.wide"   1.0 {features pagewidth=<1000-> }}
+
+   With this list, a user agent which does not support the pagewidth
+   feature will always select the home.normal variant.  Another
+   solution would be to describe the normal variant as:
+
+     {"home.normal" 1.0 {features [pagewidth=<600-999> !pagewidth] }}
+
+
+8  Feature tag registration
+
+   Feature tag registration procedures are defined in [4].  Note that
+   the feature tag names in the examples of this specification do not
+   in general reflect the tag naming schemes proposed in [4].
+
+
+8.1 Evolution of feature tags
+
+   The feature negotiation mechanism is designed not to break if 1000+
+   features, partially overlapping, are registered.  This allows for
+   feature tag creation to be an evolutionary process, in which many
+   tags are created while only a few `survive' to become generally
+   used.
+
+   As the development of new web content formats is currently in an
+   evolutionary phase, rather than a standardization phase, it is
+   thought that this evolutionary approach to feature tag creation has
+   the best chances of keeping up with new developments.
+
+
+8.2 Core set of feature tags
+
+   [##In order to jump-start feature negotiation, it seems useful to
+   define a `core set' of feature tags in a separate document.  These
+   feature tags would cover the areas of negotiation which are
+   currently well understood, like negotiation on currently stable
+   HTML extensions.  The transparent content negotiation specification
+   could then require (or strongly encourage) that user agents
+   implementing transparent content negotiation must recognize (not
+   support!) all tags in the core set.
+
+   The core set will be proposed in a non-standards track document
+   which will be completed along with this document.##]
+
+
+8.3 Feature tag design
+
+   When designing a new feature tag, it is important to take into
+   account that existing user agents which do not recognize the new
+   tag will treat the feature as absent.  In general, a new feature
+   tag needs to be designed in such a way that absence of the tag is
+   the default case which reflects current practice.  If this design
+   principle is ignored, the resulting feature tag will generally be
+   unusable.
+
+   As an example, one could try to support negotiation between
+   monochrome and color content by introducing a `color' feature tag,
+   the presence of which would indicate the capability to display
+   color graphics.  However, if this new tag is used in a variant
+   list, for example
+
+      {"rainbow.gif"      1.0 {features color} }
+      {"rainbow.mono.gif" 0.6 {features !color}}
+
+   then existing user agents, which would not recognize the color tag,
+   would all display the monochrome rainbow.  The color tag is
+   therefore unusable in situations where optimal results for existing
+   user agents are desired.  To provide for negotiation in this area,
+   one must introduce a `monochrome' feature tag; its presence
+   indicates that the user agent can only render (or the user prefers
+   to view) monochrome graphics.
+
+
+9  Content negotiation response codes and headers
+
+   This specification adds one new response code to those defined in
+   HTTP/1.1 [1].  This is a 5xx (Server Error) class response.  It
+   also adds six new headers.
+
+
+9.1 506 Variant Also Negotiates
+
+   The server has an internal configuration error; the chosen variant
+   resource is configured to engage in transparent content negotiation
+   itself, and is therefore not a proper end point in the negotiation
+   process.
+
+
+9.2 Accept-Features
+
+  This request header was defined in Section 6.2.
+
+
+9.3 Content-Features
+
+   The Content-Features response header can be used by a server to
+   indicate how the presence or absence of particular features in the
+   user agent affects the overall quality of the response.
+
+       Content-Features = "Content-Features" ":" feature-list
+
+
+9.4 Alternates
+
+   The Alternates response header is used to convey the list of
+   variants bound to a negotiable resource in a response.  It can also
+   contain other directives for the content negotiation process.
+
+       Alternates = "Alternates" ":" 1#( variant-description
+                                       | alternates-directive )
+
+       alternates-directive = ( "min-q" "=" short-float )
+                            | extension-alternates-directive
+
+       delta-seconds  = 1*DIGIT
+
+       short-float = 1*3DIGIT [ "." 0*3DIGIT ]
+
+       extension-alternates-directive =
+                              token [ "=" ( token | quoted-string ) ]
+
+   An example is
+
+     Alternates: {"paper.html.en" 0.9 {type text/html} {language en}},
+                 {"paper.html.fr" 0.7 {type text/html} {language fr}},
+                 {"paper.ps.en"   1.0 {type application/postscript}
+                     {language en}},
+                 min-q=0.4
+
+   Any relative URI specified in a variant-description field is
+   relative to the request-URI.  The min-q directive, if present, can
+   influence decisions made by the network negotiation algorithm on
+   behalf of the origin server.  Clients should ignore all
+   extension-alternates-directives they do not understand.
+
+   A variant list may contain multiple differing descriptions of the
+   same variant.  This can be convenient if the variant uses
+   conditional rendering constructs, or if the variant resource
+   returns multiple representations using a multipart media type.
+
+
+9.6 Negotiate
+
+   The Negotiate request header can contain directives for any content
+   negotiation process initiated by the request.  Presence of the
+   `trans' directive in this header indicates that the user agent
+   supports transparent content negotiation for the current request.
+
+      Negotiate = "Negotiate" ":" 1#negotiate-directive
+
+      negotiate-directive = "trans" | negotiate-extension
+
+      negotiate-extension = token [ "=" token ]
+
+   An example is
+
+      Negotiate: trans
+
+   Servers should ignore all negotiate-directives they do not
+   understand.  The presence of a `trans' directive is significant in
+   calculations performed by the network negotiation algorithm.
+
+   [#Note: The name `trans' is a compromise between the long
+   `transparent' and the short `t'.  The HTTP-WG is divided on the
+   naming issue, and `trans' was chosen to minimize overall
+   unhappiness.  The WG will only be truly happy if a shorter synonym
+   of `negotiate' can be found.##]
+
+
+9.7 Variant-Vary
+
+   The Variant-Vary response header can be used in a list response to
+   record any vary information which applies to the variant data
+   contained in the response, rather than to the response as a whole.
+
+      Variant-Vary  = "Variant-Vary" ":" ( "*" | 1#field-name )
+
+   Use of the Variant-Vary header is discussed in Section 10.2.
+
+
+9B Cache validators
+
+   To allow for correct and efficient caching and revalidation of
+   negotiated responses, this specification extends the caching model
+   of HTTP/1.1 [1] in various ways.
+
+   Under the rules in this specification, the maximal age (time since
+   last revalidation) of a variant list bound to a negotiable
+   resource, as received from a cache in an Alternates header, is the
+   maximum of
+
+      1. the freshness lifetimes (max-age values) in the responses
+         from the negotiable resource itself, and
+
+      2. the freshness lifetimes (max-age values) of the variant
+         resources of the negotiable resource which are also neighbors
+         of the negotiable resource.
+
+   If no freshness lifetimes are assigned by the origin server, the
+   maximal age of a variant list is the maximum of the freshness
+   lifetime values which were heuristically assigned by the cache.
+
+
+9B.1 Variant list validators
+
+   A variant list validator is an opaque value which acts as the cache
+   validator of a variant list bound to a negotiable resource.
+
+      variant-list-validator = <quoted-string not containing any ";">
+
+   If two responses contain the same variant list validator, a cache
+   can treat the Alternates headers in these responses as equivalent
+   (though the headers themselves need not be identical).
+
+
+9B.2 Structured entity tags
+
+   A structured entity tag consists of a normal entity tag of which
+   the opaque string is extended with a semicolon followed by a
+   variant list validator:
+
+        normal      |  variant list  |   structured
+        entity tag  |  validator     |   entity tag
+       -------------+----------------+-----------------
+         "etag"     |     "vlv"      |   "etag;vlv"
+        W/"etag"    |     "vlv"      |  W/"etag;vlv"
+
+   Note that a structured entity tag is itself also an entity tag.
+   The structured nature of the tag allows caching proxies capable of
+   transparent content negotiation to perform certain optimizations.
+   Examples of structured entity tags are:
+
+      "xyzzy;1234"  W/"xyzzy;1234"  "gonkxxxx;1234"  "a;b;c;;1234"
+
+   In the last example, the normal entity tag is "a;b;c;" and the
+   variant list validator is "1234".
+
+   If a transparently negotiated response includes an entity tag, it
+   must be a structured entity tag.  The variant list validator in the
+   structured tag must act as a validator for the variant list
+   contained in the Alternates header.  The normal entity tag in the
+   structured tag must act as a validator of the entity body in the
+   response and of all entity headers except Alternates.
+
+
+9B.3 Assigning entity tags to variants
+
+   To ensure the correct revalidation of transparently negotiated
+   responses, origin servers should maintain some uniqueness
+   requirements when assigning entity tags to variant resources.
+
+   First, two different variant resources of the same negotiable
+   resource, which are both neighbors of this negotiable resource, may
+   never use the same (normal) entity tag, even not at different
+   times, unless this tag labels exactly the same entity on all
+   occasions.
+
+   Second, the server should ensure that, if a normal entity tag of a
+   neighboring variant resource is extended to a structured tag, this
+   structured tag never equals a different normal entity tag used by
+   another variant or at another time.  An easy way to ensure this is
+   by never including a semicolon in a normal tag.
+
+
+10 Content negotiation responses
+
+   If a request on a transparently negotiated resource yields a
+   response with a 2xx status code or any 3xx status code except 304,
+   this response must always be either a list response, a choice
+   response, or an ad hoc response.  These responses always include
+   the Alternates header bound to the negotiable resource.
+
+   Transparently negotiated responses with other status codes may also
+   include an Alternates header, if this is allowed by the HTTP/1.1
+   specification [1].  Note that HTTP/1.1 does not allow an Alternates
+   header in a 304 (Not Modified) response.  When generating a
+   response from a resource which does not support transparent content
+   negotiation, a server must never include an Alternates header.
+
+   A list response always has the 300 (Multiple Choices) response
+   code.  A choice response never has the 300 code, and always has a
+   Content-Location header.  An ad hoc response never has the 300
+   code, and never has a Content-Location header.
+
+10.1 List response
+
+   A list response has the 300 response status code.  It must contain
+   (besides the normal headers required by HTTP) the Alternates header
+   bound to the negotiable resource, a Vary header and (unless it was
+   a HEAD request) an entity body which allows the user to manually
+   select the best variant.  It is generated as a response to a user
+   agent capable of transparent content negotiation if the server does
+   not (perhaps cannot) choose a particular best variant for the
+   request.
+
+   An example of a list response is
+
+     HTTP/1.1 300 Multiple Choices
+     Date: Tue, 11 Jun 1996 20:02:21 GMT
+     Alternates: {"paper.html.en" 0.9 {type text/html} {language en}},
+                 {"paper.html.fr" 0.7 {type text/html} {language fr}},
+                 {"paper.ps.en"   1.0 {type application/postscript}
+                     {language en}}
+     Vary: negotiate, accept, accept-language
+     ETag: "blah;1234"
+     Cache-control: max-age=86400
+     Content-Type: text/html
+     Content-Length: 227
+
+     <h2>Multiple Choices:</h2>
+     <ul>
+     <li><a href=paper.html.en>HTML, English version</a>
+     <li><a href=paper.html.fr>HTML, French version</a>
+     <li><a href=paper.ps.en>Postscript, English version</a>
+     </ul>
+
+   The Vary header in the response should ensure correct handling by
+   HTTP/1.1 caching proxies not capable of transparent content
+   negotiation.  This header can either be
+
+        Vary: *
+
+   or a more elaborate header; see Section 10.5.1.
+
+   Only the origin server may construct list responses.  List
+   responses are cacheable unless indicated otherwise.
+
+   According to the HTTP/1.1 specification [1], a user agent not
+   capable of transparent content negotiation will, when receiving a
+   list response, display the entity body included in the response.
+   If the response contains a Location header, however, the user agent
+   may automatically redirect to this location.
+
+   The handling of list responses by clients supporting transparent
+   content negotiation is described in Sections 12.1 and 14.
+
+      Note: Some existing versions of HTTP/1.0 clients are known to
+      silently ignore list responses, instead of handling them
+      according to the HTTP/1.0 specification [3].  Servers should
+      therefore be careful in sending list responses to
+      non-negotiating HTTP/1.0 user agents, and in making these
+      responses cacheable.
+
+
+10.2 Choice response
+
+   A choice response merges a normal HTTP response from the chosen
+   variant, a Content-Location header giving the location of the
+   variant, and the Alternates headers bound to the negotiable
+   resource.  Depending on the response code, a choice response is
+   cacheable unless indicated otherwise.
+
+   Origin servers and proxy caches must construct choice responses
+   with the following algorithm (or any other algorithm which gives
+   equal results).
+
+   In this algorithm, `the current Alternates header' refers to the
+   Alternates header containing the variant list which was used to
+   choose the best variant, and `the current variant list validator'
+   refers to the validator of this list.  Section 10.3 specifies how
+   these two things can be obtained by a proxy cache.
+
+   The algorithm consists of five steps.
+
+     1. Construct a HTTP request message on the best variant resource
+        by rewriting the request-URI and Host header (if appropriate)
+        of the received request message on the negotiable resource.
+
+     2. Generate a valid HTTP response message, but not one with the
+        304 (Not Modified) code, for the request message constructed
+        in step 1.
+
+        In a proxy cache, the response can be obtained from cache
+        memory, or by passing the constructed HTTP request towards the
+        origin server.  If the request is passed on, the proxy may
+        add, modify, or delete If-None-Match and If-Range headers to
+        optimize the transaction with the upstream server.
+
+     3. Check for an origin server configuration error. If the HTTP
+        response message generated in step 2 contains an Alternates
+        header, a Content-Location header, or has the 300 status code,
+        then the best variant resource is not a proper end point in
+        the negotiation process, and a 506 (Variant Also Negotiates)
+        error response message should be generated instead of going to
+        step 4.
+
+     4. Add a number of headers to the HTTP response message generated
+        in step 2.
+
+        a. Add a Content-Location header giving the location of the
+           chosen variant.
+
+               Note: According to the HTTP/1.1 specification [1], if
+               the Content-Location header contains a relative URI,
+               this URI is relative to the URI in the Content-Base
+               header, if present.
+
+        b. If any Vary headers are present in the response message
+           from step 2, add, for every Vary header, a Variant-Vary
+           header with a copy of the contents of this Vary header.
+
+        c. Add the current Alternates header.
+
+        d. Add a Vary header to ensure correct handling by HTTP/1.1
+           caching proxies not capable of transparent content
+           negotiation.  This header can either be
+
+               Vary: *
+
+           or a more elaborate header, see Section 10.5.
+
+        e. To ensure compatibility with HTTP/1.0 caching proxies which
+           do not recognize the Vary header, an Expires header with a
+           date in the past may be added. See Appendix 19.1 for more
+           information.
+
+        f. If an ETag header is present in the response message from
+           step 2, then extend the entity tag in that header with the
+           current variant list validator, as specified in Section
+           9B.2.
+
+        g. Only in proxy caches: set the Age header of the response to
+
+              max( variant_age , alternates_age )
+
+           where variant_age is the age of the best variant response
+           obtained in step 2, calculated according to the rules in
+           the HTTP/1.1 specification [1], and alternates_age is the
+           age of the Alternates header added in step c, calculated
+           according to the rules in Section 10.3.
+
+     5. The response may be shortened to a 304 (Not Modified) or 206
+        (Partial Content) response if an If-No-Match or If-Range
+        header in the original request message allows it according to
+        the HTTP/1.1 specification [1].
+
+           Note: In this algorithm, a proxy cache always generates a
+           full response message in step 2.  In practice, proxy caches
+           can use a more efficient algorithm which produces equal
+           results, but which avoids expanding 304 responses from
+           upstream servers to full responses in step 2 if these
+           responses will be shortened again in step 5.  By
+           shortcutting the expansion, a proxy cache can sometimes
+           generate a legal 304 response even if it has not cached the
+           variant data itself.
+
+   An example of a choice response is:
+
+     HTTP/1.1 200 OK
+     Date: Tue, 11 Jun 1996 20:05:31 GMT
+     Content-Type: text/html
+     Last-Modified: Mon, 10 Jun 1996 10:01:14 GMT
+     Content-Length: 5327
+     Cache-control: max-age=604800
+     Content-Location: paper.html.en
+     Alternates: {"paper.html.en" 0.9 {type text/html} {language en}},
+                 {"paper.html.fr" 0.7 {type text/html} {language fr}},
+                 {"paper.ps.en"   1.0 {type application/postscript}
+                     {language en}}
+     Etag: "gonkyyyy;1234"
+     Vary: negotiate, accept, accept-language
+     Expires: Thu, 01 Jan 1980 00:00:00 GMT
+
+     <title>A paper about ....
+
+   An example of forwarding by a proxy cache: if a proxy receives the
+   request
+
+     GET /paper HTTP/1.1
+     Host: x.org
+     User-Agent: WuxtaWeb/2.4
+     Negotiate: trans
+     Accept: text/html, *
+     Accept-Language: en
+     If-None-Match: "gonkyyyy;1234", W/"a;b;1234"
+
+   and if it can reuse a cached variant list with the validator
+   "1234", taken from a cached response with an age of 8000 seconds,
+   to choose paper.html.en as the best variant, then the proxy can
+   pass on the request
+
+     GET /paper.html.en HTTP/1.1
+     Host: x.org
+     User-Agent: WuxtaWeb/2.4
+     Negotiate: trans
+     Accept: text/html, *
+     Accept-Language: en
+     If-None-Match: "gonkyyyy", W/"a;b"
+     Via: 1.1 fred
+
+   to an upstream server.  On receipt of the response
+
+     HTTP/1.1 304 Not Modified
+     Date: Tue, 11 Jun 1996 20:05:31 GMT
+     Etag: "gonkyyyy"
+
+   from the upstream server, it can return
+
+     HTTP/1.1 304 Not Modified
+     Date: Tue, 11 Jun 1996 20:05:31 GMT
+     Etag: "gonkyyyy;1234"
+     Content-Location: paper.html.en
+     Vary: negotiate, accept, accept-language
+     Expires: Thu, 01 Jan 1980 00:00:00 GMT
+     Via: 1.1 fred
+     Age: 8000
+
+   to its own client.
+
+
+10.2B Ad hoc response
+
+   An ad hoc response never has the 300 response status code and never
+   has a Content-Location header.  It must contain the Alternates
+   header bound to the negotiable resource, and a Vary header if the
+   response is cacheable.  It may be generated by an origin server,
+   usually as a response to a non-negotiating user agent, if the
+   server cannot or does not want to send a list or choice response.
+
+   The Vary header in the response should ensure correct handling by
+   HTTP/1.1 caching proxies not capable of transparent content
+   negotiation.  This header can either be
+
+        Vary: *
+
+   or a more elaborate header, see Section 10.5.1.  Ad hoc responses
+   are cacheable unless indicated otherwise.  The handling of ad hoc
+   responses by clients supporting transparent content negotiation is
+   described in Sections 12.1 and 14.
+
+   An example of an ad hoc response is:
+
+     HTTP/1.1 200 OK
+     Date: Tue, 11 Jun 1996 20:02:26 GMT
+     Alternates: {"paper.html.en" 0.9 {type text/html} {language en}},
+                 {"paper.html.fr" 0.7 {type text/html} {language fr}},
+                 {"paper.ps.en"   1.0 {type application/postscript}
+                     {language en}}
+     Vary: negotiate, accept, accept-language
+     Etag: "gonkzzzz;1234"
+     Cache-control: max-age=86400
+     Content-Type: text/html
+     Content-Length: 227
+
+     <h2>Multiple Choices:</h2>
+     <ul>
+     <li><a href=paper.html.en>HTML, English version</a>
+     <li><a href=paper.html.fr>HTML, French version</a>
+     <li><a href=paper.ps.en>Postscript, English version</a>
+     </ul>
+
+   Another example is
+
+     HTTP/1.1 302 Moved Temporarily
+     Date: Tue, 11 Jun 1996 20:02:28 GMT
+     Alternates: {"paper.html.en" 0.9 {type text/html} {language en}},
+                 {"paper.html.fr" 0.7 {type text/html} {language fr}},
+                 {"paper.ps.en"   1.0 {type application/postscript}
+                     {language en}}
+     Location: paper.html.en
+     Content-Type: text/html
+     Content-Length: 59
+
+     This document is available <a href=paper.html.en>here</a>.
+
+
+10.3 Reusing the Alternates header
+
+   If a proxy cache has available a negotiated response which is
+   cacheable, fresh, and has an ETag header, then it may extract the
+   Alternates header and associated variant list validator from the
+   response, and reuse them (without unnecessary delay) to negotiate
+   on behalf of the user agent or origin server (Section 14) or to
+   construct a choice response (Section 10.2).  The age of the
+   extracted Alternates header is the age of the response from which
+   it is extracted, calculated according to the rules in the HTTP/1.1
+   specification [1].
+
+
+10.4 Extracting a normal response from a choice response
+
+   If a proxy receives a choice response, it may extract and cache the
+   normal HTTP response contained therein.  The normal response can be
+   extracted by taking a copy of the choice response and then deleting
+   the Content-Location, Alternates, and Vary headers, renaming any
+   Variant-Vary headers to Vary headers, and shortening the structured
+   entity tag in any ETag header to a normal entity tag.
+
+   This normal response may then be cached (as a HTTP response to the
+   variant request as constructed in step 1. of Section 10.2) and
+   reused to answer future direct requests on the variant resource
+   according to the rules in the HTTP/1.1 specification [1].  This
+   caching of extracted responses can increase overall efficiency with
+   up to a factor 2.
+
+   For security reasons (see Section 15.2), an extracted normal
+   response may only be cached if the negotiable resource and the
+   variant resource are neighbors.  If they are not neighbors, the
+   proxy should reject the choice response as a probable spoofing
+   attempt and pass on a 502 (bad gateway) error response instead.
+
+
+10.5 Elaborate Vary headers
+
+   If a HTTP/1.1 [1] server can generate varying responses for a
+   request on a single resource, then the server must include a Vary
+   header in these responses if they are cacheable.  This Vary header
+   is a signal to HTTP/1.1 caches that something special is going on.
+   It prevents the caches from returning the currently chosen response
+   to every future request on the resource.
+
+   Servers engaging in transparent content negotiation will generate
+   varying responses.  Therefore, cacheable list, choice, and ad hoc
+   responses must always include a Vary header.
+
+   The most simple Vary header which can be included is
+
+       Vary: *
+
+   This header leaves the way in which the response is selected by the
+   server completely unspecified.
+
+   A more elaborate Vary header can be used to allow for certain
+   optimizations in HTTP/1.1 caches which are not capable of
+   transparent content negotiation, but which do cache multiple
+   variant responses for one resource.  Such a more elaborate Vary
+   header lists all request headers which can be used by the server
+   when selecting a response for a request on the resource.
+
+10.5.1 Construction of an elaborate Vary header
+
+   Origin servers can construct a more elaborate Vary header in the
+   following way.  First, start with the header
+
+       Vary: negotiate
+
+   `negotiate' is always included because servers using the network
+   negotiation algorithm will sometimes use the information in the
+   Negotiate header when choosing between a list, choice, or ad-hoc
+   response.
+
+   Then, if any of the following attributes is present in any variant
+   description in the Alternates header, add the corresponding header
+   name to the Vary header
+
+         attribute  |   header name to add
+         -----------+---------------------
+          type      |   accept
+          charset   |   accept-charset
+          language  |   accept-language
+          features  |   accept-features
+
+   The Vary header constructed in this way specifies the response
+   variation which can be caused by the use of the network negotiation
+   algorithm in proxies.  If the origin server uses a custom
+   negotiation algorithm which takes additional headers (for example
+   User-Agent) into account, these should also be added to the Vary
+   header.
+
+10.5.2 Caching of an elaborate Vary header
+
+   Proxy caches cannot construct elaborate Vary headers by themselves,
+   because they may not assume that the origin server uses the
+   standard network negotiation algorithm to vary its responses.
+   However, when extracting an Alternates header from a response
+   (Section 10.3) caches may also extract the Vary header in the
+   response, and reuse it along with the Alternates header.  A clean
+   Vary header can however only be extracted if the variant does not
+   vary itself, i.e. if a Variant-Vary header is absent.
+
+
+10.6 Negotiation on content encoding
+
+   Negotiation on the content encoding of a response is orthogonal to
+   transparent content negotiation.  The rules for when a content
+   encoding may be applied are the same as in HTTP/1.1: servers may
+   content-encode responses that are the result of transparent content
+   negotiation whenever an Accept-Encoding header in the request
+   allows it.  When negotiating on content encoding, servers must add
+   the accept-encoding header name to the Vary header of the response,
+   or add `Vary: *', if the response is cacheable.
+
+   Servers should always be able to provide unencoded versions of
+   every transparently negotiated response.  This means in particular
+   that every variant in the variant list must at least be available
+   in an unencoded form.
+
+   Like HTTP/1.1, this specification allows proxies to encode or
+   decode relayed or cached responses on the fly: the response still
+   contains the same variant as far as transparent content negotiation
+   is concerned.  Note that HTTP/1.1 requires proxies to add a Warning
+   header if the encoding of a response is changed.
+
+
+11 The network negotiation algorithm
+
+   The network negotiation algorithm is a standardized algorithm by
+   which a party in the negotiation process can make a choice on
+   behalf of another party.  For example, a proxy could choose a
+   particular variant on behalf of the user agent in order to speed up
+   the negotiation process by cutting corners (see Section 4.4).
+
+   General principles underlying the network negotiation algorithm are
+   as follows.
+
+    - When running on an origin server or proxy, the algorithm will
+      usually only have partial user agent capabilities and
+      preferences information as input.  Therefore, instead of a
+      choice for a best variant, the algorithm can also yield an
+      `insufficient data, cannot choose' result.
+
+    - Decisions are always made on either on behalf of the user agent
+      or on behalf of the origin server.  They are made on behalf of
+      the user agent if the user agent indicates that it is capable of
+      transparent content negotiation, and on behalf of the origin
+      server otherwise.
+
+    - By including an Alternates header in the response, the origin
+      server gives upstream proxies the permission to perform actions
+      prescribed by the network negotiation algorithm instead of
+      actions prescribed by the plain HTTP specification.
+
+    - It is expected that user agents will use the network negotiation
+      algorithm by default, locally supplying their complete
+      capabilities and preferences to the algorithm, but this is not
+      required.  User agents may use customized negotiation algorithms
+      to automatically choose a variant.  Such algorithms could for
+      example account for cross-dependencies between dimensions of
+      negotiation.
+
+   Note that in this specification, `use of the network negotiation
+   algorithm' means use of any algorithm which yields equal results.
+
+
+11.1 Input
+
+   The algorithm is always executed for a particular request on a
+   particular transparently negotiable resource.  It takes the
+   following information as input.
+
+    1. The list of variants of the resource, as present in the
+       Alternates header of the resource.
+
+    2. Any "min-q" directive pertaining to the negotiation process, as
+       specified by the Alternates header of the resource.
+
+    3. (Partial) Information about capabilities and preferences of the
+       user agent for this particular request, as given in the Accept
+       headers of the request, or, if the algorithm runs on a user
+       agent, as given by the internal capabilities and preferences
+       database.
+
+    4. A boolean indicating whether or not the user agent is capable
+       of transparent content negotiation for this request.  (This can
+       be determined by looking for a `trans' directive in a Negotiate
+       header, see Section 9.6.)
+
+
+11.2 Output
+
+   As its output, the network negotiation algorithm and will yield the
+   appropriate action to be performed.  Actions have labels `ACT_UA'
+   for actions performed on behalf of the user agent, and `ACT_OS' for
+   actions performed on behalf of the origin server.
+
+11.2.1 Output for proxies
+
+   If the algorithm runs on a proxy, there are four different possible
+   results.  The first two results can be generated if the user agent
+   is capable of transparent content negotiation:
+
+      Choice_UA
+
+        Choice on behalf of the user agent. The best variant may be
+        retrieved and returned in a choice response.
+
+      List_UA
+
+        No choice possible, return the list.  The Accept headers do
+        not contain sufficient information to make a choice on behalf
+        of the user agent possible.  A list response should be
+        returned, allowing the user agent to make the choice itself.
+
+   The following results can be generated if the user agent is not
+   capable of transparent content negotiation:
+
+      Choice_OS
+
+        Choice on behalf of the origin server.  The best variant may
+        be retrieved and returned in a choice response.
+
+      Forward_OS
+
+        No choice possible, forward the request towards the origin
+        server. The Accept headers do not contain sufficient
+        information to make a choice on behalf of the origin server
+        possible. The request should be forwarded towards the origin
+        server so that it can choose the most appropriate action with
+        a custom algorithm.
+
+11.2.2 Output for origin servers
+
+   If the algorithm runs on an origin server, all results above are
+   possible.  The last result has a different interpretation:
+
+      Forward_OS
+
+        No choice possible, internally forward the request to a custom
+        algorithm which chooses an appropriate action.
+
+   Usually, the appropriate action is the sending of an ad hoc
+   response.
+
+11.2.3 Output for user agents
+
+   If the algorithm runs on a user agent, only the results List_UA and
+   Choice_UA are possible, with the following interpretations.
+
+      Choice_UA
+
+        Automatic choice. A particular variant X must be retrieved and
+        displayed.
+
+      List_UA
+
+        No automatic choice possible, none of of the variants can be
+        rendered according to the preferences and capabilities
+        database.  An appropriate action like showing an error message
+        with the list of variants to the user must be performed.
+
+
+11.3 Computing the overall quality values
+
+   As a first step in the network negotiation algorithm, the overall
+   qualities of the individual variants in the list are computed.
+
+   The overall quality Q of a variant is the value
+
+      Q = qs * qt * qc * ql * qf
+
+   where the factors qs, qt, qc, ql, and qf are determined as follows.
+
+      qs Is the source quality factor in the variant description.
+
+      qt The media type quality factor is 1 if there is no type
+         attribute in the variant description, or if there is no
+         Accept header in the request.  Otherwise, it is the quality
+         assigned by the Accept header to the media type in the type
+         attribute.
+
+           Note: If a type is matched by none of the elements of an
+           Accept header, the Accept header assigns the quality factor
+           0 to that type.
+
+      qc The charset quality factor is 1 if there is no charset
+         attribute in the variant description, or if there is no
+         Accept-Charset header in the request.  Otherwise, the charset
+         quality factor is the quality assigned by the Accept-Charset
+         header to charset in the charset attribute.
+
+           Note: If a charset does not appear in an Accept-Charset
+           header, the Accept-Charset header assigns the quality
+           factor 0 to that charset.
+
+      ql The language quality factor is 1 if there is no language
+         attribute in the variant description, or if there is no
+         Accept-Language header in the request.  Otherwise, the
+         language quality factor is the highest quality factor
+         assigned by the Accept-Language header to any one of the
+         languages listed in the language attribute.
+
+      qf The features quality factor is 1 if there is no features
+         attribute in the variant description, or if there is no
+         Accept-Features header in the request.  Otherwise, it is
+         the feature negotiation quality degradation value for the
+         features attribute, see Section 6.4.
+
+   As an example, if a variant list contains the variant description
+
+     {"paper.html.en" 0.7 {type text/html} {language fr}}
+
+   and if the request contains the Accept headers
+
+     Accept: text/html:q=1.0, */*:q=0.8
+     Accept-Language: en;q=1.0, fr;q=0.5
+
+   the network negotiation algorithm will compute an overall quality
+   for the variant as follows:
+
+     {"paper.html.en" 0.7 {type text/html} {language fr}}
+                       |           |                 |
+                       |           |                 |
+                       V           V                 V
+                      0.7   *     1.0        *      0.5  = 0.35
+
+   With the above Accept headers, the complete variant list
+
+     {"paper.html.en" 0.9 {type text/html} {language en}},
+     {"paper.html.fr" 0.7 {type text/html} {language fr}},
+     {"paper.ps.en"   1.0 {type application/postscript} {language en}}
+
+   would yield the following computations:
+
+                     qs  * qt  * qc  * ql  * qf  =  Q
+                     ---   ---   ---   ---   ---   ----
+      paper.html.en: 0.9 * 1.0 * 1.0 * 1.0 * 1.0 = 0.9
+      paper.html.fr: 0.7 * 1.0 * 1.0 * 0.5 * 1.0 = 0.35
+      paper.ps.en:   1.0 * 0.8 * 1.0 * 1.0 * 1.0 = 0.8
+
+
+11.4 Definite and speculative quality values
+
+   An overall quality value computed by an origin server or proxy can
+   be either definite or speculative.
+
+   An overall quality value for a variant is definite if it was
+   computed without using any wildcard characters '*' in the Accept
+   headers, and without the need to use the absence of a particular
+   Accept header.  An overall quality value is speculative otherwise.
+
+   As an example, in the previous section, the quality values of
+   paper.html.en and paper.html.fr are definite, and the quality value
+   of paper.ps.en is speculative because the type
+   application/postscript was matched to the range */*.
+
+   Definiteness can be defined more formally as follows.  An overall
+   quality value Q is definite if the same quality value Q could be
+   computed after the request message is changed in the following way:
+
+       1. If an Accept, Accept-Charset, Accept-Language, or
+          Accept-Features, header is missing from the request, add
+          this header with an empty field.
+
+       2. Delete any media ranges containing a wildcard character '*'
+          from the Accept header.  Delete the language-range '*', if
+          present, from the Accept-Language header.  Delete the
+          wildcard '*', if present, from the Accept-Features header.
+
+   As another example, the overall quality factor for the variant
+
+     {"blah.html" 1 {language en-gb} {features blebber [x y]}}
+
+   is 1 and definite with the Accept headers
+
+     Accept-Language: en-gb, fr
+     Accept-Features: blebber, x, !y, *
+
+   and
+
+     Accept-Language: en, fr
+     Accept-Features: blebber, x, *
+
+   The overall quality factor is still 1, but speculative, with the
+   Accept headers
+
+     Accept-language: en-gb, fr
+     Accept-Features: blebber, !y, *
+
+   and
+
+     Accept-Language: fr, *
+     Accept-Features: blebber, x, !y, *
+
+
+11.5 Determining the result
+
+   The best variant, as determined by the network negotiation
+   algorithm, is the one variant with the highest overall quality
+   value, or, if there are multiple variants which share the highest
+   overall quality, the first variant in the list with this value.
+
+11.5.1 Result for proxies and origin servers
+
+   When running on a proxy or origin server, the result of the network
+   negotiation algorithm is determined as follows.
+
+   1. If the negotiable resource and the best variant resource are not
+      neighbors, then the result is List_UA if the user agent is
+      capable of transparent content negotiation, Forward_OS otherwise.
+      This rule exists for security reasons: it prevents some forms of
+      spoofing, see Section 15.2.
+
+   2. If the above rule does not apply, then
+
+      1. If the user agent is capable of transparent content
+         negotiation, the result is Choice_UA if the best variant has
+         an overall quality value greater than 0 which is also a
+         definite quality value, and List_UA otherwise.
+
+      2. If the user agent is not capable of transparent content
+         negotiation, the result is Choice_OS if the best variant has
+         a (definite or speculative) overall quality value which is
+         greater than 0, or at least the value of the "min-q"
+         directive if this directive is present in the Alternates
+         header.  The result is Forward_OS otherwise.
+
+11.5.2 Result for user agents
+
+   When running on a user agent, the result of the network negotiation
+   algorithm is Choice_UA if the best variant has an overall quality
+   value greater than 0, and List_UA otherwise.
+
+
+11.6 Construction of short requests
+
+   Under normal HTTP semantics, the interpretation of the request
+   header `Accept: */*' is
+
+     `I accept all media types with a quality of 1.0'.
+
+   One of the most important properties of the network negotiation
+   algorithm is that this interpretation is different if the header is
+   sent by a user agent which supports transparent content
+   negotiation. In this case, the interpretation of the header is
+
+     `I accept several media types, and assign quality factors from 0.0
+     up to 1.0 to them.  If this information is insufficient to make a
+     choice on my behalf, do not make a choice but send the list of
+     variants'.
+
+   According to the HTTP/1.1 specification [1], the complete absence
+   of an Accept header from the request is to be interpreted in the
+   same way.  This means that a user agent which supports transparent
+   content negotiation can send a minimal request, without any Accept
+   headers but with a Negotiate header, by default:
+
+      GET /paper HTTP/1.1
+      Host: x.org
+      User-Agent: WuxtaWeb/2.4
+      Negotiate:
+
+   The sending of this minimal request will never have an adverse
+   effect on the quality of the transparent negotiation process: if
+   the requested resource happens to be transparently negotiated, the
+   user agent will always get a list response, so that it can choose
+   the best variant itself.  Only the speed of the negotiation process
+   can be affected, because servers will no longer be able to cut
+   corners by choosing on behalf of the user agent.
+
+   If it is found that the requests to a particular origin server
+   often return a less efficient list response, the user agent can
+   dynamically introduce short Accept headers in its future requests
+   to that server, for example
+
+      GET /paper HTTP/1.1
+      Host: x.org
+      User-Agent: WuxtaWeb/2.4
+      Negotiate:
+      Accept: text/html, application/postscript:q=0.8, */*
+      Accept-language: en, fr;q=0.5
+
+   This will increase the chance that the network negotiation
+   algorithm will have sufficient information to choose on behalf of
+   the user agent, thereby optimizing the negotiation process.  A good
+   strategy for dynamic extension would be to extend the request with
+   with those media types, languages, charsets, and feature tags
+   mentioned in the variant lists of past list responses from the
+   server.  The Accept header in the extended request, if present,
+   will generally contain "*/*" to indicate that only partial
+   information is given in this header.  The Accept-Features header,
+   if present, will generally contain a "*" for the same reason.
+
+
+12 User agent support for transparent negotiation
+
+   This section specifies the requirements a user agent must satisfy
+   in order to support transparent negotiation.  If the user agent
+   contains an internal cache, this cache should satisfy the
+   requirements for proxy caches in Section 14.
+
+
+12.1 Handling of responses
+
+   If a list response is received when a resource is accessed, the
+   user agent must be able to automatically choose, retrieve, and
+   display the best variant, or display an error message if it is not
+   capable of displaying any of the available variants.  The
+   negotiation algorithm which chooses the best variant (or chooses to
+   display an error message) need not be the network negotiation
+   algorithm.
+
+   If a choice response or ad hoc response is received when a resource
+   is accessed, the usual action is to automatically display the
+   enclosed entity.  A user agent may however choose to apply its
+   (custom) negotiation algorithm to the received variant list, and to
+   automatically retrieve and display another variant if the algorithm
+   indicates that this other variant has a better quality.
+
+   When receiving a choice response, a user agent should check if the
+   if the negotiable resource and the chosen variant resource are
+   neighbors.  If this is not the case, the user agent should reject
+   the choice response as a probable spoofing attempt and display an
+   error message, for example by internally replacing the choice
+   response with a 502 (bad gateway) response.
+
+
+12.2 Presentation of a transparently negotiated resource
+
+   If the user agent is displaying a variant which is not an embedded
+   or inlined object and which is the result of transparent
+   negotiation, the following requirements must be met.
+
+    1. The user agent should allow the user to review a list of all
+       variants bound to the negotiable resource, and to manually
+       retrieve another variant if desired.  There are two general
+       ways of providing such a list.  First, the information in the
+       Alternates header of the negotiable resource could be used to
+       make an annotated menu of variants.  Second, the entity
+       included in a list response of the negotiable resource could be
+       displayed.  Note that a list response can always be obtained by
+       doing a GET request on the negotiable resource with a Negotiate
+       header but without Accept headers.
+
+    2. The user agent should make available though its user interface
+       some indication that the resource being displayed is a
+       negotiated resource instead of a plain resource.  It should
+       also allow the user to examine the variant list included in the
+       Alternates header.  Such a notification and review mechanism is
+       needed because of privacy considerations, see Section 15.1.
+
+    3. If the user agent shows the URI of the displayed information to
+       the user, it should be the negotiable resource URI, not the
+       variant URI that is shown.  This encourages third parties, who
+       want to refer to the displayed information in their own
+       documents, to make a hyperlink to the negotiable resource as a
+       whole, rather than to the variant resource which happens to be
+       shown.  Such correct linking is vital for the interoperability
+       of content across sites.
+
+    4. Similarly, if the user agent stores a reference to the
+       displayed information for future use, for example in a hotlist,
+       it should store the negotiable resource URI, not the
+       variant URI.
+
+   It is encouraged, but not required, that some of the above
+   functionality is also made available for inlined or embedded
+   objects, and when a variant which was selected manually is being
+   displayed.
+
+
+13 Origin server support for transparent negotiation
+
+   This section covers origin server support from a HTTP viewpoint.
+   see Appendix 19.2 for implementation considerations.
+
+
+13.1 Requirements
+
+   To implement transparent negotiation on a resource, the origin
+   server must be able to send a list response when getting a GET
+   request on the resource.  It should also be able to send
+   appropriate list responses for HEAD requests.  The origin server
+   must always send a list response for a request with a Negotiate
+   header but without Accept headers.
+
+   The origin server may also return choice responses and ad hoc
+   responses, except in the special case above.  The negotiation
+   algorithm used need not be the network negotiation algorithm.
+
+   Negotiability is a binary property: a resource is either
+   transparently negotiated, or it is not.  Origin servers should not
+   vary the negotiability of a resource, or the variant list bound to
+   that resource, based on the request headers which are received.
+   The variant list and the property of being negotiated may however
+   change through time.  The Cache-Control header can be used to
+   control the propagation of such time-dependent changes through
+   caches.
+
+   It is the responsibility of the author of the negotiable resource
+   to ensure that all resources in the variant list serve the intended
+   content, and that the variant resources do not engage in
+   transparent content negotiation themselves.
+
+   An origin server may shorten a list, choice, or ad-hoc response to
+   a 304 (Not Modified) or 206 (Partial Content) response if an
+   If-No-Match or If-Range header in the request message allows it
+   according to the HTTP/1.1 specification [1].
+
+
+13.2 Negotiation on transactions other than GET and HEAD
+
+   If a resource is transparently negotiable, this only has an impact
+   on the GET and HEAD transactions on the resource.  It is not
+   possible (under this specification) to do transparent content
+   negotiation on the direct result of a POST request.
+
+   However, a POST request can return an unnegotiated 303 (See Other)
+   response which causes the user agent to do a GET request on a
+   second resource.  This second resource could then use transparent
+   content negotiation to return an appropriate final response.  The
+   figure below illustrates this.
+
+      Server ______ proxy ______ proxy ______ user
+      x.org         cache        cache        agent
+
+        < -------------------------------------
+        |     POST http://x.org/cgi/submit
+        |     <form contents in request body>
+        |
+        -------------------------------------- >
+              302 See Other                    |
+              Location: http://x.org/result/OK |
+                                               |
+        < -------------------------------------
+        |     GET http://x.org/result/OK.nl
+        |      small Accept headers
+        |
+      able to choose on
+      behalf of user agent
+        |
+         ------------------------------------- >
+              choice response with             |
+              ..result/OK.nl variant           |
+                                           displays OK.nl
+
+   See the HTTP/1.1 specification [1] for details on the 303 (See
+   Other) response code.  Note that this response code is not
+   understood by most HTTP/1.0 clients.
+
+
+14 Proxy support for transparent negotiation
+
+   Transparent content negotiation is designed to work through proxies
+   which only implement the HTTP/1.1 specification [1].  Thus, in a
+   sense, all HTTP/1.1 proxies support transparent content
+   negotiation.
+
+   Plain HTTP/1.1 allows proxies to cache list, choice, and ad hoc
+   responses, and to efficiently revalidate them by using the
+   If-None-Match header.  This specification defines additional
+   optimization mechanisms.
+
+   First, a proxy may sometimes reuse an Alternates header taken from
+   a previous response (Section 10.3) to negotiate on behalf of the
+   user agent or origin server and to construct choice responses
+   (Section 10.2).  Proxies must not use custom negotiation
+   algorithms, they may only use the network negotiation algorithm.
+
+   Second, if a proxy receives a choice response, it may extract and
+   cache the normal response embedded therein, as described in
+   Section 10.4.
+
+   Third, a proxy may shorten a list, choice, or ad-hoc response to a
+   304 (Not Modified) or 206 (Partial Content) response if an
+   If-No-Match or If-Range header in the request message allows it
+   according to the HTTP/1.1 specification [1].
+
+
+15 Security and privacy considerations
+
+15.1 Accept headers revealing information of a private nature
+
+   Accept headers, in particular Accept-Language headers, may reveal
+   information which the user would rather keep private unless it will
+   directly improve the quality of service.  For example, a user may
+   not want to send language preferences to sites which do not offer
+   multi-lingual content.  The transparent content negotiation
+   mechanism allows user agents to omit sending of the Accept-Language
+   header by default, without this affecting the outcome of the
+   negotiation process if transparently negotiated multi-lingual
+   content is accessed.
+
+   However, even if Accept headers are never sent, the automatic
+   selection and retrieval of a variant by a user agent will reveal a
+   preference for this variant to the server.  A malicious service
+   author could provide a page with `fake' negotiability on
+   (ethnicity-correlated) languages, with all variants actually being
+   the same English document, as a means of obtaining
+   privacy-sensitive information.  Such a plot would however be
+   visible to an alert victim if the list of available variants and
+   their properties is reviewed.
+
+   Some additional privacy considerations connected to Accept headers
+   are discussed in [1].
+
+
+15.2 Spoofing of responses from variant resources
+
+   The caching optimization in Section 10.4 gives the implementer of a
+   negotiable resource control over the responses cached for all of
+   its variant resources which are neighbors.  This is a security
+   problem if a neighboring variant resource belongs to another
+   author.  To provide security in this case, the HTTP server will
+   have to filter the Content-Location headers in the choice responses
+   generated by the negotiable resource implementation.
+
+
+16 Acknowledgments
+
+   Work on HTTP content negotiation has been done since at least 1993.
+   The author is unable to trace the origin of many of the ideas
+   incorporated in this document.  This document builds on an earlier
+   specification of content negotiation as recorded in [2].  Many
+   members of the HTTP working group have contributed to the work
+   reflected in this document.  The authors wish to thank the
+   individuals who have commented on earlier versions of this
+   document, including Brian Behlendorf, Daniel DuBois, Ted Hardie,
+   Larry Masinter, and Roy T. Fielding.
+
+
+17 References
+
+   [1] Fielding et al, Hypertext Transfer Protocol -- HTTP/1.1.
+       Internet-Draft draft-ietf-http-v11-spec-06.txt, HTTP Working
+       Group, July 4, 1996.
+
+   [2] Roy T. Fielding, Henrik Frystyk Nielsen, and Tim Berners-Lee.
+       Hypertext Transfer Protocol -- HTTP/1.1.  Internet-Draft
+       draft-ietf-http-v11-spec-01.txt, HTTP Working Group, January,
+       1996.
+
+   [3] T. Berners-Lee, R. Fielding, H. Frystyk, Hypertext Transfer
+       Protocol -- HTTP/1.0.  RFC 1945.  MIT/LCS, UC Irvine, May 1996.
+
+   [4] K. Holtman, A. Mutz, Feature Tag Registration Procedures.
+       Internet-Draft draft-ietf-http-feature-reg-00.txt, HTTP
+       Working Group, October 30, 1996.
+
+
+18 Authors' addresses
+
+   Koen Holtman
+   Technische Universiteit Eindhoven
+   Postbus 513
+   Kamer HG 6.57
+   5600 MB Eindhoven (The Netherlands)
+   Email: koen@win.tue.nl
+
+   Andrew H. Mutz
+   Hewlett-Packard Company
+   1501 Page Mill Road 3U-3
+   Palo Alto CA 94304, USA
+   Fax +1 415 857 4691
+   Email: mutz@hpl.hp.com
+
+
+
+19 Appendices
+
+19.1 Adding an Expires header to ensure HTTP/1.0 compatibility
+
+   To ensure compatibility with HTTP/1.0 caching proxies which do not
+   recognize the Vary header, an Expires header with a date in the
+   past can be be added to the response, for example
+
+        Expires: Thu, 01 Jan 1980 00:00:00 GMT
+
+   If this is done by an origin server, it should usually also include
+   a Cache-Control header for the benefit of HTTP/1.1 caches, for
+   example
+
+              Cache-Control: max-age=604800
+
+   which overrides the freshness lifetime of zero seconds specified by
+   the included Expires header.
+
+
+19.2 Origin server implementation considerations
+
+19.2.1 Implementation with a CGI script
+
+   Transparent content negotiation has been designed to allow a broad
+   range of implementation options at the origin server side.  A very
+   minimal implementation can be done using the CGI interface.  The
+   CGI script below is an example.
+
+      #!/bin/sh
+
+      echo $HTTP_NEGOTIATE | awk '$0~"^(|.*,)[\t ]*trans[\t ]*(|,.*)$" \
+      { print "Status: 300 Multiple Choices" }' -
+
+      cat - <<'blex'
+      Alternates: {"stats.tables.html" 1.0 {type text/html} {features
+      tables}}, {"stats.html" 0.8 {type text/html}}, {"stats.ps" 0.95
+      {type application/postscript}}
+      Vary: *
+      Content-Type: text/html
+
+      <title>Multiple Choices for Web Statistics</title>
+      <h2>Multiple Choices for Web Statistics:</h2>
+      <ul>
+      <li><a href=stats.tables.html>Version with HTML tables</a>
+      <p>
+      <li><a href=stats.html>Version without HTML tables</a>
+      <p>
+      <li><a href=stats.ps>Postscript version</a>
+      </ul>
+      blex
+
+   The Alternates header in the above script must be read as a single
+   line.  The script generates a list response for user agents capable
+   of transparent content negotiation, and an ad hoc 200 (OK) response
+   for all non-negotiating agents.
+
+19.2.2 Direct support by HTTP servers
+
+   Sophisticated HTTP servers could make a transparent negotiation
+   module available to content authors.  Such a module could
+   incorporate implementations of the network negotiation algorithm
+   (Section 11) and the algorithm for generating choice responses
+   (Section 10.2).  The definition of interfaces to such modules is
+   beyond the scope of this document.
+
+19.2.3 Web publishing tools
+
+   Web publishing tools could automatically generate several variants
+   of a document (for example the original TeX version, a HTML version
+   with tables, a HTML version without tables, and a Postscript
+   version), together with an appropriate variant list in the
+   interface format of a HTTP server transparent negotiation module.
+   This would allow documents to be published as transparently
+   negotiable resources.
+
+
+19.3 Open issues in transparent content negotiation
+
+   At the time of writing of this specification, the following issues
+   are still open.
+
+   - The feature tag registration process has yet to be defined.
+
+   - A core set of feature tags (Section 8.2) has not yet been
+     defined, though there has been some related work on display
+     attributes, see Appendix 19.4.1.
+
+   - Though it is expected that the feature negotiation framework will
+     solve many current and future negotiation problems, it is also
+     expected that there will remain current and future negotiation
+     problems not solved by feature negotiation.  Currently, there is
+     little experience in this area.
+
+
+19.3B Server-side rendering engines
+
+   Cache efficiency considerations generally demand that content
+   negotiation is limited to a few variants, and that any fine-tuning
+   of a representation (for example the scaling of a title image to
+   fit the exact screen width) is done at the user agent side.
+
+   However, some negotiation models may demand the use of server-side
+   rendering engines, which fine-tune a representation depending on
+   exact parameters supplied by the user agent.  This appendix
+   discusses how to extend the transparent negotiation framework with
+   a mechanism for reliably delivering such parameters to the server.
+
+   The variant description syntax can be extended with an optional
+   sent-tags attribute:
+
+      sent-tags-attribute = "{" "send-tags" 1%ftag "}"
+
+   The presence of this attribute would indicate that the variant URI
+   gives access to a server side rendering engine.  An example variant
+   description is:
+
+     {"paper.server-render.ps" 1.0 {type application/postscript}
+         {send-tags paper-size dpi printcolor print-gamma}}
+
+   If this variant is chosen as the best variant and retrieved in a
+   GET request, the user agent would extend the
+   paper.server-render.ps URI with those feature tags in the
+   send-tags attribute it supports, and their associated preferred
+   values if applicable:
+
+    GET paper.server-render.ps?paper-size=A4&dpi=600 HTTP/1.1
+
+   Thus, the exact rendering parameters end up at the server side
+   rendering engine.  The URI is extended using the form submission
+   syntax for downwards compatibility reasons: this allows the list
+   response to contain a HTML form giving access to the engine.
+
+   Server-side rendering engines may by interesting as a fallback
+   mechanism when new client-side rendering engines are introduced.
+   The following variant list illustrates this:
+
+     {"paper.html" 0.8 {type text/html}},
+     {"paper.tex"  1.0 {type application/x-tex}
+         {features client-render-tex}},
+     {"paper.server-render.ps" 1.0 {type application/postscript}
+         {features !client-render-tex}
+         {send-tags paper-size dpi printcolor print-gamma}}
+
+
+19.3C Quality factors in the Accept-Features header
+
+   The feature negotiation framework specified in Section 6 does not
+   allow for the introduction of new dimensions like the type and
+   language dimension, in which the user can express a relative
+   preference for each of the elements by sending quality factors in
+   the Accept header.  To support the introduction of such dimensions,
+   the Accept-Features header syntax could be extended with quality
+   factors.  An example would be the following Accept-Features header:
+
+     Accept-Features: paper=a4;q=1.0, paper=a5;q=0.8, !paper=a3, *
+
+   Examples of overall quality factors computed using this header
+   would be:
+
+     0.8 for {"x" 1.0 {features paper=a5}}
+     1.0 for {"y" 1.0 {features paper=a4/0.95}}
+     0.0 for {"z" 1.0 {features paper=a3}}
+
+   Quality factors could also be useful on value-less feature tags,
+   for example
+
+     Accept-Features: tables, larger_2x;q=0.7, *
+
+   would degrade the overall quality of any variant which uses the
+   `larger_2x' feature with a factor of 0.7.  The quality factor on
+   `larger_2x' would express the relative preference of getting a
+   variant which is about twice as large as the smallest variant.
+   Examples of overall quality factors computed using this header
+   would be:
+
+      0.8 for {"small" 0.8 {features tables}}
+      0.7 for {"large" 1.0 {features tables larger_2x/1}}
+
+   In this example, the small variant is chosen: the resource author
+   assigned a lower source quality to the small variant, but the
+   difference in source quality was not big enough to offset the
+   user's dislike of getting a variant which is twice as large.  Note
+   that the `/1' causes user agents which do not recognize the
+   `larger_2x' tag to select the large variant.
+
+   The proposed semantics for quality factors on feature tags are as
+   follows.  First, the Accept-Features headers element
+
+       ftag;q=Q
+
+   assigns the quality factor Q to the feature predicate `ftag' made
+   true by it, and the elements
+
+       ftag=V;q=Q  ftag={V};q=Q  ftag<=N;q=Q
+
+   assign the quality value Q to all feature predicates `ftag=X' made
+   true by them, but not to the plain predicate `ftag'.  All true
+   feature predicates not explicitly assigned a quality factor get the
+   default factor 1.
+
+   To account for the quality factors on the feature tags, the overall
+   quality of the variant is multiplied with the quality factor
+   of every `active feature predicate' in the variant description.
+   A predicate is active if it
+
+     1. is made true by the Accept-Features header
+
+     2. does not start with !
+
+     3. and, if appearing in an fpred-bag, does not appear after
+        another predicate which also satisfies 1. and 2.
+
+   As an example, with
+
+     Accept-Features: aa, !bb, cc;q=0.7, dd, *
+
+   the variant described as
+
+     {"x" 1.0 {features aa/0.8 !xx !bb [!yy cc dd]}}
+
+   has the active feature predicates `aa' and `cc', while the `!bb'
+   and `dd' predicates are not active.
+
+       Note: If a user sends quality factors with feature tags not
+       specifically designed to have them, this will in general not
+       produce improved negotiation results.  For example, depending
+       on the particular variant list, sending `animated_gifs;q=0.8'
+       to express a mild dislike of animated gifs can easily fail to
+       be effective.  Sending `!animated_gives' could be a bit more
+       effective, but only a user agent configuration option which
+       completely disables animated gifs can deliver good results in
+       all cases.
+
+
+
+19.4 Other negotiation specifications
+
+19.4.1 User-Agent Display Attributes
+
+   (Comments based on the internet draft
+   draft-mutz-http-attributes-01.txt.)
+
+   User-Agent Display Attributes provide a means for an HTTP client to
+   inform a server about its display capabilities.  The draft
+   mentioned above defines a number of such attributes as feature
+   tags.
+
+19.4.2 HTTP/1.2 Extension Protocol (PEP)
+
+   (Comments based on the internet draft draft-ietf-http-pep-02.txt.)
+
+   PEP is a system for HTTP clients, servers, and proxies to reliably
+   reason about custom extensions to HTTP.  Its purpose places PEP one
+   meta-level above transparent content negotiation, which is intended
+   as a (standardized) extension of HTTP.
+
+   Transparent content negotiation and HTTP/1.1 were both carefully
+   designed to work together without requiring meta-negotiation.
+   Therefore, transparent content negotiation does not require or rely
+   on the use of PEP.
+
+   Though PEP and transparent content negotiation both offer
+   extensible negotiation frameworks, they operate in different areas
+   of negotiation.  PEP negotiates on the use of mutually understood
+   protocol extensions, while transparent content negotiation is a
+   method for efficiently retrieving the best representation of some
+   information.  Thus, deployment and use of PEP can be orthogonal to
+   deployment and use of transparent content negotiation.
+
+   Though some elements of PEP resemble some elements of transparent
+   content negotiation, it does not seem advantageous to attempt to
+   generalize (parts of) both specifications in order to allow sharing
+   of code by implementations.  The two specifications seem to have
+   more unrelated parts than similar parts.
+
+
+19.5 Related issues
+
+19.5.1 Current negotiation practice
+
+   In current practice, most user agents send short Accept headers in
+   every request.  These headers usually inadequately describe the
+   user agent capabilities and user preferences, except maybe for
+   inline image requests.  Servers providing multiple representations
+   of the same information usually do so under different URIs, and
+   allow users to manually select a representation by clicking a
+   particular link.
+
+   Some HTTP servers implement extensive negotiation capabilities
+   based on HTTP/1.0 headers.  However, with current user agents,
+   these capabilities can seldom be used effectively.
+
+   Some origin servers use the contents of the User-Agent request
+   header for negotiation purposes.  These contents sometimes allow
+   the server to infer information about capabilities which cannot be
+   expressed with the existing Accept headers.
+
+   Some sites use Netscape cookies (persistent client state http
+   cookies) to implement a user preferences mechanism.
+
+19.5.2 Bandwidth negotiation
+
+   With a bandwidth negotiation mechanism, the time needed to retrieve
+   a particular variant over the network can be taken into account
+   during the negotiation process.  Work on mechanisms for bandwidth
+   negotiation has been done since at least 1993, but this work has
+   not yet yielded a successful standard mechanism for bandwidth
+   negotiation.  Cascaded proxy caches introduce additional complexity
+   in this area.
+
+   This specification does not attempt to solve the problem of
+   bandwidth negotiation.  There is some hope that the feature
+   negotiation framework will allow the introduction of an adequate
+   solution for bandwidth negotiation.
+
+
+Expires: May 21, 1997
+

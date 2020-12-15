@@ -1,0 +1,238 @@
+<hmtl>
+<head>
+<title> Setting Up A Local Private Network for CL-HTTP</title>
+
+<body bgcolor="#FFFFFF" text="#000000">
+
+<h1> Setting Up A Local Private Network for CL-HTTP<br> on Ethernet-attached
+Macintosh Systems</h1>
+
+<h2>Introduction</h2>
+
+Macintosh users are, as a rule, unaccustomed to dealing with
+network configuration. Normally, they either connect their
+machine to an AppleTalk network which is self-configuring, 
+or to an existing TCP/IP network, with configuration instructions
+and support offered by the network provider.
+
+This document describes how to set up a local private network
+upon which you can run a CL-HTTP server and make it available
+to all hosts on that network.
+
+I assume that you have already acquired and installed the current
+release of CL-HTTP, and that your Macintosh is connected to a
+local Ethernet network which is used only for AppleTalk traffic
+to support file sharing and other local applications. (These
+instructions will most likely work with other kinds of network
+connections, such as LocalTalk, if you make the obvious
+adjustments — I, however, have not attempted this.)
+
+These instructions must not be used if your Macintosh is already
+configured to use TCP/IP on your local network (as opposed
+to using TCP/IP over a dial-up connection) or if your network
+contains routers.
+
+If you follow these instructions, you'll be able to access your
+CL-HTTP server from your own machine, and will be able to
+easily allow server access from other hosts on your private
+network.
+
+<h2>Required Software</h2>
+
+You should have successfully compiled the current version of
+CL-HTTP (version 60-57 as of this writing) on the current version
+(4.0 as of this writing) of Macintosh Common Lisp (MCL.)
+
+In addition to CL-HTTP, you must have installed the current
+versions of the Macintosh OS (version 7.5.5 as of this writing) and
+Open Transport (version 1.1.2 as of this writing.)
+
+You'll also need to download MacDNS (version 1.4 as of this
+writing) from http://cybertech.apple.com/MacDNS.html . 
+
+<h2>Instructions</h2>
+
+First, you need to give your Macintosh an IP address. Open the
+TCP/IP control panel and select Configurations… from the File
+menu. Select an existing configuration name and click the
+Duplicate… button. Give the new configuration the name
+“Local” and click the OK button. Now click the Make Active 
+button. This creates a new configuration, which you’ll modify 
+specifically for your computer.
+
+Still in the TCP/IP control panel, select User Mode… from the
+Edit menu, click the Advanced button, then the OK button.
+Doing this shows all of the information fields in the configuation
+dialog.
+
+Now make the following settings in the TCP/IP configuration 
+dialog (the name TCP/IP (Local) should appear in window title.)
+
+<pre>Connect via: Ethernet
+Configure: Manually
+IP Address: 10.1.1.1
+Subnet Mask: this field must be empty
+Router Address: this field must be empty
+Name Server Addr.: 10.1.1.1
+Starting domain name: apple-talk.net
+Ending domain name: this field must be empty
+Additional search domains: this field must be empty
+Use 802.3: should be unchecked</pre>
+
+(Please don’t substitute other numbers for the IP address.
+Network 10 is specifically reserved for private networks. Using
+this network minimizes the chance of your inadvertently
+disrupting someone else’s network service.)
+
+Now click the Options… button. The TCP/IP Options dialog will
+appear; click the Active button, then the OK button.
+
+Finally, close the configuration dialog. You may be told that you
+haven’t entered a subnet mask, and that an appropriate default
+will be provided; this is exactly what you want.
+
+So far, you've established an IP address of 10.1.1.1 for your
+computer, and have specified that your computer will host the
+name server for your private network.
+
+Now you need to set up the name server. Start MacDNS, and
+select New Zone File… from the File menu. Fill in the zone
+information as follows.
+
+<pre>
+Domain Name: apple-talk.net.
+Primary Server: .
+Secondary Server: this field must be empty
+Administrator: administrator@apple-talk.net
+</pre>
+(Note that the Domain Name ends with a period, and the Primary 
+Server field contains a single period.)
+
+Now select Add Permanent Host… from the Hosts menu. Fill in
+the host information as follows.
+
+<pre>
+Host Name: local-host.apple-talk.net.
+IP Address: 10.1.1.1
+Aliases: see below
+</pre>
+
+(Note that the Host Name ends with a period. You may specify
+additional names for your system in the Aliases field; they must
+all have the same domain name, end with a period, and be
+separated from each other by commas.)
+
+Close the hosts dialog, then save your DNS configuration by
+selecting Save… from the File menu. Do not close the window.
+
+At this point, you will be able to start CL-HTTP and have it serve
+pages to a web browser on your machine. Do this by starting MCL
+and loading the file mac-start-server.lisp . This will load the
+files you’ve already compiled (or compile and load them if this is
+the first time) and then start the server. You’ll be able to tell that
+the server is running when you see its log window, which has the
+title Mac Common Lisp HTTP Log (Local-Host.Apple-Talk.Net) .
+The first line of the log should tell you that the HTTP service has
+been enabled.
+
+Now start your web browser, and specify the following URL.
+
+http://local-host.apple-talk.net/
+
+Your web browser should load and display the CL-HTTP online
+documentation. Depending upon your brower and the speed of
+your Macintosh, you may notice a significant delay while the page
+is loaded. This is because both the server and the browser are being
+run on the same Macintosh, which has certain implications.
+
+Both programs are competing for the same CPU cycles to transfer
+and display the page. This is aggravated by the fact that the server
+runs in the background and must yield the CPU frequently to the
+browser in the foreground; this is a design feature of the Macintosh
+OS. Second, your browser may not yield CPU cycles often enough
+to the server running in the background; this is a design flaw in the
+browser. In extreme cases, the browser may not yield the CPU at
+all during certain operations, which may prevent the server from
+responding. When this happens, the browser will be completely
+unresponsive and you will have to force it to quit (press and hold 
+the command, option, and escape keys.) This actually happened
+in an older version of Microsoft’s Internet Explorer, but does not
+seem to be a problem in the latest versions of Netscape Navigator
+(version 3.01), NCSA Mosaic (version 3.0b4), Apple Cyberdog (version
+2.0a1), or Microsoft Internet Explorer (version 3.0.)
+
+Adding Other Hosts
+
+To establish access to your CL-HTTP server from other Macintosh
+systems on your private network, you must give each Macintosh a
+unique IP address, a named entry in your DNS, and a reference to
+your DNS server.
+
+First, decide what the IP address and name will be for each new
+machine. Neither the IP address nor the name can be shared by any
+other machine on your network. It's probably a good idea to assign
+IP addresses consecutively, begining at 10.1.1.2 (remember that your
+machine already has the address 10.1.1.1.)
+
+On your machine (the one running CL-HTTP and MacDNS), add
+permanent host entries in MacDNS as you did for your machine,
+but with distinct IP addresses and names for each new host. When
+you are done, save the changed zone file, but do not close it.
+
+Now take your list of IP addresses and names to each machine, and
+configure using the TCP/IP control panel. You will follow the same
+procedure that you used on the server machine, but with a different
+IP address for each machine. It is important that you always specify
+the name server address as 10.1.1.1; this is the IP address of your DNS
+server. Don't make the mistake of entering another machine’s
+address in this field!
+
+<h2>Troubleshooting</h2>
+
+If the above doesn’t work, first double-check all of the settings. It is
+quite easy to mistype a value, and the TCP/IP software can’t provide
+much of a defense against this kind of error. 
+
+If a file named Hosts exists in your system folder, open it to see
+whether it contains a conflicting host definition. You may have
+added such a definition during a previous attempt to configure your
+machine as a CL-HTTP server. The following two lines define  an
+IP address of 1.2.3.4 for the same name we’ve established for the
+server using MacDNS.
+
+Local-Host.Apple-Talk.net.	A		1.2.3.4
+local-host.				CNAME	Local-Host.Apple-Talk.Net.
+
+(Do not insert these lines into your Hosts file!)
+
+Because the Hosts file has precedence, this will cause lookups to fail.
+Remove the offending entry and reboot your Macintosh.
+
+Make sure that you start CL-HTTP by loading mac-start-server.lisp .
+You should not use mac-start-local-talk.lisp .
+
+<h2>Changing Configurations</h2>
+
+To shut down your CL-HTTP server (e.g. to dial in to your ISP),
+first quit MCL; this will stop the CL-HTTP server. Next quit MacDNS.
+Finally, open the TCP/IP control panel, select Configurations… from
+the File menu, select the desired configuration, click the Make
+Active button, and close the configuration dialog. You do not need
+to reboot your Macintosh for the changes to take effect.
+
+To restart your CL-HTTP server at a later time, use the TCP/IP
+control panel to select your local network configuration, then start
+MacDNS, then start the CL-HTTP server.
+
+<hr>
+
+David B. Lamkins (<a href="mailto:dlamkins@teleport.com">dlamkins@teleport.com</a>)<br>
+Created 1997 01 07<br>
+
+<h2>Revision History</h2>
+
+Edition 2 of 1997 01 08	editorial changes; clarify Hosts file conflict
+Edition 1 of 1997 01 07	unreleased draft
+
+</body>
+</html>

@@ -1,0 +1,831 @@
+<HTML>
+<HEAD>
+   <TITLE>VRML Generation</TITLE>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF">
+<H1>VRML Generation</H1>
+
+<P><IMG SRC="/cl-http/icons/line-rain.gif" ALIGN=bottom></P>
+
+<H2>Overview</H2>
+
+<OL>
+   <LI><A HREF="#About">About</A></LI>
+   
+   <LI><A HREF="#Introduction">Introduction</A></LI>
+   
+   <LI><A HREF="#ViewingVRML">Viewing VRML</A></LI>
+   
+   <LI><A HREF="#VRMLGeneration">VRML Generation</A></LI>
+   
+   <LI><A HREF="#VRMLGenerationandCL-HTTP">VRML Generation and
+   CL-HTTP</A></LI>
+   
+   <LI><A HREF="#Examples">Examples</A></LI>
+   
+   <LI><A HREF="#TheVRML1.0LispCode">The VRML1.0 Lisp Code</A></LI>
+   
+   <LI><A HREF="#OnlineInformationaboutVRML">Online Information about
+   VRML</A></LI>
+</OL>
+
+<HR>
+
+<OL>
+   <h2><LI><A NAME=About></A>About</h2> 
+   
+   <P><STRONG>VRML</STRONG> is a description language for 3d
+   scenes.</P>
+   
+   <P><STRONG>ANSI Common Lisp</STRONG> is a highly interactive and
+   dynamic object-oriented programming language. It enables
+   development of complex software systems.</P>
+   
+   <P>This generation package is especially designed to be
+   incorporated into <A HREF="http://www.ai.mit.edu/projects/iiip/doc/cl-http/home-page.html"><STRONG>CL-HTTP</STRONG></A>,
+   a web server written in Common Lisp. We do not provide a tutorial
+   how to use VRML, but the Lisp code has extensive documentation for
+   each construct. The software has been written by <A HREF="http://www.lavielle.com/~joswig/">Rainer
+   Joswig</A> (<A HREF="http://www.lavielle.com/">Lavielle EDV
+   Systemberatung GmbH &amp; Co., Hamburg, Germany</A>) and <A HREF="http://www.ai.mit.edu/people/jcma/jcma.html">John
+   C. Mallery</A> (<A HREF="http://www.ai.mit.edu/">MIT AI
+   Lab</A>).</P>
+   
+   
+   <h2><LI><A NAME=Introduction></A>Introduction</h2> 
+   
+   <P>With this software we currently support <STRONG>VRML
+   1.0</STRONG>. In future release some of the basic mechanism may
+   change to better support newer versions of the VRML specification
+   (VRML 2.0).</P>
+   
+   <P>The <CODE>VRML1.0</CODE> Common Lisp package supports almost
+   all VRML 1.0 features. Operators generate VRML text for output
+   streams. There is currently no feature for representing internal
+   scene graphs and reading VRML code. We expect that some Common
+   Lisp users may generate VRML scenes from self written code or use
+   already existing 3d libraries. For these existing 3d libraries you
+   may want to use a generation package like this to produce VRML
+   code from existing internal 3d representations.</P>
+   
+   <P>One of the main characteristics of CL-HTTP is its
+   implementation and full programmability in a high level language:
+   ANSI Common Lisp. Many different methods of high-level
+   abstractions are supported by Common Lisp. The <STRONG>dynamic
+   nature of CL-HTTP</STRONG> makes it a good choice for
+   experimenting with 3d data generation and serving 3d content over
+   the Internet. CL-HTTP easily can be used to generate WWW
+   interfaces for already existing complex Common Lisp based
+   software. These large software packages often have the need for
+   multi-modal data presentation.</P>
+   
+   <P>There are a lot of potential visualization uses for this
+   package. Here are some of them:</P>
+   
+   <DL>
+      <DT><B>Maths</B> (Scientific Visualization, Statistics,
+      Geometry, ...)</DT>
+      
+      <DD>Create 3d surfaces and 3d plots from observed or calculated
+      data sets. You can build charting and plotting software on top
+      of this VRML package.</DD>
+      
+      <DT><B>Graphs, Trees, Maps, Plants, ...</B></DT>
+      
+      <DD>Displaying 3d graphs and trees may create impressive looks
+      for your documents. Let users navigate through 3d graph-like
+      displays of data which would aid them in understanding complex
+      contexts. These data types (which are typical for AI
+      applications) now can be generated and served for display over
+      the Internet.</DD>
+      
+      <DT><B>Interactive Games</B></DT>
+      
+      <DD>CL-HTTP could represent 3d scenes and generate VRML output
+      on the fly. High level abstractions simply the
+      implementation.</DD>
+      
+      <DT><B>3d User Interfaces</B></DT>
+      
+      <DD>Experiment with generated and adaptive user
+      interfaces.</DD>
+      
+      <DT><B>Education</B></DT>
+      
+      <DD>Why not implement "Blocks World" with CL-HTTP and VRML?
+      Make it possible for students to experiment with newest
+      technology in one perfectly integrated package. CL-HTTP is
+      <A HREF="/cl-http/find-documentation.html"><STRONG>self-documenting</STRONG></A>
+      and can be used in leading Common Lisp development systems on
+      <STRONG>Macintosh, Unix and Symbolics</STRONG>.</DD>
+   </DL>
+   
+   <P>But, dear Reader, be warned. The whole area of the VRML
+   specification and viewers for VRML is still <STRONG>rapidly
+   evolving</STRONG>. You may need some will to experiment and you
+   will have to cope with incomplete specifications and
+   implementations.</P>
+   
+   
+   <h2><LI><A NAME=Viewing></A>Viewing VRML</h2> 
+   
+   <P>There are three types of applications you can use to view VRML
+   data:</P>
+   
+   <DL>
+      <DT><B>3d Browsers</B></DT>
+      
+      <DD>Some viewers for 3d data can also read and display VRML
+      data. These viewers typically won't support inlining VRML or
+      embedded URLs.</DD>
+      
+      <DT><B>VRML Browsers</B></DT>
+      
+      <DD>VRML browsers support accessing VRML data on the WWW.</DD>
+      
+      <DT><B>WWW Browsers</B></DT>
+      
+      <DD>Browsers like Netscape Navigator and Microsoft Internet
+      Explorer may have plugins that support viewing VRML files
+      inline. That way you can embed VRML viewers in your HTML
+      documents. Other browsers need external helper applications (3d
+      Browsers or VRML Browsers).</DD>
+   </DL>
+   
+   <P>The MIME type for VRML is <CODE>x-world/x-vrml</CODE> and a
+   typical file extension would be <CODE>.wrl</CODE> .</P>
+   
+   <P>Contact the VRML archives (see <A HREF="#Online">below</A> for
+   pointers) about getting software for displaying VRML content.</P>
+   
+   
+   <h2><LI><A NAME=VRMLGeneration></A>VRML Generation</h2> 
+   
+   <P>Currently we support VRML by providing a set of macros,
+   functions and data types.</P>
+   
+   <H3>A Simple VRML Scene</H3>
+   
+   <P>This is an example for an extremely simple VRML scene. The VRML
+   operators are accessible from the Common Lisp package
+   <TT>VRML1.0</TT>.</P>
+   
+   <PRE><CODE>(let ((out-stream *standard-output*))
+  (</CODE><A HREF="/cl-http/show-documentation?VRML1.0:WITH-VRML-WORLD"><CODE>with-vrml-world</CODE></A><CODE> (:stream out-stream)
+    (</CODE><A HREF="/cl-http/show-documentation?VRML1.0:WITH-SEPARATOR-GROUP"><CODE>with-separator-group</CODE></A><CODE> (out-stream)
+      (</CODE><A HREF="/cl-http/show-documentation?VRML1.0:TRANSLATION-NODE*"><CODE>translation-node*</CODE></A><CODE> out-stream 0.1 0.7 -8)
+      (</CODE><A HREF="/cl-http/show-documentation?VRML1.0:CUBE-NODE"><CODE>cube-node</CODE></A><CODE> out-stream :width 1.1))))</CODE></PRE>
+   
+   <P>Here we have declared that we want to generate VRML code on
+   stream <TT>OUT-STREAM</TT> by using the macro
+   <TT>WITH-VRML-WORLD</TT>. <TT>WITH-SEPARATOR-GROUP</TT> is being
+   used to group the next two constructs, because VRML1.0 accepts
+   only <STRONG>one toplevel construct</STRONG>. Then we use two VRML
+   node operators: <TT>TRANSLATION-NODE*</TT> and <TT>CUBE-NODE</TT>.
+   This Common Lisp code generates the following VRML output on the
+   <TT>*STANDARD-OUTPUT*</TT> stream:</P>
+   
+   <PRE><CODE>#VRML V1.0 ascii
+&nbsp;
+Separator {
+Translation {
+  translation 0.1 0.7 -8
+}
+Cube {
+  width 1.1
+}
+}</CODE></PRE>
+   
+   <P>This scene has been exported as a file
+   <CODE>"http:examples;vrml;scene1.wrl"</CODE> and looks like this:
+   <A HREF="/cl-http/vrml/scene1.wrl">Scene 1</A>.</P>
+   
+   <P>Additionally we may want to specify a color and we're using a
+   cylinder instead of the cube. <TT>LET-FIELDS</TT> helps us
+   allocating and deallocating resources. In this case we use a
+   resource of type <TT>COLOR</TT>. Colors are RGB records. Each
+   color slot is a float in the range of 0.0 upto 1.0.
+   <TT>MATERIAL-NODE</TT> then specifies the color (by using a
+   diffuse color) of the following node.</P>
+   
+   <PRE><CODE>(let ((out-stream *standard-output*))
+  (</CODE><A HREF="/cl-http/show-documentation?VRML1.0:WITH-VRML-WORLD"><CODE>with-vrml-world</CODE></A><CODE> (:stream out-stream)
+    (</CODE><A HREF="/cl-http/show-documentation?VRML1.0:WITH-SEPARATOR-GROUP"><CODE>with-separator-group</CODE></A><CODE> (out-stream)
+      (</CODE><A HREF="/cl-http/show-documentation?VRML1.0:LET-FIELDS"><CODE>let-fields</CODE></A><CODE> ((color color :red 1.0 :green 0.5 :blue 0.1))
+        (</CODE><A HREF="/cl-http/show-documentation?VRML1.0:MATERIAL-NODE"><CODE>material-node</CODE></A><CODE> out-stream :diffuse-color color))
+      (</CODE><A HREF="/cl-http/show-documentation?VRML1.0:TRANSLATION-NODE*"><CODE>translation-node*</CODE></A><CODE> out-stream 0.1 0.7 -8)
+      (</CODE><A HREF="/cl-http/show-documentation?VRML1.0:CYLINDER-NODE"><CODE>cylinder-node</CODE></A><CODE> out-stream :radius 3.1))))</CODE></PRE>
+   
+   <P>This scene has been exported as a file
+   <CODE>"http:examples;vrml;scene2.wrl"</CODE> and looks like this:
+   <A HREF="/cl-http/vrml/scene2.wrl">Scene 2</A>.</P>
+   
+   
+   <h2><LI><A NAME="VRMLGenerationandCL-HTTP"></A>VRML Generation and CL-HTTP</h2> 
+   
+   <H3>Exporting VRML Data</H3>
+   
+   <P>CL-HTTP can export <STRONG>VRML files</STRONG> and Common Lisp
+   <STRONG>functions that generate VRML on the fly</STRONG>. The
+   mechanism works just like exporting HTML, but you have to specify
+   a different data type: <TT>:VRML-WORLD</TT> for <TT>.wrl</TT>
+   files and for computed URLs you have to specify <TT>:VRML</TT> as
+   your generated data type. The VRML data is accessible via the URL.
+   The browser may display the VRML scene inside one of its windows
+   or it may use an external helper application. This depends on your
+   browser capabilities and your browser configuration.</P>
+   
+   <P>The first example shows how to export a VRML file via <A HREF="/cl-http/show-documentation?HTTP:EXPORT-URL"><TT>EXPORT-URL</TT></A>.
+   The first argument to <A HREF="/cl-http/show-documentation?HTTP:EXPORT-URL"><TT>EXPORT-URL</TT></A>
+   is the URL we want to export. The <CODE>#u</CODE> read macro
+   completes the partial URL with the standard host and port
+   information for the HTTP server. The second argument is the type
+   of document to export: <TT>:VRML-WORLD</TT>. The next arguments
+   are keyword and value pairs. The third argument is the pathname of
+   the file that is being exported.</P>
+   
+   <PRE><CODE>(</CODE><A HREF="/cl-http/show-documentation?HTTP:EXPORT-URL"><CODE>export-url</CODE></A><CODE> #u"/cl-http/vrml/scene2.wrl"
+            :vrml-world
+            :pathname (pathname "http:www;cl-http;vrml;scene2.wrl")
+            :documentation "A colored simple scene with a cylinder."
+            :keywords '(:cl-http :demo :vrml))
+   </CODE>&nbsp;</PRE>
+   
+   <P>The next example defines a function which generates VRML code
+   and then we export the function.</P>
+   
+   <PRE><CODE>(defun </CODE><B><CODE>colored-simple-scene</CODE></B><CODE> (out-stream)
+  (</CODE><A HREF="/cl-http/show-documentation?VRML1.0:WITH-VRML-WORLD"><CODE>with-vrml-world</CODE></A><CODE> (:stream out-stream)
+    (</CODE><A HREF="/cl-http/show-documentation?VRML1.0:WITH-SEPARATOR-GROUP"><CODE>with-separator-group</CODE></A><CODE> (out-stream)
+      (</CODE><A HREF="/cl-http/show-documentation?VRML1.0:LET-FIELDS"><CODE>let-fields</CODE></A><CODE> ((color color :red 1.0 :green 0.5 :blue 0.1))
+        (</CODE><A HREF="/cl-http/show-documentation?VRML1.0:MATERIAL-NODE"><CODE>material-node*</CODE></A><CODE> out-stream :diffuse-color color))
+      (</CODE><A HREF="/cl-http/show-documentation?VRML1.0:TRANSLATION-NODE*"><CODE>translation-node*</CODE></A><CODE> out-stream 0.1 0.7 -8)
+      (</CODE><A HREF="/cl-http/show-documentation?VRML1.0:CYLINDER-NODE"><CODE>cylinder-node</CODE></A><CODE> out-stream :radius 3.1))))
+   </CODE></PRE>
+   
+   <P>The response function takes an URL and a stream argument. This
+   function is responsible for generating the content. It has to use
+   <A HREF="/cl-http/show-documentation?HTTP:WITH-CONDITIONAL-GET-RESPONSE">http:with-conditional-get-response</A>
+   or <A HREF="/cl-http/show-documentation?HTTP:WITH-SUCCESSFUL-RESPONSE">http:with-successful-response</A>.
+   These macros will return the correct header information to the
+   browser. The response function calls
+   <CODE>COLORED-SIMPLE-SCENE</CODE> to generate the VRML
+   content.</P>
+   
+   <PRE><CODE>(defun </CODE><B><CODE>colored-simple-scene-fn</CODE></B><CODE> (url out-stream)
+  (</CODE><A HREF="/cl-http/show-documentation?HTTP:WITH-CONDITIONAL-GET-RESPONSE"><CODE>http:with-conditional-get-response</CODE></A>
+<CODE>    (out-stream :vrml :expires (</CODE><A HREF="/cl-http/show-documentation?URL:EXPIRATION-UNIVERSAL-TIME"><CODE>url:expiration-universal-time</CODE></A><CODE> url))
+      (colored-simple-scene out-stream)))</CODE></PRE>
+   
+   <P>The first argument to <A HREF="/cl-http/show-documentation?HTTP:EXPORT-URL"><TT>EXPORT-URL</TT></A>
+   is the URL we want to export. The <CODE>#u</CODE> read macro
+   completes the partial URL with the standard host and port
+   information for the HTTP server. The second argument is the type
+   of document to export: <TT>:computed</TT>. The next arguments are
+   keyword and value pairs. The third argument is the response
+   function for the computed URL. The response function takes an URL
+   and a stream argument.</P>
+   
+   <PRE><CODE>(</CODE><A HREF="/cl-http/show-documentation?HTTP:EXPORT-URL"><CODE>export-url</CODE></A><CODE> #u"/cl-http/vrml/scene2-fn.wrl"
+            :computed
+            :response-function #'colored-simple-scene-fn
+            :documentation "A colored simple scene with a cylinder.
+                            Exported as a function."
+            :keywords '(:cl-http :demo :vrml))
+   </CODE></PRE>
+   
+   <H3>Using Embedded VRML</H3>
+   
+   <P>Some newer browsers are capable of embedding display for VRML
+   data into HTML documents. With this feature you can create some
+   spectacular looking documents. Imagine having active 3d data
+   displays (also using links to the Internet) embedded into your
+   documents. CL-HTTP provides the macro <A HREF="/cl-http/show-documentation?NETSCAPE4.0:EMBED-OBJECT"><TT>netscape4.0:embed-object</TT></A>
+   to specify which object (denoted by an URL) should be embedded
+   with which size. The URL can point to a computed VRML scene or to
+   a static VRML file. Here is an example in HTML:</P>
+   
+   <PRE>&lt;EMBED SRC="/cl-http/vrml/scene2.wrl" HEIGHT=200 WIDTH=200&gt;</PRE>
+   
+   <P>The example for CL-HTTP:</P>
+   
+   <PRE><CODE>(</CODE><A HREF="/cl-http/show-documentation?NETSCAPE4.0:EMBED-OBJECT"><CODE>netscape4.0:embed-object</CODE></A><CODE> "/cl-http/vrml/scene2.wrl"
+                          :stream *the-output-stream*
+                          :width 200
+                          :height 200)</CODE></PRE>
+   
+   <P>The above HTML code is being used below. You'll need a browser
+   capable of displaying embedded data and maybe an VRML plugin.</P>
+   
+   <P><EMBED SRC="/cl-http/vrml/scene2.wrl" WIDTH=200 HEIGHT=200></embed></P>
+   
+   
+   <h2><LI><A NAME=Examples></A>Examples</h2> 
+   
+   <P>Some examples have been written. We would like to hear from
+   users, who may wish to contribute code.</P>
+   
+   <H3>Some Cubes</H3>
+   
+   <P>Here we use the content of a two-dimensional array to specify
+   the height of cubes. The cubes are arranged in a rectangular
+   fashion.</P>
+   
+   <P>So let us start with a function
+   <TT>CREATE-EXAMPLE-ARRAY</TT>that generates a two-dimensional
+   array and fills it with a random value below <TT>MAX</TT>.</P>
+   
+   <PRE><CODE>(defun </CODE><B><CODE>create-example-array</CODE></B><CODE> (i-dimension j-dimension max)
+  (let ((array (make-array (list i-dimension j-dimension)
+                           :element-type 'float)))
+    (loop for i from 0 below i-dimension
+          do (loop for j from 0 below j-dimension
+                   do (setf (aref array i j)
+                            (* 2 (random max)))))
+    array))
+   </CODE></PRE>
+   
+   <P>Now that we can create such an array, we need a function to
+   display it. We show each a value in the array as a cube, where the
+   height depends on the value. The cubes are arranged on an
+   rectangular grid. We also make it possible to change the
+   attributes of each cube at a later point. For this purpose we
+   define a parameter <TT>INSERTER</TT>, which takes a procedure as
+   an argument. This procedure can create additional output on the
+   VRML stream. This is a typical example for the use of Functional
+   Programming techniques. <CODE>CUBE-ARRAY</CODE> is a higher-order
+   function since it takes a function as a parameter. Don't be
+   puzzled by this.</P>
+   
+   <PRE><CODE>(defun </CODE><B><CODE>cube-array</CODE></B><CODE> (stream array &amp;key (cube-size 0.6) inserter)
+  (flet ((default-inserter (fun stream)
+           (funcall fun stream)))
+    (unless inserter
+      (setf inserter #'default-inserter))
+    (</CODE><A HREF="/cl-http/show-documentation?VRML1.0:WITH-SEPARATOR-GROUP"><CODE>with-separator-group</CODE></A><CODE> (stream)
+      (loop for i from 0 below (array-dimension array 0)
+            for x from 0.0 by 1.0
+            do (loop for j from 0 below (array-dimension array 1)
+                     and z from 0.0 by 1.0
+                     for element = (aref array i j)
+                     do (</CODE><A HREF="/cl-http/show-documentation?VRML1.0:WITH-SEPARATOR-GROUP"><CODE>with-separator-group</CODE></A><CODE> (stream)
+                          (funcall inserter
+                                   #'(lambda (stream)
+                                       (</CODE><A HREF="/cl-http/show-documentation?VRML1.0:TRANSLATION-NODE*"><CODE>translation-node*</CODE></A><CODE> stream x (/ element 2) z)
+                                       (</CODE><A HREF="/cl-http/show-documentation?VRML1.0:CUBE-NODE"><CODE>cube-node</CODE></A><CODE> stream
+                                                  :width cube-size
+                                                  :depth cube-size
+                                                  :height element))
+                                   stream)))))))
+   </CODE></PRE>
+   
+   <P>This third example is now complete and we define a function
+   that generates the VRML world and calls our example function
+   <TT>CUBE-ARRAY</TT> with a five by four array of random values
+   generated by <TT>CREATE-EXAMPLE-ARRAY</TT>.</P>
+   
+   <PRE><CODE>(defun </CODE><B><CODE>example3</CODE></B><CODE> (stream)
+  (</CODE><A HREF="/cl-http/show-documentation?VRML1.0:WITH-VRML-WORLD"><CODE>with-vrml-world</CODE></A><CODE> (:stream stream)
+    (cube-array stream
+                (create-example-array 5 4 (random 3.0)))))
+   </CODE>&nbsp;</PRE>
+   
+   <P>The scene then needs to be written to a file:</P>
+   
+   <PRE><CODE>(write-vrml-file #'example3 "http:examples;vrml;scene3.wrl")</CODE></PRE>
+   
+   <P>This file has be exported and the scene looks like this:
+   <A HREF="/cl-http/vrml/scene3.wrl">Scene 3</A>.</P>
+   
+   <P>With a simple modification we also can assign each cube a
+   random color. We define a local function <TT>RANDOM-INSERTER</TT>,
+   which inserts the necessary color information for each cube.</P>
+   
+   <PRE><CODE>(defun </CODE><B><CODE>example3a</CODE></B><CODE> (stream)
+  "Similar to example3. Shows the use of the inserter parameter.
+Changes the color of each cube."
+  (flet ((random-inserter (fun stream)
+           (</CODE><A HREF="/cl-http/show-documentation?VRML1.0:LET-FIELDS"><CODE>let-fields</CODE></A><CODE> ((color color
+                               :red (random 1.0)
+                               :green (random 1.0)
+                               :blue (random 1.0)))
+             (</CODE><A HREF="/cl-http/show-documentation?VRML1.0:MATERIAL-NODE"><CODE>material-node</CODE></A><CODE> stream :diffuse-color color)
+             (funcall fun stream))))
+    (</CODE><A HREF="/cl-http/show-documentation?VRML1.0:WITH-VRML-WORLD"><CODE>with-vrml-world</CODE></A><CODE> (:stream stream)
+      (cube-array stream
+                  (create-example-array 5 6 (random 3.0))
+                  :inserter #'random-inserter))))
+   </CODE>&nbsp;</PRE>
+   
+   <P>We define a response function:</P>
+   
+   <PRE><CODE>(defun </CODE><B><CODE>compute-example3a</CODE></B><CODE> (url stream)
+  (</CODE><A HREF="/cl-http/show-documentation?HTTP:WITH-CONDITIONAL-GET-RESPONSE"><CODE>http:with-conditional-get-response</CODE></A>
+<CODE>    (stream :vrml :expires ((</CODE><A HREF="/cl-http/show-documentation?URL:EXPIRATION-UNIVERSAL-TIME"><CODE>url:expiration-universal-time</CODE></A><CODE> url))
+      (example3a stream)))</CODE></PRE>
+   
+   <P>This response function is being exported:</P>
+   
+   <PRE><CODE>(http:export-url #u"/cl-http/vrml/scene4.wrl"
+                 :computed
+                 :response-function #'compute-example3a
+                 :documentation "An 5x4 array of float values as rectangular arrangement of cubes.
+Randomly colored and exported as a function."
+                 :keywords '(:cl-http :demo :vrml))</CODE></PRE>
+   
+   <P>This scene is being exported as a function, so that each call
+   generates a different array. It looks like this: <A HREF="/cl-http/vrml/scene4.wrl">Scene
+   4</A>.</P>
+   
+   <H3>Scientific Visualization</H3>
+   
+   <P>This example is a lot more complicated. It shows how to
+   generate a surface, which consist of a polygon mesh build by
+   triangles. Each triangle can have a different color. Again the
+   data we use is being defined by an two-dimensional array. This
+   time we fill the contents of the array by an double complex sine
+   function: <TT>sin(sin(c))</TT>. The absolute value gives us the
+   height of the data point and the phase angle will be used to
+   calculate a color. Thus every entry in the two-dimensional array
+   will consist of two values: height and color. From this array we
+   will generate a list of triangle faces and a list of colors.</P>
+   
+   <P>We define two constants: 2*pi and pi/3.</P>
+   
+   <PRE><CODE>(defconstant </CODE><B><CODE>2pi</CODE></B><CODE> (* pi 2))
+(defconstant </CODE><B><CODE>pi/3</CODE></B><CODE> (/ pi 3.0))</CODE></PRE>
+   
+   <P>The next function fills a 2d array with values from a function.
+   FN takes two arguments: x and y. XN is the number of samples on
+   the x-axis. X0 is the start point on the x-axis. DX is the step
+   width on the x-axis. YN is the number of samples on the y-axis. Y0
+   is the start point on the y-axis. DY is the step width on the
+   y-axis. ELEMENT-TYPE is the element-type of the array to create.
+   ARRAY is a default array. If ARRAY equals NIL, than a new array is
+   being created.</P>
+   
+   <PRE><CODE>(defun </CODE><B><CODE>create-array</CODE></B><CODE> (fn xn x0 dx yn y0 dy
+                        &amp;key (element-type t) array)
+  (unless (arrayp array)
+    (setf array (make-array (list xn yn) :element-type element-type)))
+  (loop for i fixnum from 0 below xn
+        for x from x0 by dx
+        do (loop for j fixnum from 0 below yn
+                 for y from y0 by dy
+                 do (setf (aref array i j)
+                          (funcall fn x y))))
+  array)
+   </CODE></PRE>
+   
+   <P>The next function creates a list of points. The points being
+   the grid of the array. KEY is a function which extracts the height
+   from the array content. It calls <TT><CODE>(ALLOCATE-RESOURCE
+   3D-FLOAT-VECTOR ...)</CODE></TT> to create the points.</P>
+   
+   <PRE><CODE>(defun </CODE><B><CODE>array-to-point-list</CODE></B><CODE> (array &amp;key (key #'identity))
+  (loop with points = nil
+        for i downfrom (1- (array-dimension array 0)) downto 0 
+        and x downfrom (float (1- (array-dimension array 0))) by 1.0
+        do (loop for j downfrom (1- (array-dimension array 1)) downto 0
+                 and z downfrom (float (1- (array-dimension array 1))) by 1.0
+                 do (push (</CODE><A HREF="/cl-http/show-documentation?VRML1.0:ALLOCATE-RESOURCE"><CODE>allocate-resource</CODE></A><CODE> 3d-float-vector
+                                             (:x x
+                                              :y (funcall key (aref array i j))
+                                              :z z))
+                          points))
+        finally (return points)))</CODE></PRE>
+   
+   <P>We now define a function that creates a list of color values
+   from the array. KEY is a function parameter which extracts the
+   color from the array content.</P>
+   
+   <PRE><CODE>(defun </CODE><B><CODE>array-to-color-list</CODE></B><CODE> (array key)
+  (loop with color-list = nil and i-dimension = (array-dimension array 0)
+        and j-dimension = (array-dimension array 1)
+        for i downfrom (1- i-dimension) above 0
+        do (loop for j downfrom (1- j-dimension) above 0
+                 for color = (funcall key (aref array i j))
+                 do (push color color-list))
+        finally (return color-list)))</CODE></PRE>
+   
+   <P>We also need to calculate a list of face indices from the
+   array. Faces are triangles.</P>
+   
+   <PRE><CODE>(defun </CODE><B><CODE>array-to-face-index-list</CODE></B><CODE> (array)
+  (loop with index-list = nil and i-dimension = (array-dimension array 0)
+        and j-dimension = (array-dimension array 1)
+        for i downfrom (1- i-dimension) above 0
+        do (loop for j downfrom (1- j-dimension) above 0
+                 for index = (+ (* i-dimension j) i)
+                 do (push -1 index-list)
+                 do (push index index-list)
+                 do (push (1- index) index-list)
+                 do (push (- index i-dimension) index-list)
+                 do (push -1 index-list)
+                 do (push (1- index) index-list)
+                 do (push (- index i-dimension) index-list)
+                 do (push (- index i-dimension 1) index-list))
+        finally (return index-list)))</CODE></PRE>
+   
+   <P>The next function converts color from HSV to RGB. H is between
+   0.0 and 2pi. S and V are between 0.0 and 1.0. Returns values for
+   R, G and B. Sure Genera has this already. See: Computer Graphics,
+   Principles and Practice, Second Edition in C, by Foley/van
+   Dam/Feiner/Hughes, Section 13.3.4, The HSV Color Model.</P>
+   
+   <PRE><CODE>(defun </CODE><B><CODE>hsv-&gt;rgb</CODE></B><CODE> (h s v)
+  (assert (&lt;= 0.0 h 2pi) (h))
+  (assert (&lt;= 0.0 s 1.0) (s))
+  (assert (&lt;= 0.0 v 1.0) (v))
+  (if (zerop s)
+    (values v v v)
+    (let* ((i (truncate (setf h (/ (if (&gt;= h 2pi) 0.0 h)
+                                   pi/3))))
+           (f (- h i)))
+      (let ((p (* v (- 1.0 s)))
+            (q (* v (- 1.0 (* s f))))
+            (t1 (* v (- 1.0 (* s (- 1.0 f))))))
+        (ecase i
+          (0 (values v  t1 p))
+          (1 (values q  v  p))
+          (2 (values p  v  t1))
+          (3 (values p  q  v))
+          (4 (values t1 p  v))
+          (5 (values v  p  q)))))))</CODE></PRE>
+   
+   <P>We need to convert color from HSV to VRML RGB color.</P>
+   
+   <PRE><CODE>(defun </CODE><B><CODE>hsv-&gt;color</CODE></B><CODE> (h s v)
+  (multiple-value-bind (red green blue) (hsv-&gt;rgb h s v)
+    (assert (and (&lt;= 0.0 red 1.0) (&lt;= 0.0 green 1.0) (&lt;= 0.0 blue 1.0))
+            (red green blue))
+    (</CODE><A HREF="/cl-http/show-documentation?VRML1.0:ALLOCATE-RESOURCE"><CODE>allocate-resource</CODE></A><CODE> color (:red red :green green :blue blue))))</CODE></PRE>
+   
+   <P>The next function outputs a surface build by triangles to a
+   stream. Source for the data is a 2d ARRAY. HEIGHT-KEY extracts the
+   height from the 2d array content. COLOR-KEY extracts the color
+   from the 2d array content.</P>
+   
+   <PRE><CODE>(defun </CODE><B><CODE>surface-from-array</CODE></B><CODE> (stream array height-key color-key)
+  (</CODE><A HREF="/cl-http/show-documentation?VRML1.0:WITH-SEPARATOR-GROUP"><CODE>with-separator-group</CODE></A><CODE> (stream)
+    (let ((points nil) (color-list nil))
+      (unwind-protect
+        (let ((index-list (array-to-face-index-list array))
+              (color-index-list (loop for i from 0
+                                      below (* (1- (array-dimension array 0))
+                                               (1- (array-dimension array 1)))
+                                      collect i
+                                      collect i)))  ; output color for both triangles
+          (setf points (array-to-point-list array :key height-key)
+                color-list (array-to-color-list array color-key))
+          (</CODE><A HREF="/cl-http/show-documentation?VRML1.0:MATERIAL-BINDING-NODE"><CODE>material-binding-node</CODE></A><CODE> stream :per-face-indexed)
+          (</CODE><A HREF="/cl-http/show-documentation?VRML1.0:MATERIAL-NODE"><CODE>material-node</CODE></A><CODE> stream :diffuse-color color-list)
+          (</CODE><A HREF="/cl-http/show-documentation?VRML1.0:COORDINATE3-NODE"><CODE>coordinate3-node</CODE></A><CODE> stream points)
+          (</CODE><A HREF="/cl-http/show-documentation?VRML1.0:INDEXED-FACE-SET-NODE"><CODE>indexed-face-set-node</CODE></A><CODE> stream
+                                 :coordinate-index index-list
+                                 :material-index color-index-list))
+        (loop for point in points do (</CODE><A HREF="/cl-http/show-documentation?VRML1.0:DEALLOCATE-RESOURCE"><CODE>deallocate-resource</CODE></A><CODE> '3d-float-vector point))
+        (loop for color in color-list do (</CODE><A HREF="/cl-http/show-documentation?VRML1.0:DEALLOCATE-RESOURCE"><CODE>deallocate-resource</CODE></A><CODE> 'color color))))))</CODE></PRE>
+   
+   <P>Finally an example call that generates VRML output for a
+   surface generated by a double complex sine function.</P>
+   
+   <PRE><CODE>(defun </CODE><B><CODE>example4</CODE></B><CODE> (stream xn x0 dx yn y0 dy)
+  (</CODE><A HREF="/cl-http/show-documentation?VRML1.0:WITH-VRML-WORLD"><CODE>with-vrml-world</CODE></A><CODE> (:stream stream)
+    (surface-from-array stream
+                        (create-array #'(lambda (x y)
+                                          (let ((c (sin (sin (complex x y)))))
+                                            (list (min 20.0 (abs c))
+														        (+ pi (phase c)))))
+                                      xn x0 dx yn y0 dy)
+                        #'first
+                        #'(lambda (item) (hsv-&gt;color (second item) 0.5 0.5)))))
+   </CODE></PRE>
+   
+   <P>The response function:</P>
+   
+   <PRE><CODE>(defun </CODE><B><CODE>compute-example4a</CODE></B><CODE> (url stream)
+  (</CODE><A HREF="/cl-http/show-documentation?HTTP:WITH-CONDITIONAL-GET-RESPONSE"><CODE>http:with-conditional-get-response</CODE></A><CODE>
+    (out-stream :vrml :expires (</CODE><A HREF="/cl-http/show-documentation?URL:EXPIRATION-UNIVERSAL-TIME"><CODE>url:expiration-universal-time</CODE></A><CODE> url))
+      (example4a stream)))</CODE></PRE>
+   
+   <P>This scene has been exported as a function and looks like this:
+   <A HREF="/cl-http/vrml/scene5.wrl">Scene 5</A></P>
+   
+   <P>It also is possible to use <STRONG>form-based input</STRONG> to
+   specify parameters for VRML scenes. For this purpose the following
+   response function is exported for a fillout form URL. A response
+   function for a form takes an additional parameter: the
+   <CODE>QUERY-ALIST</CODE>. <CODE>HTTP:BIND-QUERY-VALUES</CODE>
+   extracts the values as strings from the <CODE>QUERY-ALIST</CODE>.
+   <CODE>W3P:ACCEPT-FROM-STRING</CODE> then converts the string to
+   the desired data types and signals a condition if the string has
+   not the specified content type. In case of an unusual condition
+   this page is simpy being presented again. For this purpose the
+   call to <CODE>HTTP:REDIRECT-REQUEST</CODE> in the
+   <CODE>HANDLER-CASE</CODE> form redirects the client to this
+   page.</P>
+   
+   <PRE><CODE>(defun </CODE><B><CODE>compute-example4b</CODE></B><CODE> (url stream query-alist)
+  (</CODE><A HREF="/cl-http/show-documentation?HTTP:BIND-QUERY-VALUES"><CODE>http:bind-query-values</CODE></A><CODE> (xn x0 x1 yn y0 y1)
+                          (url query-alist)
+    (handler-case (let* ((xn (</CODE><A HREF="/cl-http/show-documentation?W3P:ACCEPT-FROM-STRING"><CODE>w3p:accept-from-string</CODE></A><CODE> '(integer 5 50) xn))
+                         (x0 (</CODE><A HREF="/cl-http/show-documentation?W3P:ACCEPT-FROM-STRING"><CODE>w3p:accept-from-string</CODE></A><CODE> '(float 0.0 5.0) x0))
+                         (x1 (</CODE><A HREF="/cl-http/show-documentation?W3P:ACCEPT-FROM-STRING"><CODE>w3p:accept-from-string</CODE></A><CODE> '(float 0.0 5.0) x1))
+                         (yn (</CODE><A HREF="/cl-http/show-documentation?W3P:ACCEPT-FROM-STRING"><CODE>w3p:accept-from-string</CODE></A><CODE> '(integer 5 50) yn))
+                         (y0 (</CODE><A HREF="/cl-http/show-documentation?W3P:ACCEPT-FROM-STRING"><CODE>w3p:accept-from-string</CODE></A><CODE> '(float 0.0 5.0) y0))
+                         (y1 (</CODE><A HREF="/cl-http/show-documentation?W3P:ACCEPT-FROM-STRING"><CODE>w3p:accept-from-string</CODE></A><CODE> '(float 0.0 5.0) y1)))
+                    (assert (&gt; x1 x0))
+                    (assert (&gt; y1 y0))
+                    (let ((dx (float (/ (- x1 x0) xn)))
+                          (dy (float (/ (- y1 y0) yn))))
+                      (</CODE><A HREF="/cl-http/show-documentation?HTTP:WITH-SUCCESSFUL-RESPONSE"><CODE>http:with-successful-response</CODE></A>
+<CODE>                        (stream :vrml :expires (</CODE><A HREF="/cl-http/show-documentation?URL:EXPIRATION-UNIVERSAL-TIME"><CODE>url:expiration-universal-time</CODE></A><CODE> url))
+                          (example4 stream xn x0 dx yn y0 dy))))
+      (condition (condition)
+         (declare (ignore condition))
+         (</CODE><A HREF="/cl-http/show-documentation?HTTP:REDIRECT-REQUEST"><CODE>http:redirect-request</CODE></A><CODE> </CODE><A HREF="/cl-http/show-documentation?HTTP:*SERVER*"><CODE>http:*server*</CODE></A><CODE> #u"/cl-http/vrml/vrml.html")))))</CODE></PRE>
+   
+   <P>A form will be exported as usual with
+   <CODE>HTTP:EXPORT-URL</CODE>. The type is <CODE>:HTML-FORM</CODE>.
+   We just don't return the usual HTML code. CL-HTTP dynamically
+   generates VRML in response to the fillout form.</P>
+   
+   <PRE><CODE>(</CODE><A HREF="/cl-http/show-documentation?HTTP:EXPORT-URL"><CODE>export-url</CODE></A><CODE> #u"/cl-http/vrml/scene5a.wrl"
+            :html-form
+            :pathname "http:www;cl-http;vrml;vrml.html"
+            :response-function #'compute-example4b
+            :documentation "A surface generated by a double complex sine function"
+            :keywords '(:cl-http :demo :vrml))</CODE></PRE>
+   
+   <P>Try the following form:</P>
+   
+   <P><FORM ACTION="/cl-http/vrml/scene5a.wrl" METHOD=POST enctype="application/www-url-form-encoded">
+      <P><TABLE>
+         <TR>
+            <TH>
+               <P>Parameter</P>
+            </TH>
+            <TH>
+               <P>Minimum</P>
+            </TH>
+            <TH>
+               <P>Maximum</P>
+            </TH>
+            <TH>
+               <P>Value</P>
+            </TH>
+         </TR>
+         <TR>
+            <TD>
+               <P>XN</P>
+            </TD>
+            <TD>
+               <P>5</P>
+            </TD>
+            <TD>
+               <P>50</P>
+            </TD>
+            <TD>
+               <P><INPUT TYPE=text NAME=XN VALUE="25" SIZE=2 MAXLENGTH=2><BR>
+               </P>
+            </TD>
+         </TR>
+         <TR>
+            <TD>
+               <P>X0</P>
+            </TD>
+            <TD>
+               <P>0.0</P>
+            </TD>
+            <TD>
+               <P>5.0</P>
+            </TD>
+            <TD>
+               <P><INPUT TYPE=text NAME=X0 VALUE="0.0" SIZE=4 MAXLENGTH=6><BR>
+               </P>
+            </TD>
+         </TR>
+         <TR>
+            <TD>
+               <P>X1</P>
+            </TD>
+            <TD>
+               <P>0.0</P>
+            </TD>
+            <TD>
+               <P>5.0</P>
+            </TD>
+            <TD>
+               <P><INPUT TYPE=text NAME=X1 VALUE="5.0" SIZE=4 MAXLENGTH=6><BR>
+               </P>
+            </TD>
+         </TR>
+         <TR>
+            <TD>
+               <P>YN</P>
+            </TD>
+            <TD>
+               <P>5</P>
+            </TD>
+            <TD>
+               <P>50</P>
+            </TD>
+            <TD>
+               <P><INPUT TYPE=text NAME=YN VALUE="25" SIZE=2 MAXLENGTH=2><BR>
+               </P>
+            </TD>
+         </TR>
+         <TR>
+            <TD>
+               <P>Y0</P>
+            </TD>
+            <TD>
+               <P>0.0</P>
+            </TD>
+            <TD>
+               <P>5.0</P>
+            </TD>
+            <TD>
+               <P><INPUT TYPE=text NAME=Y0 VALUE="0.0" SIZE=4 MAXLENGTH=6><BR>
+               </P>
+            </TD>
+         </TR>
+         <TR>
+            <TD>
+               <P>Y1</P>
+            </TD>
+            <TD>
+               <P>0.0</P>
+            </TD>
+            <TD>
+               <P>5.0</P>
+            </TD>
+            <TD>
+               <P><INPUT TYPE=text NAME=Y1 VALUE="5.0" SIZE=4 MAXLENGTH=6><BR>
+               </P>
+            </TD>
+         </TR>
+      </TABLE>
+       <INPUT TYPE=submit NAME=SUBMIT VALUE="Compute VRML Scene">
+   </FORM><p></P>
+   
+   <H3>More Examples to come</H3>
+   
+   <P>There are sure more examples we could provide. Do you have any
+   specific wishes or maybe you even could contribute some code?</P>
+   
+   <HR>
+   
+   
+   <h2><LI><A NAME="TheVRML1.0LispCode"></A>The VRML1.0 Lisp Code</h2> 
+   
+   <UL>
+      <LI>Example Source Code <A HREF="/cl-http/sources/examples/vrml/vrml.lisp">http:examples;vrml;vrml.lisp</A>.</LI>
+      
+      <LI><A HREF="/cl-http/find-documentation?VRML1.0:">VRML 1.0
+      Synthesis Tools</A> generate 3D VRML scenes.</LI>
+      
+      <LI><A HREF="/cl-http/find-documentation.html">Documentation</A>
+      for major CL-HTTP modules.</LI>
+   </UL>
+   
+   <HR>
+   
+   
+   <h2><LI><A NAME=OnlineInformationaboutVRML></A>Online Information about VRML</h2> 
+   
+   
+  <UL>
+    <LI><A HREF="http://www.vrml.org/">VRML Consortium</A></LI>
+    <LI><A HREF="http://vag.vrml.org/">VRML Architecture Group</A></LI>
+    <LI><A HREF="http://www.sdsc.edu/vrml/">VRML Repository</A></LI>
+    <LI><A HREF="http://www.sdsc.edu/vrml/cgi-bin/display.cgi?category=Browsers+and+Plug-ins&">VRML 
+      Browsers and Plugins</A></LI>
+    <LI><A HREF="http://www.vrml.org/VRML1.0/vrml10c.html">VRML 1.0C Specification</A></LI>
+    <LI><A HREF="http://vag.vrml.org/VRML2.0/">VRML 2.0 Specification</A></LI>
+    <LI><a href="http://www.vrml.org/Specifications/VRML97/">VRML 97 Specification</a></LI>
+    <LI><A HREF="http://cosmosoftware.com/developer/handbook/">VRML 2.0 Developer 
+      Handbook</A></LI>
+    <LI><A HREF="http://www.Apple.com">Apple</A>'s <A HREF="http://www.apple.com/quicktime/developers/index.html">Quicktime 
+      and Quickdraw3d</A></LI>
+    <LI><A HREF="http://cosmosoftware.com">Cosmo Software</A> has clients for 
+      SGI, Windows and Mac</LI>
+    <LI><A HREF="http://www.yahoo.com/">YAHOO</A>'s <A HREF="http://dir.yahoo.com/Computers_and_Internet/Internet/World_Wide_Web/Virtual_Reality_Modeling_Language__VRML_/">VRML 
+      pages</A></LI>
+    <LI><A HREF="http://www.yahoo.com/">YAHOO</A>'s <A HREF="http://dir.yahoo.com/Business_and_Economy/Companies/Computers/Multimedia/Virtual_Reality/Software/VRML/">VRML 
+      software pages</A></LI>
+    <LI>Some other <A HREF="http://www.ai.sri.com/~leclerc/vrml/">VRML</A> code 
+      for Common Lisp from Yvan G. Leclerc</LI>
+  </UL>
+   
+</OL>
+
+<HR>
+
+<P><IMG SRC="/cl-http/icons/line-rain.gif" ALIGN=bottom></P>
+
+<ADDRESS>Author: Rainer Joswig / Mail:<A HREF="mailto:joswig@lavielle.com">joswig@lavielle.com</A>
+/ WWW: <A HREF="http://www.lavielle.com/~joswig/">http://www.lavielle.com/~joswig/</A></ADDRESS>
+</BODY>
+</HTML>

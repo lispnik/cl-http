@@ -1,0 +1,664 @@
+
+
+
+
+
+
+
+
+HTTP Working Group                                           Daniel Jaye
+INTERNET DRAFT                                       Engage Technologies
+
+
+<draft-ietf-http-trust-state-mgt-02.txt>
+March 4, 1998                                  Expires September 4, 1998
+
+
+       HTTP Trust Mechanism for State Management
+
+
+             Status of this Memo
+
+   This document is an Internet-Draft.  Internet-Drafts are
+   working documents of the Internet Engineering Task Force
+   (IETF), its areas, and its working groups.  Note that other
+   groups may also distribute working documents as Internet-
+   Drafts.
+
+   Internet-Drafts are draft documents valid for a maximum of six
+   months and may be updated, replaced, or obsoleted by other
+   documents at any time.  It is inappropriate to use Internet-
+   Drafts as reference material or to cite them other than as
+   ``work in progress.''
+
+   To learn the current status of any Internet-Draft, please
+   check the ``1id-abstracts.txt'' listing contained in the
+   Internet- Drafts Shadow Directories on ftp.is.co.za (Africa),
+   nic.nordu.net (Europe), munnari.oz.au (Pacific Rim),
+   ds.internic.net (US East Coast), or ftp.isi.edu (US West
+   Coast).
+
+   This is author's draft 2.06.
+
+
+ABSTRACT
+
+HTTP TRUST MECHANISM FOR STATE MANAGEMENT
+March 3, 1998
+
+1. ABSTRACT
+
+This document specifies an addition to the state management protocol
+specified in draft-ietf-http-state-man-mec-08[Kristol].  The intent is
+to provide a mechanism that allows user agents to determine the privacy
+practices of a server and to accept or reject cookies based on those 
+practices.  Allowing the user to establish preferences for how to handle
+cookies based on the server's practices provides a practical mechanism 
+
+
+
+Jaye            draft-ietf-trust-state-mgt-02.txt              [Page 1]
+
+
+INTERNET DRAFT HTTP Trust Mechanism for State Mgt          March 4, 1998
+
+
+to provide users control over the privacy implications of cookies.
+
+To provide verification of server privacy practices, we assume the
+existence of one or more independent Trust Authorities.  The authority 
+establishes PICS ratings representing server privacy practices. It then
+issues trust-labels, in the form of digitally signed PICS labels, to 
+organizations for specific domains and paths based on the server privacy
+practices.  The Trust Authority must be able to audit domains to 
+verify their adherence to a given level.  Passing these trust-labels 
+along with cookies allows the user agent to support cookie handling 
+preferences based on trusted privacy practices.
+
+This document describes how PICS-headers are used in conjunction with
+Set-Cookie or Set-Cookie2 headers in [Kristol] to provide trust-labels
+to communicate the privacy practices of servers regarding cookies.
+
+
+2. TERMINOLOGY
+
+The terms user agent, client, server, proxy, and origin server have the
+same meaning as in the HTTP/1.1 specification [RFC 2068].  The terms 
+domain-match, verifiable transaction, and unverifiable transaction are 
+defined in [Kristol], and those definitions are also used here.
+
+The term trust-label is used to mean a PICS label [PICS] used to 
+communicate the cookie-related privacy practices of a server.
+The term Trust Authority refers to the PICS label rating service for
+trust-labels who may issue digitally signed trust-labels to domains.
+
+
+3. OUTLINE
+
+The server sends a Set-Cookie and/or a Set-Cookie2 header to the user 
+Agent along with a PICS-Label header containing the trust-label.  The 
+user agent may then use that information to guide the acceptance or 
+rejection of the cookie.  If the trust-label has a digital signature,
+the user agent may use the well-known public key of the Trust 
+Authority to decrypt the signature of the trust-label to verify the 
+identity and practices of the server and scope of the trust-label.
+
+3.1  Syntax: General
+
+This specification describes how the PICS-Label header, described in 
+[PICS], is used to convey the privacy practices of the server to the 
+user-agent The new PICS-Label header syntax is specified below:
+
+trust-label     = "PICS-Label:" labellist
+
+The header is recognized as a trust-label by the existence of the 
+cookieinfo extension.  This trust-label applies to cookies in the 
+response that are compatible (as described in section 3.3.1) with 
+the domain and path of the "for" labelattr of the PICS-Label header.  
+
+
+
+Jaye            draft-ietf-trust-state-mgt-02.txt              [Page 2]
+
+
+INTERNET DRAFT HTTP Trust Mechanism for State Mgt          March 4, 1998
+
+
+The specific cookies are listed in the cookieinfo extension to the 
+PICS label or to all compatible cookies if no cookies listed in the 
+cookieinfo extension.  "labellist" is as specified in the PICS 1.1 label
+syntax in [PICS], except for the following changes:
+    an extension to include a list of the specific cookies to 
+        to which the trust-label applies;
+    an optional extension according to the digital signatures 
+        working draft [DSIG];
+    the optional label attributes "by" "gen" "for" "on" and "exp" 
+        are required. 
+
+The modified PICS label syntax is listed here.  
+
+labellist       = "(" "PICS-1.1" service-info ")"
+service-info    = serviceID "label" 1*label
+serviceID       = 
+      "http://www.w3.org/PICS/systems/P3P-http-trust-state-01.rat" |
+                  quotedURL
+label           = labelattr "ratings" "(" privacypractice ")" 
+                  cookieinfo [sigblock]
+labelattr       = ["by" quotedname]
+                  "gen" boolean
+                  "for" quotedURL
+                  "on" quoted-ISO-date
+                  "exp" quoted-ISO-date
+privacypractice = "purpose" 1*purposerating 
+                  "identifiable" idrating
+                  "domain of use" dourating
+cookieinfo      = "extension" "(" "mandatory"
+      <"> "http://www.w3.org/PICS/extensions/cookieinfo-1_0.html" <">
+                  *cookiename ")"
+cookiename      = NAME
+purposerating   = "0" | "1" | "2" | "3" | "4" | "5"
+idrating        = "0" | "1"
+dourating       = "0" | "1" | "2" | "3" | "4"
+
+"quotedname", "quotedURL", "rating",  and "quoted-ISO-date" are as 
+    defined in the PICS specification [PICS].  
+ServiceID references a quoted URL that defines the rating service and
+    rating system.  The well-known rating service proposed here is the
+    privacy rating system developed by the Platform for Privacy Project
+    (P3P) at the World-Wide Web Consortium (W3C).
+"for" is the URL or root URL for which this label applies.  
+"by" is the email address of the issuing trust authority.
+The "gen" boolean indicates whether the label is generic to the web site
+    or for a specific page.  A value of "True"  indicates that the label
+    is generic for all cookies with a Path attribute for which the path 
+    component of the URL in the "for" attribute is a prefix.
+"on" is the date the label was issued.  
+"exp" is the date the label expires.  
+"mandatory" in cookieinfo causes legacy browsers to ignore the label.
+cookiename is the "NAME" of each cookie to which this label applies.
+
+
+
+Jaye            draft-ietf-trust-state-mgt-02.txt              [Page 3]
+
+
+INTERNET DRAFT HTTP Trust Mechanism for State Mgt          March 4, 1998
+
+
+sigblock is the digital signature extension as described in the digital 
+    signature working draft[DSIG].  
+The sigblock must contain the SigCrypto token within the SigData block.
+The SigCrypto token must contain the encrypted trust-label-data 
+described below.
+
+trust-label-data = labelattr-data privacy-practice [cookielist]
+labelattr-data   = gen-boolean for-URL exp-date
+gen-boolean      = boolean
+for-URL          = quotedURL
+exp-date         = quoted-ISO-date
+
+"gen-boolean", "for-URL", and "exp-date" refer to the values of the 
+"gen", "for", and "exp" attributes in the "labelattr" section.  
+"cookielist" refers to the list of cookie names in the cookieblock 
+extension.
+
+Three well-known privacy-practice categories are described here to 
+provide recognized behavior that should be handled by user agents.  
+These categories are taken from the rating service developed by the 
+Platform for Privacy Project (P3P) at the World-Wide Web Consortium 
+(W3C).
+
+Purpose
+
+The purpose rating specifies and defines a set of six purposes for data 
+processing (data practices) relevant to the Web. Services must disclose 
+all that apply for each data element or data class they collect. If a 
+service does not disclose that a data element is used for a given 
+purpose, that is a representation that data is not used for that 
+purpose. Services that disclose that they use data for "other" purposes 
+should provide human readable explanations of those purposes. 
+
+"Completion and Support of Current Activity"     value = 0
+"Web Site and System Administration"             value = 1
+"Customization of Content and/or Design of Site" value = 2
+"Research & Development"                         value = 3
+"Contacting Visitors for Marketing of Services or Products" 
+                                                 value = 4
+"Other Uses"                                     value = 5
+
+Identifiable
+
+The Identifiable rating specifies whether the information gathered is in 
+identifiable form, is associated with identifiable information, or used 
+to derive personal identity.
+
+"non-identifiable"                               value = 0
+"identifiable"                                   value = 1
+
+
+
+
+
+
+Jaye            draft-ietf-trust-state-mgt-02.txt              [Page 4]
+
+
+INTERNET DRAFT HTTP Trust Mechanism for State Mgt          March 4, 1998
+
+
+Domainofuse
+
+The domain of use defines an organizational area, or domain, where data is likely to be used or redistributed by the service once collected. 
+
+"Only by ourselves and agents"                  value = 0
+    The data is used only by the service or its agents for the purposes
+    identified at the time of collection. 
+"Organizations following the same practices"    value = 1
+    The data may be used by organizations that are obligated to use it 	
+    under the same constraints as those observed by the service that 
+    collected it. For instance, the service may give data collected for
+    marketing purposes in non-identifiable form to a subsidiary who 
+    could use it for marketing purposes in non-identifiable form.
+"Organizations following different practices"   value = 2
+    The data may be used by organizations that are constrained by and 
+    accountable to the original service, but may use the data in a way 
+    not specified in that service's practices. 
+"Unrelated third parties"                       value = 3
+    The data may be used by organizations that are not constrained by or
+    accountable to the original service. 
+"Public"                                        value = 4
+    The data may be used in the public domain. For example, this might
+    apply to an alias stored in a cookie that is used to identify the 
+    author of messages posted to a public bulletin board. 
+
+All other items above are as described in the PICS label syntax [PICS] 
+or in the Digital Signatures working draft [DSIG].
+
+3.2	Server Role
+
+A server communicates its privacy practices by sending an unsigned or
+signed trust-label in the same response as the cookie header(s).
+Any server wishing to provide a digitally signed trust-label must 
+request the label from a Trust Authority.  The Trust Authority must have 
+the ability to evaluate the server and determine the trust rating
+for which a label will be issued. That evaluation takes place outside
+the protocol described here, as does the actual granting of the label
+to the origin server.
+
+The labels should expire no more than thirteen months and no less than 
+one month after they are issued.  The server should store the trust 
+labels and only request a new trust-label from the Trust Authority when 
+the current trust-label is about to expire.
+
+3.3 	User Agent Role
+
+The user agent receives a cookie headers and trust-labels from
+an origin server.
+
+3.3.1 Interpreting the trust-label
+User agents interpret cookies as described in RFC 2109.  In addition 
+
+
+
+Jaye            draft-ietf-trust-state-mgt-02.txt              [Page 5]
+
+
+INTERNET DRAFT HTTP Trust Mechanism for State Mgt          March 4, 1998
+
+to the cookie attributes, the user agent must now interpret the 
+trust-labels as well.  If the user agent receives a PICS label with a 
+serviceID from a recognized label service for trust-labels, it is 
+assumed to be a trust-label for all "compatible" cookies, as defined 
+below.
+
+A trust-label and a cookie are defined as "compatible" if the following 
+conditions are met:
+1) The domain portion of the URL specified in the "for" attribute of
+   labelattr domain-matches the Domain attribute of the cookie
+   response header, according to the matching rules in [Kristol].  
+2) The path portion of the URL specified in the "for" attribute of
+   labelattr is either a), a prefix of the Path attribute of the cookie 
+   if the trust-label is generic or, b), an exact match with the Path 
+   attribute of the cookie if the trust-label is not generic.
+ 
+If the cookieinfo extension does not contain any cookie names, then 
+the trust-label applies to all cookies in the response that are 
+compatible.
+
+A trust-label is ignored if the "exp-date" attribute of labelattr
+is less than or equal to the current date.
+
+To help verify the trustworthiness of the server, the user agent may 
+look for a digital signature and use the Trust Authority's well known 
+public key to decrypt the trust-label-data from the SigCrypto term.
+
+The user agent obtains that public key outside this protocol.  Given 
+that we expect only a few well-known Trust Authorities, the user agent 
+implementer should cache public keys from standard trust authorities 
+to avoid extra network traffic.
+
+The labelattr-data, privacy-practice, and cookielist in the decrypted 
+trust-label-data from the sigblock must match the plaintext labelattr,
+privacy-practice, and cookielist for the signature to be valid.
+
+If the digital signature is invalid, then the trust-label should be 
+ignored and the cookie should not be set.
+
+If the user agent is set to accept all cookies then all trust-label 
+processing can be skipped.
+
+3.3.2	Accepting or rejecting Cookies
+
+In addition to the rules for rejecting cookies specified in [Kristol], a
+user or a user-designated agent should be able to designate preferences
+for accepting or rejecting cookies based on the privacy-practice of the
+server, whether the transaction is verifiable or unverifiable, and
+whether the privacy-practice is signed by a recognized Trust Authority.
+
+For example, a user may have a preference to accept all cookies from 
+verifiable transactions or rated "identifiable 0" and signed by a 
+recognized Trust Authority.
+
+
+
+Jaye            draft-ietf-trust-state-mgt-02.txt              [Page 6]
+
+
+INTERNET DRAFT HTTP Trust Mechanism for State Mgt          March 4, 1998
+
+User agents should have the following default preferences:
+  Automatically accept:
+    Cookies from verifiable transactions with trust-labels with 
+      purposerating 0 through 4 and dourating 0;
+    Cookies from unverifiable transactions with trust-labels with 
+      purposerating 0 through 4 and idrating 0 and 
+      dourating 1.
+  Automatically reject:
+    Cookies from unverifiable transactions without trust-labels.
+
+3.3.3  User intervention
+The user agent may prompt the user to verify that it wishes to reject a
+cookie in conditions where the cookie is being rejected based on
+a default preference or no preference applies.
+
+User agents that solicit user input for cookie handling may wish to 
+display the URL of the rating service to better inform the user of the 
+meaning of the privacy ratings for the server.
+
+3.3.4  Cookie request header syntax
+The syntax for the Cookie request header has not been modified.
+
+3.4  Trust Authority Role
+
+The Trust Authority referred to in this document must be a neutral third
+party that can be trusted to accurately characterize the privacy
+behavior of web sites.  The issuing of trust-labels occurs outside the
+scope of this protocol.  However, the protocol depends on user trust in
+the Trust Authority.  The Trust Authority must understand the scope to
+which a trust-label applies to ensure that for all situations in which 
+the trust-label would be deemed to be applicable, the server(s) are in 
+fact operating in accordance with the specified privacy rating.
+
+3.4.1 Issuing trust-labels
+On receiving a request for a signed trust-label, the authority should 
+verify the privacy practices of the site requesting the trust-label and 
+issue the appropriate trust-label.  To issue the trust-label, the Trust 
+Authority assembles the trust-label-data, it canonicalizes whitespace 
+for the trust-label-data, and it encrypts the trust-label-data for the 
+site request using its private key and the algorithm specified in the 
+attribution of the digital signature.  The encryption method must be a
+public-private key pair with a well-known public key to eliminate 
+round-trips to the Trust Authority. 
+
+3.4.2 Revocation of trust-labels
+Trust-labels must have expiration dates.  When a trust-label is issued,
+the Trust Authority must receive agreement from the requesting
+organization that the privacy practices for which the trust-label was 
+assigned will be maintained until the trust-label expires, the domain 
+becomes inactive, or those cookies are no longer set or examined by the
+organization's servers.
+
+3.4.3 Discovery of privacy-practice ratings
+
+
+
+Jaye            draft-ietf-trust-state-mgt-02.txt              [Page 7]
+
+
+INTERNET DRAFT HTTP Trust Mechanism for State Mgt          March 4, 1998
+
+
+Privacy-practice ratings are defined in the PICS label rating system
+referenced by the Trust Authority's label rating service.  The
+well-known rating service, http:\www.w3.org\PICS\1.0\P3P\v1.0, is referenced in this document.
+
+
+4. EXAMPLES
+
+4.1 Example 1
+
+1.  User Agent preferences:
+
+    In this example, the user agent has a preference for automatically
+    accepting cookies from domains that have valid rating of 
+    "domainofuse 0".
+
+2.  User Agent -> Server
+
+      POST /acme/login HTTP/1.1
+      Host: www.acme.com
+      [form data]
+
+    User identifies self via a form.
+
+3.  Server -> User Agent
+      HTTP/1.1 200 OK
+      Set-Cookie2: Customer="WILE_E_COYOTE"; Max-Age = 94608000; 
+        Version="1"; Path="/acme" 
+      PICS-Label: (PICS-1.1 
+        "http://www.w3.org/PICS/systems/P3P-http-trust-state-01.rat"
+        label
+        for "http://www.acme.com/"
+        exp "1998.12.31T23:59-0000" 
+        extension
+          (mandatory 
+            "http://www.w3.org/PICS/extensions/cookieinfo-1_0.html")
+        ratings (purpose 0:4 identifiable 1 domainofuse 0))
+
+    A cookie that includes the user's identity and an unsigned trust 
+    label header are sent back to the user agent with the response.  The
+    cookie is accepted because rating "domainofuse 0" is acceptable 
+    according to the privacy preferences of the user agent.
+
+4.2 Example 2
+
+1.  User Agent preferences:
+
+    In this example, the user agent has a preference for automatically 
+    accepting cookies that are rated "domainofuse 0" or cookies in 
+    unverifiable transactions that are rated "identifiable 0" and 
+    "domainofuse 0" or "domainofuse 1 by www.aaa.org.
+
+
+
+
+Jaye            draft-ietf-trust-state-mgt-02.txt              [Page 8]
+
+
+INTERNET DRAFT HTTP Trust Mechanism for State Mgt          March 4, 1998
+
+
+2.  User Agent -> Server
+
+      POST /acme/login HTTP/1.1
+      Host: www.acme.com
+      [form data]
+
+User requests page with embedded IMG SRC reference to
+    "http://www.roadrunnermaps.com/cgi-bin/maps?TER=deserts&FE=cliffs"
+3.  Server -> User Agent
+      HTTP/1.1 200 OK
+      Set-Cookie2: Customer="0000000123"; Max-Age = 94608000; 
+        Version="1"; Path="/birds" 
+      PICS-Label: (PICS-1.1 
+        "http://www.w3.org/PICS/systems/P3P-http-trust-state-01.rat"
+        label
+        by "auditor@aaa.org" gen true
+        for "http://www.acme.com/"
+        exp "1997.12.31T23:59-0000" 
+        extension
+          (mandatory 
+            "http://www.w3.org/PICS/extensions/cookieinfo-1_0.html")
+        ratings (purpose 0:4 identifiable 0 domainofuse 0))
+
+    A Cookie reflecting the users identity is transmitted with an 
+    unsigned trust-label back to the user agent.  The Cookie is accepted
+    by the user agent because the rating "domainofuse 0" is compatible 
+    with the user agent's privacy preference.
+
+4.  User Agent -> Server
+
+      GET cgi-bin/maps?TER=deserts&FE=cliffs HTTP/1.1
+      Host: www.roadrunnermaps.com
+
+User requests an image via CGI script from a third party map 
+    provider.  This is an unverifiable transaction.
+
+5.  Server -> User Agent
+      HTTP/1.1 200 OK
+      Set-Cookie2: Customer="0000000123"; Max-Age = 94608000; 
+        Version="1" 
+      PICS-Label: (PICS-1.1 
+        "http://www.w3.org/PICS/systems/P3P-http-trust-state-01.rat"
+        label
+        by "auditor@aaa.org" gen true
+        for "http://www.roadrunnermaps.com/"
+        exp "1997.12.31T23:59-0000" 
+        extension
+          (optional 
+            "http://www.w3.org/PICS/extensions/cookieinfo-1_0.html"
+            Customer)
+
+
+
+
+
+Jaye            draft-ietf-trust-state-mgt-02.txt              [Page 9]
+
+
+INTERNET DRAFT HTTP Trust Mechanism for State Mgt          March 4, 1998
+
+
+        extension 
+          (mandatory "http://www.w3.org/PICS/DSig/sigblock-1_0.html"
+            ("AttribInfo" 
+              ("http://www.w3.org/PICS/DSig/X509.html" 
+                "base64-x.509-cert"))
+            ("Signature" "http://www.aaa.org/trust.html" 
+              ("byName" "aaapublickey") 
+              ("SigCrypto" 
+                "8E53B19D35A3F198930E5D815B235A38930E53FDA815B2158")))
+        ratings (purpose 0:3 identifiable 0 domainofuse 1))
+
+A cookie containing the user's system generated id number is 
+    transmitted with a signed label back to user agent.  The cookie is 
+    accepted by user agent because a cookie rated "identifiable 0" and 
+    "domainofuse 1" in an unverifiable transaction signed by 
+    www.aaa.org" is acceptable to the user agent.
+
+
+5. SECURITY CONSIDERATIONS
+
+5.1 Revocation of trust-labels
+
+A site could receive a trust-label for a particular trust level rating 
+and later change its policies before the trust-label has expired.  To 
+address this Trust Authorities should execute agreements with trust
+label recipients to provide legal remedies to discourage this behavior.
+
+5.2 False representation
+
+A site could state a privacy practice that it either intentionally or
+unintentionally does not follow.  If the trust-label is not signed by a
+recognized trust authority, there is no independent verification of the
+site's adherence to its stated privacy practice.  However, if the site digitally signs the label, then that may represents a legally binding contract on the site to follow the professed privacy practice.  In addition, the site may be in violation of consumer fraud statutes in some jurisdictions if they misrepresent their privacy practices.
+
+
+6. SUMMARY
+
+This document presents an extension to the state management protocol 
+defined in RFC2109.  It describes only changes to that protocol. Any 
+parts of the state management mechanism not explicitly described here 
+are assumed to remain as defined in RFC 2109.
+
+The protocol described here allows a user agent to verify that the 
+origin server is using cookies in a manner consistent with the privacy 
+expectations of the user, by providing a trust-label which may be signed
+by a Trust Authority.
+
+
+
+
+
+Jaye            draft-ietf-trust-state-mgt-02.txt             [Page 10]
+
+
+INTERNET DRAFT HTTP Trust Mechanism for State Mgt          March 4, 1998
+
+
+7. ACKNOWLEDGEMENTS
+
+This document represents input from Dave Kristol, Yaron Goland, Joseph Reagle, and Jonathan Stark..
+
+
+8. REFERENCES
+
+[PICS] Jim Miller et al, PICS Label Distribution Label Syntax and 
+Communication Protocols, Version 1.1, REC-PICS-labels-961031
+http://www.w3.org/PICS/labels.html
+ [Kristol] Kristol, David M., Montulli, Lou, HTTP State Management 
+Mechanism (Rev 1).  
+Internet Draft <draft-ietf-http-state-man-mec-08.txt>
+ftp://ietf.org/internet-drafts/draft-ietf-http-state-man-mec-08.txt
+
+[DSIG] Philip DesAutels et al, DSIG 1.0 Signature Labels, Version 1.0, 
+WD-DSIG-label-970605
+http:/www.w3.org/TR/WD-DSIG-label.html/
+
+
+9. AUTHOR'S ADDRESS
+
+Daniel Jaye
+Engage Technologies
+100 Brickstone Square, 1st Floor
+Andover, MA 01810
+djaye@engagetech.com
+978 684-3641 voice
+978 684-3636 fax
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Jaye            draft-ietf-trust-state-mgt-02.txt             [Page 11]
+

@@ -1,0 +1,50 @@
+The HTML Parser Generator
+Release 10.0-alpha
+Mon Oct  4 21:34:40 PDT 1999
+
+    Copyright (c) 1996-98 Sunil Mishra <smishra@cc.gatech.edu>,
+    portions copyright (c) 1999 Kaelin Colclasure <kaelin@acm.org>,
+    all rights reserved.
+
+    This library is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Lesser General Public License
+    as published by the Free Software Foundation; either version 2 of
+    the License, or (at your option) any later version.
+
+    This library is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+    Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public
+    License along with this library; if not, write to the Free
+    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
+    02111-1307 USA
+
+This package contains an HTML parser generator for Common Lisp. The file
+html-parser.html contains a description of the previous (v9) version of
+the parser generator. The file ChangeLog contains a log of changes made to
+the package since v9. Note that there have been some superficial changes
+to the syntax of the primary interface macros #'define-html-parser and
+#'define-html-parser-context. If you have code using an older version of
+this package, you'll need to add some parenthesis to the invocations of
+these macros.
+
+I have offered to pick up the maintenance of this package from the
+original author, Sunil Mishra, and he has agreed. He has also graciously
+agreed to let me change the license terms under which it is distributed
+from those nebulously implied by its inclusion in the CL-HTTP distribution
+to those of the Gnu Lesser General Public License (LGPL). [The copyright
+notices in the source files have not been updated yet -- but they will be
+before the final 10.0 release.]
+
+Bugs in this version of the HTML parser generator should be reported to
+me, Kaelin Colclasure <kaelin@acm.org>. If you've encountered a bug in a
+previous release of the package, please check to see if it's already been
+addressed in this release before reporting it.
+
+I hope you find this package as useful as I have.
+
+-- Kaelin Colclasure <kaelin@acm.org>
+
+$Id: //depot/rev/lisp/html-parser-10.0-alpha/README#1 $

@@ -1,0 +1,65 @@
+<TITLE>Computed URL Example</TITLE>
+
+<h2><LI> <A name=code-example>Computed URL Example</A></h2>
+
+<P> In this example, the client receives an HTML+ page that the server
+computes by listing a remote directory and repackaging the file names in a <A
+HREF="http://clinton.ai.mit.edu/radio-addresses.html">friendlier format</A>.
+Below, we see the Common LISP definition for the response function that is
+invoked when a client sends the server a GET for the computed URL.
+
+<pre>
+<I>;; Export the computed URL and provide its response function.</I>
+(export-url "http://clinton.ai.mit.edu/radio-addresses.html"
+	    :html-computed
+	    #'compute-clinton-audio-page)
+
+<I>;; Writes HTML+ directly to the client over STREAM, which is a live
+;; HTTP connection to the client.</I>
+(defmethod <B>compute-clinton-audio-page</B> ((url <B>url:http-computed-url</B>) stream)
+  (flet <I>;; Abstract the internal function that writes an entry.</I>
+    ((<B>write-pathname</B> (pathname stream)
+       (let ((url (url:pathname-ftp-url-string pathname))
+	     (friendly-date (uu-radio-address-anchor-date pathname)))
+	 (when friendly-date
+	   <I>;; Encapsulate text within an enumeration entry.</I>
+	   (html+:enumerating-item (stream)
+	     <I>;; Change the text style to bold.</I>
+	     (html+:with-rendition (:bold :stream stream)
+	       <I>;; Write an HTML+ anchor spec using the friendly name.</I>
+	       (html+:note-anchor
+		 friendly-date :reference url :stream stream)))))))
+    <I>;; Main body of method.</I>
+    (let ((directory-list (www-utils:ftp-directory-info
+			    *saturday-radio-addresses-audio-directory*
+			    "anonymous"
+			    (www-utils:user-mail-address))))
+      (if directory-list
+	  <I>;; Inform the client that we're winning and returning HTML+.</I>
+	  (with-successful-response (stream :html)
+	    <I>;; Provide the header info that goes in the HTML+.</I>
+	    (html+:with-document-preamble (:stream stream)
+	      (html+:declare-base-reference url :stream stream)
+	      (html+:declare-title "Saturday Radio Addresses" :stream stream))
+	    <I>;; Use the body environment.</I>
+	    (html+:with-document-body (:stream stream)
+	      (html+:with-section-heading
+		((html+:image
+		   "http://clinton.ai.mit.edu/icons/sound-icon.xbm"
+		   "The President's Saturday Radio Addresses to the Nation"
+		   :stream nil))
+		(html+:new-paragraph :stream stream)
+		<I>;; Provide the instructions for the WWW page.</I>
+		(write-string "By clicking on a date, you can listen to
+                               the audio for a Saturday radio address
+	                       by President Clinton." stream)
+		(html+:horizontal-line :stream stream)
+		(html+:new-paragraph :stream stream)
+		<I>;; Enter an environment for enumerating items.</I>
+		(html+:with-enumeration (stream :itemize)
+		  <I>;; Map over files and write them as bullets.</I>
+		  (loop for (pathname) in directory-list
+			do (<B>write-pathname</B> pathname stream))))))
+	  <I>;; Signal that the server cannot connect to the remote host.</I>
+	  (error "Unable to connect to UU.NET to get file list.")))))
+</pre>

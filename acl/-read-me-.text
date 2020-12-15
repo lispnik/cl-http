@@ -1,0 +1,209 @@
+This is a beta version of the CL-HTTP system ported to Franz Inc.
+Allegro Common Lisp (ACL) for UNIX by Olivier Clarisse.
+This version (February 96) includes initial support  for ACL
+on Linux and Irix.
+This version (August 96) includes the alpha release of CL-HTTP
+ported to ACL PC for Windows 95 and NT.
+
+
+*****
+
+Note: There is a port of cl-http specifically designed for acl 5.0.1.
+It is found in the acl501 directory of the cl-http distribution.
+The notes in this file do not apply to the acl501 port.
+
+
+*****
+
+Comments: Forward comments and suggestions to this mailing list:
+	Bug-acl-cl-http@ai.mit.edu.
+
+Disclaimer: This port of CL-HTTP to ACL UNIX and PC comes with no explicit
+or implied warranty whatsoever. Use at your own risk.
+
+CONFIGURATIONS:
+===============
+This version has only been tried under the following configurations:
+Hardware:		Sun Microsystems workstations, Pentium PC.
+Operating Systems:	SunOS 4.1.3x, Solaris 2.4 and 2.5, Irix, Linux,
+			Windows NT or 95.
+Franz Versions:		ACL UNIX 4.2 and 4.3, ACL Linux 4.3, ACLPC 3.0
+HTTP ports:		80 (with root ownership) and ports 8000-8010 on UNIX.
+			80 on PC.
+Clients:		Netscape 2 and 3 on SunOS, Solaris, Windows 95 and NT.
+
+IMPORTANT NOTES:
+================
+1. If using ACL 4.2 UNIX, recent patches must be loaded:
+   Install patches for your platform from ftp://ftp.franz.com/pub/patches/
+   or see http://www.franz.com.
+2. If using ACLPC 3.0 or 3.0.1, recent patches must be loaded:
+   Install the latest ftp://ftp.franz.com/pub/patches/aclwin/3.0.1/prerr.fsl
+   Install the latest ftp://ftp.franz.com/pub/patches/aclwin/3.0.1/socket3.fsl
+   in the ALLEGRO/UPDATE directory of either ACLPC 3.0 or 3.0.1 before
+   building/loading CL-HTTP.
+   For ACLPC 3.0.1 an additional patch (probef.fsl) is required
+   if you use a Networked File System to build and run CL-HTTP from.
+   You may wan to install the complete latest set of patches when using 3.0.1.
+
+GETTING STARTED:
+================
+
+1. To unbundle the software:
+
+	$ zcat sources-XX-XX.tar.Z | tar xvf -
+
+   Or using GNU gunzip and tar on UNIX or PC:
+
+	$ gunzip -c -d sources-XX-XX.tar.gz | tar xvfm -
+
+   See also -read-me-acl-patch-.text
+
+2. To get started from ACLPC:
+
+> (load "C:\\[PATH-TO...]\\CL-HTTP-XX-XX\\ACL\\STARTPC.LISP")
+
+NOTE: The file "HTTP:acl;aclpc;hostdomain" is used to store the full
+      host and domain name of the server. You can edit it to change
+      the domain name or host name.
+
+   To save an image of CL-HTTP, restart ACLPC after the CL-HTTP compilation
+   is complete and do NOT load the CL-HTTP examples. You can then save
+   and image (without the examples). The next time CL-HTTP starts (from the
+   image saved) it will load the examples and start the server automatically.
+
+Happy testing...
+
+3. To get started from UNIX:
+
+	$ cd ~cl-http		# Wherever the CL-HTTP source directory is
+
+	$ cp acl/http.script acl/http
+
+   Copy acl/http.script to acl/http, and change the top shell variables
+   in acl/http to match the configuration at your site as follows:
+
+	FRANZ= path where ACL is installed at your site.
+	HTTP= path where this version of CL-HTTP is accessible.
+	BIND80= path where the root-owned version of bind80 will be located.
+	DOMAINNAME= DNS domain name of your site (may be optional).
+
+	$ chmod 755 acl/http
+	$ acl/http -compile		# Compile CL-HTTP source code
+	$ acl/http -build		# Build the CL-HTTP image, you need
+					# to type :exit after image iss saved
+	$ acl/http			# Run CL-HTTP using defaults
+	OR:
+	$ acl/http -load		# To run HTTP without saving an image
+					# you still need to use -build first
+					# this enables ACL demo versions that
+					# won't save an image to run CL-HTTP.
+
+   Examples:
+	$ acl/http fastremap=t		# "fastremap" used if the server needs
+					# to restart quickly. This only remaps
+					# preloaded "http:" urls yet this is
+					# much faster than the full remapping.
+
+	$ acl/http update=t		# "update" enables loading updates
+					# before starting the server.
+
+	$ acl/http port=80 log=t	# Run CL-HTTP using port 80 and log trace
+	$ acl/http -back port=80	# Run CL-HTTP (port 80) as background daemon
+
+4. To get started from ACL directly:
+
+USER(1): :cd ~/cl-http/   ;Wherever the CL-HTTP source directory is
+
+USER(2): :ld acl/start    ;Answer questions as they come
+
+NOTE: The shell variable DOMAINNAME can be used to override the default
+      domain name returned by the OS. If DOMAINNAME is not used, the file
+      "HTTP:acl;defaultdomain" can be used to specify a domain name override.
+
+Happy testing...
+
+5. The ACL CL-HTTP server code typically comes up with directory permissions
+   limited to the owner. If this server needs to be executable by all users at
+   your site you may try for example:
+
+	$ find ~cl-http -type d -print | xargs chmod 755
+
+4. See also other read-me files in the main CL-HTTP directory.
+
+RELEASE NOTES:
+==============
+This version (August 96) provides the following features for ACL UNIX ONLY**:
+   + Event Logging.
+   + HTTP/1.1 Chunking and Persistent Connections.
+   + CLIM Presentation System W3P.
+   + W4 Web-Walker client.
+** These are NOT yet available for ACLPC NT due to lack of PC hardware...
+
+This version (June 96) features the first released port to ACL 4.3.
+Using ACL 4.3, CL-HTTP may achieve better stability against TCP stream
+locking (e.g. proxy tunneling) and better performance in comparison
+to ACL 4.2.
+
+This version (April 96) features the following ACL UNIX specific enhancements:
+1. Significant performance improvement for large contents transfer
+   to multiple clients: A factor 3 to 4 speed-up has been observed
+   when streaming large video clips compared to previous versions.
+2. Support for port 80: Permission to use port 80 is reserved for
+   root, and we really don't need to run the CL-HTTP image as root.
+   A workaround suggested by David W. Dykstra is provided: The script
+   when invoked as "http port=80" executes a minimal program "bind80"
+   that binds port 80 and passes the resulting FD to exec CL-HTTP.
+   The resulting CL-HTTP process will be owned by you, not by root.
+   The script "http -build" provides instruction to enable this feature.
+3. Port hunting: If a port is not available because UNIX has not GC-ed
+   it (yet), the next available port, typically in range 8000-8010 is used.
+4. Automatic host and exports reset. A CL-HTTP image produced by "http -build"
+   will automatically reset (only when needed) its host name, address,
+   domain and corresponding cached URLs when starting the server.
+   This prevents time consumming run-time loading of the "exports" files.
+5. CGI-BIN: an acl/cgi-bin is provided as an example of a standard
+   UNIX style CGI bin directory. Other CGI-BIN directories can be added
+   in the user customized exports. See acl/examples/exports.lisp.
+6. The directory "custom" is used for "user-exports" extensions
+   for user defined exports at a site. Such exports and other similarly
+   defined user export modules are compiled and loaded into the image
+   at build time. Changes to the user export modules can be compiled
+   and loaded into the image: (http:compile-exports) (http:load-exports).
+7. "http -build" is now required to build CL-HTTP, this script
+   will assist the build of "bind80", unpack the "acl/cgi-bin" and create
+   the "custom" directory where "user-exports" is added.
+
+PORT CODE DESCRIPTION:
+======================
+A single directory "acl" is added to the standard CL-HTTP
+distribution providing ACL specific additions and changes.
+This directory should be moved right under the main CL-HTTP directory
+(at the same level as "server" and "client" common code).
+
+The directory "clim/clim-sys" for ACL is now shared with other ports
+and contains the CL portable implementation of CLIM-SYS. CLIM-SYS
+includes the pseudo multiprocessing utility called MINIPROC that
+uses closures to emulate multiple stacks (written in generic CLOS).
+In addition it provides minimal defsystem and pathname translation
+useful for other porting exercises.
+
+Directory "acl/examples" also contains minimal "configuration"
+and "exports" changes to support this version. The file
+acl/configuration.lisp contains configuration parameters
+specific to the ACL UNIX and PC versions of CL-HTTP.
+
+See also the file: HTTP:www;cl-http;configure-acl.html.
+
+ADDITIONAL INFORMATION:
+=======================
+General questions, comments about CL-HTTP should
+be addressed to the WWW-CL mailing group:
+
+www-cl@ai.mit.edu
+Bug-cl-http@ai.mit.edu
+
+Questions and problems specific to this ACL UNIX port should
+be addressed to:
+
+Bug-acl-cl-http@ai.mit.edu

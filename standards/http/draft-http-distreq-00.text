@@ -1,0 +1,415 @@
+
+
+HTTP Working Group                                 E. J. Whitehead, Jr.
+INTERNET-DRAFT                                     U.C. Irvine
+<draft-whitehead-http-distreq-00.txt>              September 1996
+
+Expires March, 1997
+
+
+	 Requirements on HTTP for Distributed Content Editing
+
+
+Status of this Memo
+
+This document is an Internet draft. Internet drafts are working
+documents of the Internet Engineering Task Force (IETF), its areas and
+its working groups. Note that other groups may also distribute working
+information as Internet drafts.
+
+Internet Drafts are draft documents valid for a maximum of six months
+and can be updated, replaced or obsoleted by other documents at any
+time. It is inappropriate to use Internet drafts as reference material
+or to cite them as other than as "work in progress".
+
+To learn the current status of any Internet draft please check the
+"lid-abstracts.txt" listing contained in the Internet drafts shadow
+directories on ftp.is.co.za (Africa), nic.nordu.net (Europe),
+munnari.oz.au (Pacific Rim), ds.internic.net (US East coast) or
+ftp.isi.edu (US West coast). Further information about the IETF can be
+found at URL: http://www.ietf.org/
+
+Distribution of this document is unlimited. Please send comments to the
+WWW Distributed Authoring and Versioning mailing list,
+<w3c-dist-auth@w3.org>, which may be joined by sending a message with
+subject "subscribe" to <w3c-dist-auth-request@w3.org>. Discussions are
+archived at URL:
+http://www.w3.org/pub/WWW/Archives/Public/w3c-dist-auth/. The HTTP
+working group at <http-wg@cuckoo.hpl.hp.com> also discusses the HTTP
+protocol.  Discussions of the HTTP working group are archived at URL:
+http://www.ics.uci.edu/pub/ietf/http/. General discussions about HTTP
+and the applications which use HTTP should take place on the
+<www-talk@w3.org> mailing list.
+
+
+Abstract
+
+The HyperText Transfer Protocol, version 1.1 (HTTP/1.1), provides
+simple support for applications which allow remote editing of typed
+data. In practice, the existing capabilities of HTTP/1.1 have proven
+inadequate to support efficient, scalable remote editing free of
+overwriting conflicts.  This document presents a list of features in
+the form of requirements which, if implemented, would improve the
+efficiency of common remote editing operations, provide a locking
+mechanism to prevent overwrite conflicts, improve relationship
+management support between non-HTML data types, provide a simple
+attribute-value metadata facility, and provide for the creation and
+reading of container data types. These requirements are also supportive
+of versioning capability.
+
+
+1. Introduction
+
+This document describes functionality which, if provided in the
+HyperText Transfer Protocol (HTTP) [4], would support the
+interoperability of tools which allow remote loading, editing and
+saving (publishing) of various media types using HTTP. As much as
+possible, this functionality is described without suggesting a proposed
+implementation, since there are many ways to perform the functionality
+within the HTTP framework. It is also possible that a single mechanism
+within HTTP could simultaneously satisfy several requirements.
+
+Much of the functionality described in this document stems from the
+assumption that people performing distributed authoring only have
+access to the objects they are editing via the HTTP protocol. This is
+in contrast to the majority of current authoring practice, where there
+is access to the underlying storage media, often with a shell or
+graphical user interface mediating access to a filesystem. Authors need
+more than just remote control over their individual documents: they
+need remote control over the namespace in which those documents
+reside. Currently, authors control their namespace by interacting
+directly with the underlying storage system, but when performing
+distributed authoring this access is not available.
+
+
+2. Requirements
+
+In the requirement descriptions below, the requirement will be stated,
+followed by its rationale. If any current distributed authoring tools
+currently implement the requirement, this is also mentioned. It is
+assumed that "server" means "a program which receives and responds to
+HTTP requests," and that "distributed authoring tool" or "intranet
+enabled tool" means "a program which can retrieve a source entity via
+HTTP, allow editing of this entity, and then save/publish this entity
+to a server using HTTP." A "client" is "a program which issues HTTP
+requests and accepts responses."
+
+  1. Source Retrieval. The source of any given entity should be
+     retrievable via HTTP.
+
+     There are many cases where the source entity stored on a server
+     does not correspond to the actual entity transmitted in response
+     to an HTTP GET. Current known cases are server side include
+     directives, and Standard Generalized Markup Language (SGML) source
+     entities which are converted on the fly to HyperText Markup
+     Language (HTML) [2] output entities. There are many possible
+     cases, such as automatic conversion of bitmap images into several
+     variant bitmap media types (e.g. GIF, JPEG), and automatic
+     conversion of an application's native media type into HTML. As an
+     example of this last case, a word processor could store its native
+     media type on a server which automatically converts it to HTML. A
+     GET of this entity would retrieve the HTML. Retrieving the source
+     of this entity would retrieve the word processor native entity.
+
+     This requirement should be met by a general mechanism which can
+     handle both the "single-step" source processing described above,
+     where the source is converted into the transmission entity via a
+     single conversion step, as well as "multi-step" source processing,
+     where there are one or more intermediary processing steps and
+     outputs. An example of multi-step source processing is the
+     relationship between an executable binary image, its object files,
+     and its source language files. It should be noted that the
+     relationship between source and transmission entity could be
+     expressed using the relationship functionality described below in
+     "Relationships."
+
+  2. Relationships. Via HTTP, it should be possible to create, query,
+     and delete typed relationships between entities of any media type.
+
+     A hypertext link is a relationship between entities which is
+     browsable using a hypertext style point-and-click user
+     interface. Relationships, whether they are browsable hypertext
+     links, or simply a means of capturing a interrelation between
+     entities, have many purposes.  Relationships can support
+     pushbutton printing of a multi-resource document in a prescribed
+     order, jumping to the access control page for an entity, and quick
+     browsing of related information, such as a table of contents, an
+     index, a glossary, help pages, etc. While relationship support is
+     provided by the HTML "LINK" element, this is limited only to HTML
+     entities, and does not support bitmap image types, and other
+     non-HTML media types.  AOLpress from America Online [1] currently
+     "allows pages to add toolbar buttons on the fly using the HTML 3.2
+     <LINK REL....> tag. For example, your page can add toolbar buttons
+     that link to a home page, table of contents, index, glossary,
+     copyright page, next page, previous page, help page, higher level
+     page, or a bookmark in the document."
+
+  3. Write Locks. It should be possible, via HTTP, to restrict
+     modification of an entity to a specific person, or list of
+     persons. It should be possible to set single or multi-person write
+     locks with a single action.
+  4. Read Locks. It should be possible, via HTTP, to indicate to the
+     HTTP server that the contents of an entity should not be modified
+     until the read lock is released. It should be possible to assign a
+     read lock to a single person or a list of persons with a single
+     action.
+  5. Lock Query. It should be possible to query for whether a given URL
+     has any active modification restrictions, and if so, who currently
+     has modification permission.
+  6. Independence of locks. It should be possible to lock an entity
+     without re-reading the entity, and without committing to editing
+     an entity.
+  7. Multi-Entity Locking. It should be possible to take out a write or
+     read lock on multiple entities in the same action, and this
+     locking operation must be atomic across these entities.
+  8. Partial-Entity Locking. It should be possible to take out a write
+     or a read lock on subsections of an entity.
+
+     At present, HTTP provides limited support for preventing two or
+     more people from overwriting each other's modifications when they
+     save to a given URL. Furthermore, there is no way for people to
+     discover if someone else is currently making modifications to an
+     entity. This is known as the "lost update problem," or the
+     "overwrite problem." Since there can be significant cost
+     associated with discovering and repairing lost modifications,
+     preventing this problem is crucial for supporting distributed
+     authoring. A "write" lock ensures that only one person (or list of
+     persons) may modify an entity, preventing overwrites.
+     Furthermore, locking support is also a key component of many
+     versioning schemes, a desirable capability for distributed
+     authoring.
+
+     An author may wish to lock an entire web of entities even though
+     they are editing just a single entity, to keep the other entities
+     from changing. In this way, an author can ensure that if a local
+     hypertext web is consistent in their distributed authoring tool,
+     it will then be consistent when they write it to the
+     server. Because of this, it should be possible to take out a lock
+     without also causing transmission of the contents of an
+     entity. Since it should not be assumed that because an entity is
+     locked, that it will necessarily be modified, and since many
+     people may wish to have simultaneous guarantees that an entity
+     will not be modified, but still not want to modify the entity
+     themselves, it is desirable to have a "read" lock capability. A
+     read lock, by being less restrictive, provides better support than
+     a write lock for providing a guarantee that an entity will not be
+     modified. Put differently, a read lock states that the entity is
+     guaranteed not to change for the duration of the lock. A write
+     lock states that an entity is guaranteed not to change only if the
+     owner of the lock does not change it, and only the owner of the
+     lock may change it.
+
+     It is often necessary to guarantee that a lock or unlock operation
+     occurs at the same time across multiple entities, a feature which
+     is supported by the multiple-entity locking requirement. This is
+     useful for preventing a collision between two people trying to
+     establish locks on the same set of entities, since with
+     multi-entity locking, one of the two people will get a lock. If
+     this same multiple-entity locking scenario was repeated by using
+     atomic lock operations iterated across the entities, the result
+     would be a splitting of the locks between the two people, based on
+     entity ordering and race conditions.
+
+     Partial entity locking provides support for collaborative editing
+     applications, where multiple users may be editing the same entity
+     simultaneously. Partial entity locking also allows multiple people
+     to simultaneously work on a database type entity.
+
+  9. Notification of Intention to Edit. It should be possible to notify
+     the HTTP server that an entity is about to be edited by a given
+     person. It should be possible to query the HTTP server for the
+     list of people who have notified the server of their intent to
+     edit an entity.
+
+     Experience from configuration management systems has shown that
+     people need to know when they are about to enter a parallel
+     editing situation.  Once notified, they either decide not to edit
+     in parallel with the other authors, or they use out-of-band
+     communication (face-to-face, telephone, etc.) to coordinate their
+     editing to minimize the difficulty of merging their
+     results. Notification is separate from locking, since a write lock
+     does not necessarily imply an entity will be edited, and a
+     notification of intention to edit does not carry with it any
+     access restrictions. This capability is supportive of versioning,
+     since a check-out is typically involves taking out a write lock,
+     making a notification of intention to edit, and getting the entity
+     to be edited.
+
+ 10. Partial Write. After editing an entity, it should be possible, via
+     HTTP, to only write the changes to an entity, rather than
+     retransmitting the entire entity.
+
+     During distributed editing which occurs over wide geographic
+     separations and/or over low bandwidth connections, it would be
+     extremely inefficient (and frustrating) to rewrite a large entity
+     after minor changes, such as a one-character spelling
+     correction. Ideally, support will be provided for transmitting
+     "insert" (e.g., add this sentence in the middle of a document) and
+     "delete" (e.g. remove this paragraph from the middle of a
+     document) style updates. Support for partial entity updates will
+     make small edits more efficient, and allow distributed authoring
+     tools to scale up for editing of large documents.
+
+ 11. Attributes. Via HTTP, it should be possible to create, modify,
+     query, read and delete arbitrary attributes on entities of any
+     media type.
+
+     Attributes can be used to define fields such as author, title,
+     subject, and organization, on resources of any media type. These
+     attributes have many uses, such as supporting searches on
+     attribute contents, and the creation of catalog entries as a
+     placeholder for an entity which is not available in electronic
+     form, or which will be available later.
+
+ 12. List URL Hierarchy Level. A listing of all entities, along with
+     their media type, and last modified date, which are located at a
+     specific URL [3] hierarchy level in an http URL scheme should be
+     accessible via HTTP, so long as this operation is meaningful.
+
+     In [3] it states that, "some URL schemes (such as the ftp, http,
+     and file schemes) contain names that can be considered
+     hierarchical."  Especially for HTTP servers which directly map all
+     or part of their URL name space into a filesystem, it is very
+     useful to get a listing of all resources located at a particular
+     hierarchy level. This functionality supports "Save As..." dialog
+     boxes, which provide a listing of the entities at a current
+     hierarchy level, and allow navigation through the hierarchy. It
+     also supports the creation of graphical visualizations (typically
+     as a network) of the hypertext structure among the entities at a
+     hierarchy level, or set of levels. It also supports a tree
+     visualization of the entities and their hierarchy levels.
+
+     There are many instances where there is not a strong correlation
+     between a URL hierarchy level and the notion of a container. One
+     example is a server in which the URL hierarchy level maps to a
+     computational process which performs some resolution on the
+     name. In this case, the contents of the URL hierarchy level can
+     vary depending on the input to the computation, and the number of
+     entities accessible via the computation can be very large. It does
+     not make sense to implement a directory feature for such a
+     namespace. However, the utility of listing the contents of those
+     URL hierarchy levels which do correspond to containers, such as
+     the large number of HTTP servers which map their namespace to a
+     filesystem, argue for the inclusion of this capability, despite
+     not being meaningful in all cases. If listing the contents of a
+     URL hierarchy level does not makes sense for a particular URL,
+     then a "405 Method Not Allowed" status code could be issued.
+
+     AOLpress from America Online currently supports "Save As..."
+     dialog boxes, and graphical network visualization of a portion of
+     a site's hypertext structure, which they term a "mini-web."
+     FrontPage from Microsoft [5] also currently supports a graphical
+     network visualization and additionally supports a tree
+     visualization of a portion of a site's structure.
+
+ 13. Make URL Hierarchy Level. Via HTTP, it should be possible to
+     create a new URL hierarchy level in an http URL scheme.
+
+     The ability to create containers to hold related entities supports
+     management of a name space by packaging its members into small,
+     related clusters. The utility of this capability is demonstrated
+     by the broad implementation of directories in recent operating
+     systems. The ability to create a URL hierarchy level also supports
+     the creation of "Save As..." dialog boxes with "New
+     Level/Folder/Directory" capability, common in many applications.
+     AOLpress from America Online, currently supports this capability
+     through their "Save As..." dialog box, and their custom MKDIR
+     method.
+
+ 14. Copy. Via HTTP, it should be possible to make a byte-for-byte
+     duplicate of an entity without a client loading, then resaving the
+     entity. This copy should leave an audit trail.
+
+     There are many reasons why an entity might need to be duplicated,
+     such as change of ownership, a precursor to major modifications,
+     or to make a backup. In combination with delete functionality,
+     copy can be used to implement rename and move capabilities, by
+     performing a copy to a new name, and a delete of the old name. Due
+     to network costs associated with loading and saving an entity, it
+     is far preferable to have a server perform an entity copy than a
+     client. If a copied entity records which entity it is a copy of,
+     then it would be possible for a cache to avoid loading the copied
+     entity if it already locally stores the original.
+
+ 15. Move/Rename. Via HTTP, it should be possible to change the URL of an
+     entity without a client loading, then resaving the entity under a
+     different name.
+
+     It is often necessary to change the name of an entity, for example
+     due to adoption of a new naming convention, or if a typing error
+     was made entering the name originally. Due to network costs, it is
+     undesirable to perform this operation by loading, then resaving
+     the entity, followed by a delete of the old entity. Similarly, a
+     single rename operation is more efficient than a copy followed by
+     a delete operation.  Ideally an HTTP server should record the move
+     operation, and issue a "301 Moved Permanently" status code for
+     requests on the old URL. A move operation, if implemented with
+     attribute support, should also preserve most attributes across a
+     move. Note that moving an entity is considered the same function
+     as renaming an entity.
+
+
+3. Acknowledgements
+
+My understanding of these issues has emerged as the result of much
+thoughtful discussion, email, and assistance by many people, who
+deserve recognition for their effort.
+
+Martin Cagan, Continuus Software, Marty_Cagan@continuus.com
+Dan Connolly, World Wide Web Consortium, connolly@w3.org
+David Durand, Boston University, dgd@cs.bu.edu
+Ron Fein, Microsoft, ronfe@microsoft.com
+David Fiander, Mortice Kern Systems, davidf@mks.com
+Roy Fielding, U.C. Irvine, fielding@ics.uci.edu
+Yaron Goland, Microsoft, yarong@microsoft.com
+Phill Hallam-Baker, MIT, hallam@ai.mit.edu
+Dennis Hamilton, Xerox PARC, hamilton@parc.xerox.com
+Andre van der Hoek, University of Colorado, Boulder,
+  andre@bigtime.cs.colorado.edu
+Gail Kaiser, Columbia University, kaiser@cs.columbia.edu
+Rohit Khare, World Wide Web Consortium, khare@w3.org
+Dave Long, America Online, dave@sb.aol.com
+Henrik Frystyk Nielsen, World Wide Web Consortium, frystyk@w3.org
+Ora Lassila, Nokia Research Center, ora.lassila@research.nokia.com
+Larry Masinter, Xerox PARC, masinter@parc.xerox.com
+Murray Maloney, SoftQuad, murray@sq.com
+Jim Miller, World Wide Web Consortium, jmiller@w3.org
+Andrew Schulert, Microsoft, andyschu@microsoft.com
+Christopher Seiwald, Perforce Software, seiwald@perforce.com
+Judith Slein, Xerox, slein@wrc.xeroc.com
+Richard Taylor, U.C. Irvine, taylor@ics.uci.edu
+Robert Thau, MIT, rst@ai.mit.edu
+Fabio Vitali, University of Bologna, Italy, fabio@dm.unibo.it
+
+
+4. References
+
+[1] America Online, "AOL Web Tools -- AOLpress 1.2 Features." WWW page.
+http://www.aolpress.com/press/1.2features.html.
+
+[2] T. Berners-Lee, D. Connolly. "HyperText Markup Language
+Specification - 2.0." RFC 1866, MIT/LCS, November 1995.
+
+[3] T. Berners-Lee, L. Masinter, M. McCahill. "Uniform Resource
+Locators (URL)." RFC 1738, CERN, Xerox PARC, University of Minnesota,
+December 1994.
+
+[4] R. Fielding, J. Gettys, J. C. Mogul, H. Frystyk, and
+T. Berners-Lee.  "Hypertext Transfer Protocol -- HTTP/1.1." RFC XXXX,
+U.C. Irvine, DEC, MIT/LCS, August 1996.
+
+[5] Microsoft. "Microsoft FrontPage for Windows Data Sheet." WWW page.
+http://www.microsoft.com/msoffice/frontpage/productinfo/brochure/
+default.htm.
+
+
+Author's Address
+
+E. James Whitehead, Jr.
+Department of Information and Computer Science
+University of California
+Irvine, CA 92697-3425
+
+Fax: 714-824-4056
+EMail: ejw@ics.uci.edu
+

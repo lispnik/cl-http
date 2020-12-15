@@ -1,0 +1,5 @@
+# Documentation on robots and exclusion available at
+# http://web.nexor.co.uk/mak/doc/robots/robots.html
+# Exclude all Robots from this server
+User-agent: *
+Disallow: /

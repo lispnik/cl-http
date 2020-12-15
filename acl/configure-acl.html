@@ -1,0 +1,177 @@
+<html>
+<head>
+<title>Configuring ACL PC and UNIX CL-HTTP</title>
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+<h1><img src="/cl-http/icons/construction.gif" align=left> Configuring ACL PC and ACL UNIX CL-HTTP</h1>
+
+<ol>
+
+<li><a href="#basic">Basic Configuration</a>
+<li><a href="#production">Production Configuration</a>
+<li><a href="#standalone">Standalone Configuration</a>
+
+</ol> 
+
+<p><img src="/cl-http/icons/line-rain.gif"></p>
+
+<ol>
+
+<h2><li> <a name="basic">Basic Configuration</a></h2>
+
+<p>
+
+<dl>
+
+<dt><img src="/cl-http/icons/check-yes.gif"> <b>1. System Requirements:</b>
+
+<dl>
+<li>If you are using ACL 4.2: <b>CL-HTTP requires recent patches to be loaded</b>.
+To get ACL patches check:
+<a href="//www.franz.com">Franz site</a> or 
+<a href="ftp://ftp.franz.com/pub/patches/">Franz FTP site</a>.
+<li>If you are using ACL 4.3:  CL-HTTP requires NO patches at this time.
+<li>If you are using ACLPC 3.0: <b>CL-HTTP requires two patches to be loaded</b>.
+Install the patches <b>prerr.fsl</b> and <b>socket3.fsl</b> from <a href="ftp://ftp.franz.com/pub/patches/aclwin/3.0.1/">ftp://ftp.franz.com/pub/patches/aclwin/3.0.1/</a>
+in the ALLEGRO/UPDATE directory before building/loading CL-HTTP in ACLPC.  See also
+<a href="/cl-http/sources/acl/-read-me-.text">http:acl;-read-me-.text</a>.
+<li>If you are using ACLPC 3.0.1: <b>CL-HTTP requires patches to be loaded</b>.
+Install patches from <a href="ftp://ftp.franz.com/pub/patches/aclwin/3.0.1/">ftp://ftp.franz.com/pub/patches/aclwin/3.0.1/</a>
+in the ALLEGRO/UPDATE directory before building/loading CL-HTTP in ACLPC.  See also
+<a href="/cl-http/sources/acl/-read-me-.text">http:acl;-read-me-.text</a>.
+<li>Under bare Allegro Common Lisp (ACL) for UNIX (SunOS 4.1.3x and SunOS 5.4)
+the CL-HTTP image size is around 6M bytes (depending on features loaded).
+Therefore the CL-HTTP server can easily run within 16M bytes of memory.
+</dl>
+<dt><img src="/cl-http/icons/check-yes.gif"> <b>2.0 Start Server on ACLPC for Windows NT or 95:</b>
+You can add a line of the form:
+<dt>
+<b>(load "C:\\[PATH-TO...]\\CL-HTTP-XX-XX\\ACL\\STARTPC.LISP")</b>
+<dt>in the ALLEGRO/STARTUP.LSP file to start CL-HTTP on ACLPC.  For instructions
+to build, save an image and run a CL-HTTP, see
+<a href="/cl-http/sources/acl/-read-me-.text">http:acl;-read-me-.text</a>.
+
+<dt><img src="/cl-http/icons/check-yes.gif"> <b>2. Start Server on UNIX:</b>
+Copy <a href="/cl-http/sources/acl/http.script">http:acl;http.script</a> to http:acl;http and change the top shell variables (if needed) as follows:
+
+<ol>
+
+<li> FRANZ= path where ACL is installed at your site.
+<li> HTTP= path where this version of CL-HTTP is accessible.
+<li> BIND80= path where the root-owned version of bind80 will be located.
+<li> DOMAINNAME= DNS domain name of your site (may be optional).
+
+</ol>
+
+Then run the shell script
+<a href="/cl-http/sources/acl/http.script"> http:acl;http</a>
+to set-up and
+start the CL-HTTP server from UNIX.  The shell script may be used to compile,
+build and run the CL-HTTP server.  (Shell: $ chmod 755 acl/http; acl/http -help).  See also
+<a href="/cl-http/sources/acl/-read-me-.text">http:acl;-read-me-.text</a>.  Note:
+Using <a href="/cl-http/sources/acl/http.script">http:acl;http</a>
+replaces step 3 throught 7 below.
+
+<dt><img src="/cl-http/icons/check-yes.gif"> <b>3. Load Server:</b> To load
+the server directly from ACL (i.e. if you are not using the shell script
+<a href="/cl-http/sources/acl/http.script"> http:acl;http</a>),
+start ACL, change the directory to the current CL-HTTP source directory and load the file
+<a href="/cl-http/sources/acl/start.lisp">http:acl;start.lisp</a>.  Use the
+commands ":cd ~[...]/cl-http" (to set the current-directory to the present
+CL-HTTP source directory), then ":ld acl/start" to start the
+compile/load/run script from ACL.  The start file defines the HTTP logical host
+and the required system declaration files.  Note: Using
+<a href="/cl-http/sources/acl/start.lisp">http:acl;start.lisp</a>
+replaces steps 4 through 7 below.
+
+<dt><img src="/cl-http/icons/check-yes.gif"><b>4. Set Configuration
+Switches:</b> Load <a
+href="/cl-http/sources/examples/configuration.lisp">Configuration.lisp</a> or
+equivalent to initialize the parameters controlling the operation of the
+server. The comments describe the various switches.
+
+<dt><img src="/cl-http/icons/check-yes.gif"><b>5. ACL Specific Configuration
+Switches:</b> Load <a
+href="/cl-http/sources/acl/examples/configuration.lisp">http:acl;configuration.lisp</a>
+or equivalent to initialize parameters required for the ACL version under
+UNIX.  The comments describe the reason for these switches.
+
+<dt><img src="/cl-http/icons/check-yes.gif"><b>6. Export URLs:</b> Use <a
+href="/cl-http/show-documentation?HTTP:EXPORT-URL">HTTP:EXPORT-URL</a>
+function to make URL available through the server. At first, load the examples
+in <a
+href="/cl-http/sources/acl/examples/exports.lisp">http:acl;exports.lisp</a>
+and <a href="/cl-http/sources/examples/exports.lisp">Exports.lisp</a>. Then,
+you can adapt or extend these examples to meet your own needs.
+
+<dt><img src="/cl-http/icons/check-yes.gif"> <b>7. Start Server:</b> Evaluate <a
+href="/cl-http/show-documentation?HTTP:START">(HTTP:START)</a> to start
+the server using ACL command line argumetns from the UNIX, also see
+<a
+href="/cl-http/show-documentation?HTTP:ENABLE-HTTP-SERVICE">HTTP:ENABLE-HTTP-SERVICE</a>
+to start the server without arguments.
+
+<dt><img src="/cl-http/icons/check-no.gif"> <b> 8. Stop Server:</b> Evaluate
+<a
+href="/cl-http/show-documentation?HTTP:EXIT">(HTTP:EXIT)</a>
+to stop the server and exit ACL. Evaluate (HTTP:EXIT NIL) to stop the server
+and remain in ACL, also see the equivalent <a
+href="/cl-http/show-documentation?HTTP:DISABLE-HTTP-SERVICE">HTTP:DISABLE-HTTP-SERVICE</a> to only stop the server.
+
+</dl>
+
+<h2><li> <a name="production">Production Configuration</a></h2>
+
+Once you are ready to open up your server to production level loads, you can
+improve server performance by making the following changes to your version of
+<a href="/cl-http/sources/examples/configuration.lisp">Configuration.lisp</a>:
+
+<p>
+<dl>
+
+<dt><img src="/cl-http/icons/check-yes.gif"> <b>Disable Log Domain
+Resolution:</b> Set the variable <a
+href="/cl-http/show-documentation?HTTP:*RESOLVE-IP-ADDRESSES-FOR-LOG*">HTTP:*RESOLVE-IP-ADDRESSES-FOR-LOG*</a>
+to NIL or your machine will be bogged down trying to resolve client domain
+names.  This is done by default.
+
+<dt><img src="/cl-http/icons/check-yes.gif"> <b>Disable Log Notifications:</b>
+Turn off log notifications on the console with <a
+href="/cl-http/show-documentation?HTTP:LOG-NOTIFICATIONS-ON">HTTP:LOG-NOTIFICATIONS-ON</a>.  See examples in the script
+<a href="/cl-http/sources/acl/http.script"> http:acl;http.script</a>.
+Log notifications is turned off by default when starting CL-HTTP from the
+shell script unless the "-log" option is specified.
+
+<dt><img src="/cl-http/icons/check-yes.gif"> <b>Tune Simultaneous
+Connections:</b> Adjust the number of simultaneous connections that you allow
+with <a
+href="/cl-http/show-documentation?HTTP:SET-MAXIMUM-NUMBER-OF-CONNECTIONS">HTTP:SET-MAXIMUM-NUMBER-OF-CONNECTIONS</a>.
+
+</dl></p>
+
+<h2><li> <a name="standalone"> Standalone Configuration</a></h2>
+
+<p>
+
+CL-HTTP has not been tested in standalone configuration under UNIX, and it's
+not clear what network services (if any) are needed for the ACL/UNIX tcp
+interface to work properly in standalone. However one can already use the same
+workstation on an isolated network as both CL-HTTP server and client. If
+references to URLs cannot be translated, use the IP address of the server.
+References to the local host in HTML may have to omit the host component
+so that URLs will be relative to the local host (IP address) serving the
+documents. </p>
+
+<p>
+
+</dl> 
+
+</ol>
+
+<p> If you have any questions or suggestions, or would like to join other CL-HTTP users on the Internet, send mail to <B><a
+href="mailto:www-cl@ai.mit.edu">www-cl@ai.mit.edu</A></b> </p>
+
+<p><img src="/cl-http/icons/line-rain.gif"></p>
+
+</body></html> 

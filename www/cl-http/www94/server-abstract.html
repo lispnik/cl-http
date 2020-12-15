@@ -1,0 +1,85 @@
+<TITLE>Common LISP Hypermedia Server</TITLE>
+
+<h1><A
+href="/projects/iiip/doc/cl-http/server.html#introduction">A
+Common LISP Hypermedia Server</A></h1>
+
+<address><A HREF="http://www.ai.mit.edu/people/jcma/jcma.html">John C. Mallery</A></address>
+<address><A HREF="http://www.ai.mit.edu/index.html">Artificial Intelligence Laboratory</A></address>
+<address><A HREF="http://web.mit.edu/">Massachusetts Institute of Technology</A></address>
+
+<P><B>Keywords:</B> HTML3.0, Interactivity, Technology, Servers.
+
+<P><b>Hypertext:</B> <A
+href="/projects/iiip/doc/cl-http/server.html">http://www.ai.mit.edu/projects/iiip/doc/cl-http/server.html</A>
+
+<p><b>Availability</b>: <a
+href="http://www.ai.mit.edu/projects/iiip/doc/cl-http/home-page.html">
+http://www.ai.mit.edu/projects/iiip/doc/cl-http/home-page.html</a>
+
+
+<h2>Abstract</h2>
+
+<ABSTRACT>A World-Wide Web (WWW) server was implemented in <A
+HREF="common-lisp.html">Common LISP</A> in order to facilitate exploratory
+programming in the <I>interactive</I> <A
+HREF="http://www.w3.org/hypertext/WWW/TheProject.html">hypermedia domain</A>
+and to provide access to complex research programs, particularly <A
+HREF="http://ai.iit.nrc.ca/ai_point.html"> artificial intelligence</A>
+systems.  The server was initially used to provide interfaces for document
+retrieval and for email servers.  More advanced applications include
+interfaces to systems for inductive rule learning and natural-language
+question answering. Continuing research seeks to more fully generalize
+automatic form-processing techniques developed for email servers to operate
+seamlessly over the Web. The conclusions argue specifically that
+presentation-based interfaces and more sophisticated form processing should be
+moved into the clients in order to reduce the load on servers and provide more
+advanced interaction models for users.  More generally, the rapid prototyping
+features of Common LISP are now available to the WWW research community for
+quick mock-ups to test out new ideas.
+
+<P>The paper is structured as follows:
+
+<UL>
+
+<P><LI><B>Motivations</B>: The <A href="server.html#introduction">Introduction</A>
+discusses the motivations for developing a Common LISP HTTP server.
+
+<P><LI><B>Server</B>: The design ideas embodied in the server are overviewed
+in the sections:
+
+<UL>
+
+<P><LI><A href="server.html#server-features">Server Features</A>,
+<LI><A HREF="server.html#url-classes">Classes of HTTP URLs</A>,
+<LI><A HREF="server.html#url-export">Exporting URLs</A>, 
+<LI><A href="code-example.html">Computed URL Example</A>,
+<LI><A HREF="server.html#code-availability">Code Availability</A>.
+
+</UL>
+
+<P><LI><B>Applications</B>: <a HREF="snapshots.html"> Screen snapshots</A>
+show variety of <a href="server.html#initial-applications">applications</A>, ranging from
+document retrieval and form-processing email servers to artificial
+intelligence applications, such as automatic rule induction and natural-
+language question answering.
+
+<P><LI><B>Programming Language</B>: Several sections provide background on <A
+href="common-lisp.html">Common LISP</A>, its <A Href="common-lisp.html#CLOS">object system</A>,
+and the <A href="common-lisp.html#CLIM">Common LISP Interface Manager</A>.
+
+<P><LI><B>Related Systems</B>: A system for distributing documents via email
+is briefly reviewed in the <A href="server.html#comlink">COMLINK</A> section
+because it uses the Common LISP HTTP server as a WWW interface and because it
+embodies form-processing technology useful for the Web.
+
+<P><LI><B>Recommendations</B>: The <A HREF="server.html#conclusions">Conclusions</A>
+recap an argument for extending HTTP/HTML form-processing with design
+concepts tested in the <A href="common-lisp.html#CLIM">Common LISP Interface Manager</A> and
+the <A href="server.html#comlink">COMLINK system</A>.
+
+</UL></ABSTRACT>
+
+<HR> <I><A href="http://www1.cern.ch/WWW94/finalProgramme.html">Proceedings of
+The First International Conference on The World-Wide Web</A></I>, Geneva:
+CERN, May 25, 1994.

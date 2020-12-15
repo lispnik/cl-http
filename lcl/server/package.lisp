@@ -1,0 +1,56 @@
+;;;-*- Syntax: Ansi-Common-Lisp; Base: 10; Mode: lisp; Package: www-utils -*-
+
+;;; LispWorks definition for IPC and WWW-UTILS packages
+;;;
+;;; Copyright (c) The Harlequin Group Limited, 1996.
+;;;
+
+
+
+(defpackage "IPC"
+  (:export
+   ;; Functions
+   "IP-ADDRESS-STRING"
+   "INTERNET-ADDRESS"
+   "GETDOMAINNAME"
+   "GET-HOST-NAME-BY-ADDRESS"
+   "%LISTEN-FOR-CONNECTIONS"
+   "FIND-DETAIL-FROM-STREAM"
+
+   ;; Condition classes
+   "NETWORK-ERROR"
+   "UNKNOWN-HOST-NAME"
+   "UNKNOWN-ADDRESS"
+   "DOMAIN-RESOLVER-ERROR"
+   "REMOTE-NETWORK-ERROR"))
+
+
+
+(defpackage "WWW-UTILS"
+  (:use)
+  (:export "FILE-NOT-FOUND" "DEFAULT-PATHNAME" "ABORT-HTTP-STREAM" "LOG-WINDOW"
+           "NOTIFY-LOG-WINDOW" "EXPOSE-LOG-WINDOW" "COMMON-LOGFILE-NOTIFY" "BYTES-TRANSMITTED"
+	   "BAD-CONNECTION-STATE" "UNKNOWN-HOST-NAME"
+	   "DEFRESOURCE"
+	   "CLEAR-RESOURCE"
+	   "ALLOCATE-RESOURCE"
+	   "DEALLOCATE-RESOURCE"
+	   "USING-RESOURCE"
+	   "METHOD-SPECIALIZERS"
+	   "GENERIC-FUNCTION-METHODS")
+  #+LispWorks
+  (:import-from "IPC"
+		"NETWORK-ERROR"
+		"UNKNOWN-HOST-NAME"
+		"REMOTE-NETWORK-ERROR")
+  #+LispWorks
+  (:import-from "CLOS"
+		"METHOD-SPECIALIZERS"
+		"GENERIC-FUNCTION-METHODS")
+  (:import-from "CLIM-SYS"
+		"DEFRESOURCE"
+		"CLEAR-RESOURCE"
+		"ALLOCATE-RESOURCE"
+		"DEALLOCATE-RESOURCE"
+		"USING-RESOURCE"))
+

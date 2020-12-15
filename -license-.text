@@ -1,0 +1,102 @@
+
+                            License Agreement for 
+                 The Common Lisp Hypermedia Server (CL-HTTP)
+
+
+CL-HTTP is Copyright (c) John C. Mallery, 1994-1999. All rights reserved.
+Some files carry copyrights by other parties, which should be respected.
+
+CL-HTTP is distributed in the hope that it will be useful but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+A PARTICULAR PURPOSE.
+
+By using the server or retaining a copy of the distribution, you acknowledge
+that you accept the terms and limitations of this license.
+
+Personal, educational, and commercial uses are allowed and may incorporate
+CL-HTTP into applications provided that:
+
+        a. The licensee preserves all original copyrights in the CL-HTTP
+        files;
+
+        b. The licensee clearly separates their own code from the distributed
+        sources;
+
+        c. The licensee submits any extensions or improvements to CL-HTTP to
+        the developers at bug-cl-http@ai.mit.edu;
+
+        d. The licensee prominently displays the fact that your application
+        uses CL-HTTP;
+
+        e. The licensee prominently indicates that CL-HTTP was developed by
+        and is owned by John C. Mallery;
+
+        f. The licensee advises their users that they may obtain the latest
+        release of CL-HTTP from ftp://ftp.ai.mit.edu/pub/users/jcma/cl-http/
+
+        g. The licensee advises their users that that the homepage for the
+        server is located at
+        http://www.ai.mit.edu/projects/iiip/doc/cl-http/home-page.html
+
+        h. The licensee informs the CL-HTTP user community of any novel or
+        significant uses in a timely manner by submitting a short description
+        of the server to www-cl@ai.mit.edu
+
+	i. The licensee may not publicly redistribute CL-HTTP, except in
+	exactly the authoritative form the licensee received the CL-HTTP
+	distribution from ftp://ftp.ai.mit.edu/pub/users/jcma/cl-http/
+
+	j. Any modifications by the licensee to the authoritative CL-HTTP must
+	be distributed publicly as separate entities;
+
+	k. The licensee may not use the CL-HTTP technology for the purposes of
+	illegal or anti-social activities. Anti-social activities include, but are not
+        limited to, attacks  on computer systems and acquisition of email addresses
+        for the purposes of transmiting spam email;
+
+	l. The licensee may not operate a CL-HTTP server without sending the
+	HTTP server header containing the true CL-HTTP server name and
+	version, as determined by the authoritative distribution. Nor may the
+	licensee willfully employ other methods to hide the fact that the licensee is
+	using CL-HTTP;
+
+        M. Academic licensees who publish research papers or books building on
+        CL-HTTP acknowledge that failure to cite their use of CL-HTTP in the
+        development or deployment of research systems constitutes plagarism.
+
+However, all worldwide academic or commercial publication rights for CL-HTTP 
+server in any form are hereby reserved.  
+
+Additionally, all rights are reserved to any derivative works based on the
+Lisp source code in the CL-HTTP distribution, in particular but not limited to
+any automatic or manual translation of the source code into other computer
+languages or executables.
+
+Any rights not explicitly waived are retained.
+
+Subsequent versions of CL-HTTP may have different copyright statements and
+license requirements once it becomes clear precisely what arrangements best
+serve the Lisp community.
+
+In the meantime, the right to change this license for CL-HTTP in anyway at
+anytime is hereby reserved, any prior clauses notwithstanding.
+
+If any of elements of this agreement are found to be unenforceable, the others
+will remain in effect.
+
+This license agreement is governed by the laws of the Commonwealth of
+Massachusetts and the United States of America.
+
+Parties interested in commercial licenses should contact the author.
+
+The author can be contacted at:
+
+John C. Mallery
+Artificial Intelligence Laboratory
+Massachusetts Institute of Technology
+545 Technology Square, NE43-807
+Cambridge, MA 02139-4301
+USA
+
+WWW: http://www.ai.mit.edu/people/jcma/jcma.html
+Email: JCMa@ai.mit.edu

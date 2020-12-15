@@ -1,0 +1,53 @@
+<title>Learning If-Then Rules with I2D</title>
+
+<h1>Learning If-Then Rules with I2D</h1>
+
+<P> A system for learning if-then rules from a dataset is available in the
+Feature Vector Editor. Perhaps the most successful AI algorithms are a family
+of entropy-based techniques for inducing decisions trees. <I>Decision
+trees</I> organize tests hierarchically such that running the tests along a
+path from the top to any leaf classifies an example within a category. Because
+they rely on global information measures, these techniques require a
+one-to-one mapping between values of compared variables that is found only in
+flat datamodels (one feature vector).  Complex datamodels -- for example the
+hierarchically-structured feature vectors in the SHERFACS International
+Conflict Management Dataset -- almost always give rise to one-to-many mappings
+between values of compared variables, but this violates the fundamental
+assumption of conventional decision-tree learners, rendering them unusable for
+all but the most limited analyses of SHERFACS.  Unseld and Mallery (<A
+href="references.html#Unseld-Mallery-1991">1991</A>) found a unifying solution
+to this problem that generalizes earlier techniques along several dimensions
+in order to handle complex datamodels.  The key insight is to decompose
+examples into local observations until one-to-one comparisons again become
+possible, and then, to recombine these local comparisons to ultimately arrive
+at global information measures.  Their <I>Induction Interaction Detector</I>
+(I2D) implements an inductive rule learner suitable for studying complex
+datasets like SHERFACS because it supports learning on the tree-structured
+temporally related feature-vector data.
+
+<P> Significant features include:
+
+<UL>
+
+<P><LI> <B>Time-Dependent Analysis:</B> Support for temporally structured data
+makes it possible to learn decision trees and rules to predict outcomes on the
+basis of prior variable values;
+
+<P><LI> <B>Regularity Recognition:</B> Instead of narrowly focusing on
+classification, I2D is designed to identify regularities between dependent and
+independent variables;
+
+<P><LI> <B>Exploratory Data Analysis:</B> Because it can identify regularities
+in data and is not limited by degrees of freedom, I2D is an excellent tool for
+exploratory data analysis, sifting through new or little-understood data to
+find the significant relationships that statistical methods might later test.
+
+</UL>
+
+
+<br> Considerable work went into handling various kinds of variables that
+appear in SHERFACS, including variables that range over multiple values within
+examples, variables whose number of values varies dynamically, and variables
+whose values are sets or sequences. See Mallery (<A
+href="references.html#mallery-1994">1994</A>) for an overview and references
+to this work.

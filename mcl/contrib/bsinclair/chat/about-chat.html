@@ -1,0 +1,42 @@
+This is a simple <a href="chat.html">chat</a> facility written by
+<a href="mailto:bill@bitcraft.com">Bill St. Clair</a> in 
+<a href="http://www.digitool.com">Macintosh Common Lisp</a>.
+The web server is <a href="cl-http/cl-http.html">CL-HTTP</a>.
+<p>
+<FORM ACTION="chat.html" METHOD="POST" ENCTYPE="application/www-url-form-encoded">
+To enter a new message, type your email address:
+<ul>
+[(email-address)]
+</ul>
+<p>
+Type your message:
+<ul>
+[(text-input-area)]
+</ul>
+<p>
+Then click the "Submit" button:
+<ul>
+[(submit-and-reset-buttons)]
+</ul>
+<p>
+The default "Text" mode turns newlines into line breaks (&lt;br&gt;) and
+double newlines into paragraph breaks (&lt;p&gt;). "HTML" mode passes your text
+through unmodified:
+<ul>
+[(mode-radio-buttons)]
+</ul>
+</form>
+<p>
+If you click the "Submit" button with a blank message, no message will be sent,
+and your screen will be updated with any messages that have arrived since
+your last update. The advantage of this over just reloading the page is
+that your "Email" address and "Text/HTML" mode will be preserved (I
+haven't yet written the magic cookie code to preserve these across
+sessions).<p>
+Your messages appear on the server's screen as they are submitted. Currently,
+the messages are stored only in memory. All is lost when the server goes down.
+If people want it, I can easily make it persistent, and fairly easily add
+multiple discussion areas. The whole thing so far took only 3 or 4 hours,
+including lots of learning about CL-HTTP.
+<hr>
+CL-HTTP Chat - Copyright 1996, <a href="mailto:bill@bitcraft.com">Bill St. Clair</a> 

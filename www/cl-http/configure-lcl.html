@@ -1,0 +1,153 @@
+<html>
+<head>
+<title>Configuring Lucid UNIX CL-HTTP</title>
+<!-- Changed by: Gertjan Kersten, 16-Feb-1996 -->
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+<h1><img src="/cl-http/icons/construction.gif" align=left>
+ Configuring Lucid UNIX CL-HTTP</h1>
+
+<ol>
+
+<li><a href="#basic">Basic Configuration</a>
+<li><a href="#production">Production Configuration</a>
+<li><a href="#standalone">Standalone Configuration</a>
+
+</ol> 
+
+<p><img src="/cl-http/icons/line-rain.gif"></p>
+
+<ol>
+
+<h2><li> <a name="basic">Basic Configuration</a></h2>
+
+<p>
+
+<dl>
+
+<dt><img src="/cl-http/icons/check-yes.gif"> <b>1. Physical Memory:</b>
+Under Lucid for UNIX (Solaris 2.4) the CL-HTTP image runs in
+approximately 30M bytes of virtual memory. The disk image size is 
+approximately 12M bytes.
+
+<dt><img src="/cl-http/icons/check-yes.gif"> <b>2. Start Server from UNIX:</b>
+Edit <a href="/cl-http/sources/lcl/http.script">http:lcl;http.script</a> and
+change the shell variables at the top as follows:
+
+<ol>
+
+<li>LISPIMAGE= the file name of the Lucid image which is installed at your 
+        site. This image should have the files 'clos.sbin' and 
+        'ansi-packages.sbin' loaded.
+<li>HTTPIMAGE= the file name of the CL-HTTP image (for installation or running)
+<li>HTTP= the directory name where this version of CL-HTTP is accessible.
+
+</ol>
+
+Then run the shell script <a
+href="/cl-http/sources/lcl/http.script">http:lcl;http.script</a> to set-up and
+start the CL-HTTP server from UNIX.  The shell script can be used to compile,
+build and run the CL-HTTP server.  (Shell: $ sh lcl/http.script -help). 
+See also <a href="/cl-http/sources/lcl/-read-me-.text">
+http:lcl;-read-me-.text</a>.  <a href="/cl-http/sources/lcl/http.script">
+http:lcl;http.script</a> replaces step 3 through 7 below.
+
+<dt><img src="/cl-http/icons/check-yes.gif"> <b>3. Load Server:</b> To load
+the server from Lucid, start Lucid. If the CLOS system and/or the
+ansi-packages module are not present in the basic lucid image, you can load
+them with (load "&lt;pathname&gt;/clos") and 
+(load "&lt;pathname&gt;/ansi-packages").
+Load the file <a href="/cl-http/sources/lcl/start.lisp">http:lcl;start.lisp
+</a>.  Use the command (load "lcl/start") to start the
+compile/load/run script from Lucid. The start file defines the HTTP logical
+host and the required system declaration files. Any change to this start file
+should be matched with changes to the <a 
+href="/cl-http/sources/lcl/start.lisp">http:lcl;start.lisp</a> shell utility.
+The <a href="/cl-http/sources/lcl/start.lisp">http:lcl;start.lisp</a> file
+replaces steps 4 through 7 below.
+
+<dt><img src="/cl-http/icons/check-yes.gif"><b>4. Set Configuration
+Switches:</b> Load <a
+href="/cl-http/sources/examples/configuration.lisp">Configuration.lisp</a> or
+equivalent to initialize the parameters controlling the operation of the
+server. The comments describe the significance of the various switches.
+
+<dt><img src="/cl-http/icons/check-yes.gif"><b>5. Lucid Specific Configuration
+Switches:</b> Load <a href="/cl-http/sources/lcl/examples/configuration.lisp">
+http:lcl;examples;configuration.lisp</a> or equivalent to initialize 
+parameters required for the Lucid version under UNIX.  The comments describe 
+the reason for these switches.
+
+<dt><img src="/cl-http/icons/check-yes.gif"><b>6. Export URLs:</b> Use <a
+href="/cl-http/show-documentation?HTTP:EXPORT-URL">HTTP:EXPORT-URL</a>
+function to make URL available through the server. At first, load the examples
+in <a href="/cl-http/sources/lcl/examples/exports.lisp">
+http:lcl;examples;exports.lisp</a>
+and <a href="/cl-http/sources/examples/exports.lisp">Exports.lisp</a>. Then,
+you can adapt or extend these examples to meet your own needs.
+
+<dt><img src="/cl-http/icons/check-yes.gif"> <b>7. Start Server:</b> Evaluate
+the function <a href="/cl-http/show-documentation?HTTP:ENABLE-HTTP-SERVICE">
+HTTP:ENABLE-HTTP-SERVICE</a> to start the server.
+
+<dt><img src="/cl-http/icons/check-no.gif"> <b> 8. Stop Server:</b> Evaluate
+<a href="/cl-http/show-documentation?HTTP:DISABLE-HTTP-SERVICE">
+HTTP:DISABLE-HTTP-SERVICE</a> to stop the server.
+
+</dl>
+
+<h2><li> <a name="production">Production Configuration</a></h2>
+
+Once you are ready to open up your server to production level loads, you can
+improve server performance by making the following changes to your version of
+<a href="/cl-http/sources/examples/configuration.lisp">Configuration.lisp</a>:
+
+<p>
+<dl>
+
+<dt><img src="/cl-http/icons/check-yes.gif"> <b>Disable Log Domain
+Resolution:</b> Set the variable 
+<a href="/cl-http/show-documentation?HTTP:*RESOLVE-IP-ADDRESSES-FOR-LOG*">
+HTTP:*RESOLVE-IP-ADDRESSES-FOR-LOG*</a> to NIL or your machine be be bogged
+down trying to resolve client domain names.  This is done by default.
+
+<dt><img src="/cl-http/icons/check-yes.gif"> <b>Disable Log Notifications:</b>
+Turn off log notifications on the console with <a
+href="/cl-http/show-documentation?HTTP:LOG-NOTIFICATIONS-ON">
+HTTP:LOG-NOTIFICATIONS-ON</a>. This is done by default when starting CL-HTTP 
+from the shell script http:lcl;http.script.
+
+<dt><img src="/cl-http/icons/check-yes.gif"> <b>Tune Simultaneous
+Connections:</b> Adjust the number of simultaneous connections that you allow
+with <a
+href="/cl-http/show-documentation?HTTP:SET-MAXIMUM-NUMBER-OF-CONNECTIONS">
+HTTP:SET-MAXIMUM-NUMBER-OF-CONNECTIONS</a>.
+
+</dl></p>
+
+<h2><li> <a name="standalone"> Standalone Configuration</a></h2>
+
+<p>
+
+CL-HTTP has not been tested in standalone configuration under UNIX, and it's
+not clear what network services (if any) are needed for the Lucid/UNIX tcp
+interface to work properly in standalone. However one can already use the same
+workstation on an isolated network as both CL-HTTP server and client. If
+references to URLs cannot be translated, use the IP address of the server.
+References to the local host in HTML may have to be omitted the host component
+so that URLs will be relative to the local host (IP address) serving the
+documents. </p>
+
+<p>
+
+</dl> 
+
+</ol>
+
+<p> If you have any questions or suggestions, send mail to <B><a
+href="mailto:www-cl@ai.mit.edu">www-cl@ai.mit.edu</A></b> </p>
+
+<p><img src="/cl-http/icons/line-rain.gif"></p>
+
+</body></html> 

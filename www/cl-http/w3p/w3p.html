@@ -1,0 +1,315 @@
+<html>
+
+<head>
+
+<title>A Portable Presentation System for the WWW</title>
+
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+
+<P><A HREF="/cl-http/w3p/w3p.html">Overview</A> | <A HREF="/cl-http/w3p/basic-function?">Functions &amp Macros</A> | <A HREF="/cl-http/w3p/presentation-function?">Presentation Functions</A> | <A HREF="/cl-http/w3p/presentation-type?">Presentation Types</A></P>
+
+<h1>W3P Overview</h1>
+
+<ol>
+
+<li>
+<a href="#intro">Introduction</a>
+
+<li>
+<a href="#ptype-specifiers">Presentation Type Specifiers</a>
+
+<li>
+<a href="#examples">Examples</a>
+<ul>
+<li>
+<a href="#computed-urls-example">Computed URLs</a>
+<li>
+<a href="#http-form-example">HTTP Forms</a>
+<li>
+<a href="#http-computed-form-example">HTTP Computed Forms</a>
+</ul>
+
+<li>
+<a href="#dynamic-forms">W3P and Dynamic Forms</a>
+
+</ol>
+
+<a name="intro">
+<h2>Introduction</h2>
+
+<p>
+
+W3P is an abstract, extensible Common LISP system for manipulating input and output
+as CLOS objects, allowing simpler applications with less code duplication. To
+facilitate compatibility with existing LISP applications, W3P implements a subset
+of the LISP interface to the Common LISP Interface Manager. W3P, however, was
+conceived to specifically address the requirements of a stateless model of
+interaction such as the World Wide Web. Once a CLOS class has been profiled with
+its essential parameters and visual attributes, input type-checking and output
+rendering can be performed automatically. Developers can utilize standard interface
+characteristics or choose to define their own visual representations of objects and
+input parsing routines. W3P represents an effort to create a streamlined, highly
+portable, non-proprietary presentation system tailored to the stateless model of
+the World Wide Web. 
+
+</p>
+
+<p>
+
+A paper describing the system, 
+<a href="/cl-http/w3p/dow96/w3p.html">W3P: A Portable Presentation System for the World Wide Web</a>,
+was presented at the 
+<a href="http://www.omg.org/ow/cbcoloc.htm">Dynamic Objects Workshop</a>
+at
+<a href="http://www.omg.org:80/ow/oweast.htm">Object World East</a>,
+May 1996.
+
+</p>
+
+<p>
+
+You can find relevant discussions on presentation types and examples with similar syntax 
+in the 
+<a href="http://www.harlequin.com/books/CLIM-2.0/GUIDE_1.HTM">Common Lisp Interface Manager 2.0 User's Guide</a>
+at 
+<a href="http://www.harlequin.com/">Harlequin</a>.
+
+</p>
+
+<a name="ptype-specifiers">
+<h2>Presentation Type Specifiers</h2>
+
+<p>
+
+There is a simple, precise syntax for specifying a presentation type. The W3P
+specifier syntax is compatible with that of CLIM. The following three forms are valid
+presentation type specifiers:
+
+</p>
+
+<pre>name
+
+(name parameters...)
+
+((name parameters...) options...)</pre>
+
+<p>
+
+Name is the name of a presentation type. Parameters are used to determine if an
+object satisfies the constraints of a presentation type. Options specify visual
+attributes or rendition preferences.
+
+</p>
+
+<a name="examples">
+<h2>Examples</h2>
+
+<p>
+Including some basic W3P functionality in a CL-HTTP application should require
+minimal new code. Providing an abstract mechanism for parsing and rendering CLOS
+objects simplifies the implementation of user interfaces, helping to eliminate
+unnecessary code duplication.  The following examples illustrate how W3P fits into the 
+CL-HTTP model of computing HTML and responding to forms.
+</p>
+
+<p>
+
+<a name="computed-urls-example">
+<b>Computed URLs</b>: Defining a presentation type for an application object allows
+consistent visual rendering, specialized over stream or view. This can be helpful
+when writing response functions for a
+
+<a href="/cl-http/show-documentation?URL%3AHTTP-COMPUTED-URL">url:http-computed-url</a>.  
+
+To be able to call
+
+<a href="/cl-http/w3p/presentation-function?W3P:PRESENT">w3p:present</a>
+
+on an application object, it must have a presentation type and a 
+present method. Note the use of a presentation type option to control visual 
+rendering preferences.  The two calls to 
+
+<a href="/cl-http/w3p/presentation-function?W3P:PRESENT">w3p:present</a>
+
+below show possible HTML rendering of the
+scientist object.
+
+</p>
+
+<pre>(defclass scientist ()
+  ((name :initarg :name :reader scientist-name)
+   (photo-url :initarg :photo-url :reader scientist-photo-url)))
+
+(setq *frank-ernest* (make-instance 'scientist 
+                       :name "Frank Ernest"
+                       :photo-url "http://www.foo.net/photos/frank.gif"))
+
+(w3p:define-presentation-type scientist ()
+  :inherit-from t
+  :options ((show-photo t)))
+
+(w3p:define-presentation-method w3p:present (object (type scientist)  stream (view w3p:html-view) &key)
+  (when show-photo
+    (html:image (scientist-photo-url object) "scientist photo" :stream stream)
+    (html:break-line :stream stream))
+  (html:with-rendition (:bold :stream stream)
+    (write-string (scientist-name object) stream)))
+
+
+(w3p:present *frank-ernest* 'scientist :view w3p:+html-view+)
+
+&lt;IMG SRC="http://www.foo.net/photos/frank.gif" ALIGN="TOP" ALT="scientist photo"&gt
+&lt;BR&gt
+&lt;B&gt;Frank Ernest&lt;/B&gt
+
+(w3p:present *frank-ernest* '((scientist) :show-photo nil) :view w3p:+html-view+)
+
+&lt;B&gt;Frank Ernest&lt;/B&gt
+</pre>
+
+<p>
+
+<a name="http-form-example">
+<b>HTTP Forms</b>: W3P can be used to simplify parsing and error-handling in
+response functions for 
+
+<a href="/cl-http/show-documentation?URL%3AHTTP-FORM">url:http-form</a> 
+
+URLs. CL-HTTP currently provides such a response
+function with an alist composed of (query-identifier . value-string) pairs. Calling
+
+<a href="/cl-http/w3p/presentation-function?W3P:ACCEPT-FROM-STRING">w3p:accept-from-string</a> 
+
+on value-strings allows abstract, consistent parsing control.
+This simple example demonstrates the use of 
+
+<a href="/cl-http/w3p/presentation-function?W3P:ACCEPT-FROM-STRING">w3p:accept-from-string</a> 
+
+in conjunction
+with the built-in type 
+
+<a href="/cl-http/w3p/presentation-type?INTEGER">integer</a>, 
+
+which has parameters low and high. 
+
+</p>
+
+<p>
+
+Note that 
+
+<a href="/cl-http/w3p/presentation-function?W3P:ACCEPT">w3p:accept</a>
+
+and 
+
+<a href="/cl-http/w3p/presentation-function?W3P:ACCEPT-FROM-STRING">w3p:accept-from-string</a> 
+
+return two values, an object and a presentation type.  When invalid input is supplied,
+ w3p:input-not-of-required-type is thrown.  See 
+
+<a href="/cl-http/w3p/presentation-function?W3P:HANDLE-INPUT-ERROR">w3p:handle-input-error</a>
+
+for information on defining specialized error handling. In order to parse a new type
+of object, the developer must define a presentation type, and presentation methods
+for
+
+<a href="/cl-http/w3p/presentation-function?W3P:PRESENTATION-TYPEP">w3p:presentation-typep</a>
+
+and 
+
+<a href="/cl-http/w3p/presentation-function?W3P:ACCEPT">w3p:accept</a>.
+
+</p>
+
+<pre>(w3p:accept-from-string 'integer "27" :view w3p:+textual-view+)
+
+27
+INTEGER
+
+(w3p:accept-from-string '(integer 0 10) "5" :view w3p:+textual-view+)
+
+5
+(INTEGER 0 10)
+
+(handler-case 
+   (w3p:accept-from-string '(integer 0 10) "12" :view w3p:+textual-view+)
+   (w3p:input-not-of-required-type () (error "Bad input")))
+
+LISP ERROR: Bad input</pre>
+
+<p>
+
+<a name="http-computed-form-example">
+<b>Computed Forms</b>: W3P can also be used to automatically generate a prompt for
+an object inside an HTML form.  When 
+
+<a href="/cl-http/w3p/presentation-function?W3P:ACCEPT">w3p:accept</a>
+
+is called with the keyword :present-p set to
+t, it generates a prompt rather than trying to parse a value from the stream.  The generation
+of the prompt is handled by a
+
+<a href="/cl-http/w3p/presentation-function?W3P:ACCEPT-PRESENT-DEFAULT">w3p:accept-present-default</a>
+
+method. This type of functionality is useful when writing the form-function for a 
+
+<a href="/cl-http/show-documentation?URL%3AHTTP-COMPUTED-FORM">url:http-computed-form</a> 
+
+URL. This example shows the HTML prompts generated for a built-in presentation type.
+Note that the block of HTML returned only makes sense when invoked inside an HTML form.
+See the CL-HTTP remote configuration application for an example of using this syntax in
+a loop to efficiently generate a form.
+
+</p>
+
+<pre>(w3p:accept '(integer 0 168)
+            :present-p t
+            :view w3p:+html-view+ 
+            :default 50
+            :prompt "Number of hours worked:"
+            :prompt-mode :raw
+            :display-default nil
+            :query-identifier "HOURS-WORKED"
+            :insert-default t
+            :active-p t)
+
+&lt;B&gt;Number of hours worked: &lt;/B&gt
+&lt;INPUT TYPE="text" NAME="HOURS-WORKED" VALUE="50" SIZE="3" MAXLENGTH=3&gt;</pre>
+
+<a name="dynamic-forms">
+<h2>W3P and Dynamic Forms</h2>
+<p>
+
+W3P may be used as a vehicle for incorporating 
+
+<a
+href="http://www.ai.mit.edu/projects/iiip/talks/1994/mallerya/index.html">Dynamic
+Form Processing</a>
+
+from the 
+
+<a href="http://www.ai.mit.edu/projects/iiip/doc/comlink/overview.html">Communications Linker System</a>
+
+into the
+
+<a href="http://www.ai.mit.edu/projects/iiip/doc/cl-http/home-page.html">portable web server</a>.
+
+This would add another layer of abstraction to the current forms substrate,
+facilitating the definition of query and form objects. The dynamic forms system would
+automatically invoke the proper calls to the presentation system. 
+
+</p>
+
+<p>
+<hr>
+<address>
+<a href="http://web.mit.edu/cvince/">Christopher R. Vincent</a> <br>
+<a href="mailto:cvince@ai.mit.edu">cvince@ai.mit.edu</a>
+</address>
+</p>
+
+</body>
+
+</html>

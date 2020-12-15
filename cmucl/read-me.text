@@ -1,0 +1,308 @@
+12/6/98
+
+Below are notes on getting CL-HTTP running on CMUCL.
+
+		-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+1. Obtaining a recent CMU CL release.
+
+The last official release of CMU CL was version 17f. Support has since
+been added for the x86 architecture under FreeBSD then Linux.  There
+have been many bug fixes and enhancements to CMUCL that are required
+to run CL-HTTP, so you will need a current CMUCL binary snapshot.
+
+The development work for CL-HTTP has been performed using the x86 port
+of CMUCL running on FreeBSD, and some limited testing has been done on
+a Sun sparc Solaris 2.4; binaries for both these platforms are
+available from the sites below:
+
+Binaries:
+http://cvs2.cons.org:8000/ftp-area/cmucl/binaries/
+http://cvs2.cons.org:8000/ftp-area/cmucl/experimental/
+
+Mirrored at:
+ftp://ftp2.cons.org/pub/languages/lisp/cmucl/
+
+
+1.2 Updating to the current CMU CL source.
+
+The current CMU CL source is available at the ftp archive and at:
+http://cvs2.cons.org:8000/ftp-area/cmucl/cmucl-src-<data>.tar.gz
+
+Even if you're using a binary release you may wish to grab the latest
+source, particularly if you intend to do any development. Much of the
+network code is adapted from the CMU CL source, and there are many
+known bugs.
+
+CMU CL can be a bit tricky to re-compile (no simple configure script
+and makefile). For some suggestions see the pointers at the locations
+below:
+
+Paul's suggestions:
+http://www.mv.com/users/pw/lisp/dl/CompileCL.howto
+
+Also for pointers to the mailing lists, and achives:
+http://www.cons.org/cmucl/
+
+If you find bugs in CMU CL please report them to cmucl-imp@cons.org,
+and if you need some help with CMUCL please try cmucl-help@cons.org.
+
+1.3 Multi-processing
+
+There is some initial support for multi-processing for CMU CL x86
+which is included in the current source and will be in the upcoming
+18b release.  Note this support it preliminary and there are many
+known problems, and much work is needed to improve thread safety of
+CMU CL, however with some care it should be possible to get a reliable
+server running, see the discussion below.
+
+		-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+2. Compiling and loading CL-HTTP
+
+2.1 Check for an update to the latest CL-HTTP release.
+
+Often some last minute changes and bug fixes are required to the
+latest CL-HTTP release. Please check the CMU-CL ports directory and
+apply any necessary changes before proceeding:
+
+ftp://ftp2.cons.org/pub/languages/lisp/cmucl/ports/cl-http/
+
+2.2 Patching the CL-HTTP source.
+
+There are a number of patches, some admittedly hacks, needed to
+CL-HTTP to compile on CMU CL. Many of the cleaner changes have been
+incorporated into the main CL-HTTP source. Most of the remaining
+patches are in lisp patch files which are automatically compiled and
+loaded, however there are a few that need to be applied to the CL-HTTP
+source before compiling.
+
+It was decided to keep these CMU CL specific hacks in a separate patch
+file to keep the main source cleaner, they may become unnecessary as
+the CMU CL bugs are fixed.
+
+After un-taring the source 'cd' into the cl-http directory and apply
+these patches:
+
+cd cl-http
+patch < cmucl/cl-http-patches.text
+
+2.3 Netscape authentication workaround.
+
+Netscape does not currently support Digest authentication, so you may
+want to change the Webmaster realm to use :basic authentication. See
+server/authentication.lisp about line 1078 in the function
+initialize-server-authentication. Change (add-realm :server :digest)
+to (add-realm :server :basic). Note this is a weaker form of
+authentication.
+
+2.4 Setting the source directory.
+
+By default you need to compile and load from the cl-http/
+directory. To compile and load from elsewhere set the *http-directory*
+variable in cmucl/start.lisp.
+
+2.5 Options: client, proxy, web walker, lambda vista,
+	     html-parser and examples.
+
+The cl-http options compiled by cmucl/start.lisp are controlled by
+*cl-http-options* defined by default at the start of this file.  Only
+the base server and the demo examples are compiled and loaded by
+default but the others may be easily enabled, see the example
+*cl-http-options* in start.lisp. The html parser may also be compiled
+stand-alone, see cmucl/html-parser/sysdcl.lisp.
+
+Note that Lambda-Vista is currently broken but was working at one
+point before the code became rather lisp machine specific. This
+package adds keyword searching to exported URLs, and the automatic
+indexing of exported URLs can be enabled via
+*lambdavista-index-on-export*, see
+lambda-ir/examples/lambdavista-exports.lisp. This will adds about 6
+minutes to the load time (P133), but it's a handy feature allowing
+instant keyword searches of exported html and text files.
+
+There is a Lisp listener in the examples directory which may be of
+interest. This is not loaded by default as it may be a security risk,
+but may be enabled, see cmucl/server/sysdcl.lisp, or it can be simply
+compiled and loaded.
+
+2.6 Compiling CL-HTTP.
+
+The cmucl/start.lisp script will compile and load CL-HTTP, so after
+setting the options to include, startup lisp and load this file:
+(load "cmucl/start.lisp")
+
+By default this will asking if you want to compile - answer yes. When
+finished it should prompt to enable the server on port 8000. You
+should then be able to access the documentation, try
+http://your.host.name:8000/
+
+To run some of the examples you need a Webmaster password (see
+examples/configure.lisp):
+
+E.g.
+(http:save-authentication-object
+  (http:intern-user :server "Webmaster"
+               :password "password"
+	       :groups '("Webmasters")
+               :email-address http:*bug-http-server*))
+
+The CL-HTTP documentation recommends the random seed be initialised
+few times by calling: (http:digest-authentication-random-seed t)
+
+2.7 Multi-process server setup.
+
+The multi-process server tries to avoid stream operations that block
+and uses the CMUCL select based event server to quickly switch
+processes when operations are pending on streams. With the help of an
+idle process to handle pending stream events and periodically call
+process-yield, the server doesn't require a background interrupt
+switching processes.
+
+When a HTTP stream is waiting for input or output on a stream it sets
+up an event handler on the stream. If the event server is blocked
+waiting on these stream it will unblock as soon as the stream is ready
+and the handler will call process-yield. The event server is entered
+when CMUCL is waiting for input or may be called from an idle loop.
+
+Although the event handlers give an immediate response to stream
+events, processes may be waiting for other reasons (locks, timers,
+etc.) so it is necessary for process-yield to be called periodically.
+This can be achieved by having the event server timeout and
+periodically call process-yield.
+
+The CMUCL event server is setup by default to call process-yield when
+a maximum timeout is reached. This allows the use of an interactive
+session while the server is running. Alternatively an idle loop can be
+run that calls the event server, for example
+mp::idle-process-loop. The timeout period may need some tuning and is
+currently set by the variables lisp::*max-event-to-sec*,
+lisp::*max-event-to-usec*, mp::*idle-loop-timeout* , for example to
+setup a 0.5 second timeout:
+
+;; Set the event server timeout which will be roughly the period
+;; between calls to process-yield if no events are pending.
+(setf lisp::*max-event-to-sec* 0)
+(setf lisp::*max-event-to-usec* 500000)
+
+;; Run an idle loop if not interactive.
+(setf mp::*idle-loop-timeout* 0.5d0)
+(mp::idle-process-loop)
+
+While the event server is blocked waiting for stream events, other
+processes will not be scheduled even if runnable, unless a stream
+handler is invoked. This can lead to delays and there is a tradeoff to
+be made between a fast timeout and increased the idle overhead.  If
+there are runnable processes it is better not to have the event server
+block which can be achieved by setting the special MP *idle-process*
+to the process running the idle loop which will typically be the
+*initial-process*, for example:
+
+;; Setup the initial process as the idle process.
+(setf mp::*idle-process* mp::*initial-process*)
+
+Note that some of these details are likely to change as the CMUCL MP
+support improves.
+
+There are some rough heuristics built into the network code to try and
+balance the load by yielding after large writes, however if the server
+processes lengthy requests that do a lot of computation then it may be
+necessary to call mp:process-yield to allow other requests to be
+simultaneously processed.
+
+An interrupt driven yield can also be enabled using
+mp::start-sigalrm-yield and although this appears to do a reasonable
+job it is unlikely to be reliable at present because the CMUCL code
+base is not yet interrupt/thread safe, nor are the typical C library
+calls.
+
+The CMUCL MP support adds has a simple Lisp listener with password
+protection that may be handy for talking to the server, for example
+(mp::start-lisp-connection-listener :port 1025 :password "password")
+allows at TCP/IP connection to the server on port 1025 perhaps via
+telnet. Note do not use (quit) to exit unless it is intended to kill
+the server.
+
+
+2.8 Saving a lisp core.
+
+A lisp core image including CL-HTTP can be save by calling
+www-utils::save-cl-http with the core file name.
+
+There is currently no support in CMUCL for saving and restarting
+processes so when using the MP support they are all killed before the
+save and will need to be restarted; the log process can be restarted
+by calling (http:ensure-current-log) which is call is
+configuration.lisp is loaded.
+
+When a core is saved with configuration information and exported URLs,
+and restarted on a different host, it may be possible to update the
+parameters by load examples/configuration.lisp and using
+url:remap-url-host to remap local URLs from the old to the new host.
+However it is probably simpler to save the core without any URLs
+exported, and thus without any of the examples loaded which can be
+achieved by removing :cl-http-examples and :w4-web-walker-demo from
+the *cl-http-options*.
+
+When a CL-HTTP core is saved a new command line switch, cl-http-init,
+is defined which allows an initialisation file to be loaded upon
+startup. By default the cmucl/examples/cl-http-init.lisp file is
+loaded which loads the demo examples, initialises multi-processing,
+and enables HTTP service. This example initialisation can be easily
+modified, see cl-http-initialise at the end of cmucl/server/unix.lisp.
+
+For example:
+- Compile cl-http with the desired options, possibly including the
+  examples.
+- Remove the examples from the *cl-http-options*, and reload cl-http.
+- Save the core: (www-utils::save-cl-http "cl-http.core").
+- Restart the new core requesting the default initialisation file be loaded:
+  lisp -core cl-http.core -cl-http-init
+
+
+2.9 Production configuration.
+
+Once you are ready to open up your server to production level loads,
+you can improve server performance by making the following changes to
+your version of examples/configuration.lisp:
+
+Disable Log Domain Resolution: Set the variable
+  http:*log-resolve-ip-addresses* to NIL or your machine will be
+  bogged down trying to resolve client domain names.
+
+Disable Log Notifications: Turn off log notifications on the console
+  with http:log-notifications-on.
+
+Tune Simultaneous Connections: Adjust the number of simultaneous
+  connections that you allow with http:set-maximum-number-of-connections.
+
+Enable Email Interface: Set the variable smtp:*network-mail-host* to
+  the primary store-and-forward mail host at your site.  This will
+  enable automatic bug reporting via www-utils:report-bug and allow
+  response functions to send email during www-utils:send-mail-from.  Set
+  the variables http:*server-maintainer* and  http:*server-bug-list* to
+  the local maintainer.
+
+
+		-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+3. Known limitations.
+
+There is only preliminary multi-thread support in CMU CL x86, and
+other ports will have to run without. Without the multi-thread support
+the server can only process one request at a time (nested requests are
+possible but not very useful). This is typically adequate for use as a
+simple application interface but not for use as a reliable high load
+server (e.g. if a client locks a connection the server will lockup and
+not be able to process any more requests!).  With the multi-thread
+support multiple requests can be processed simultaneously and this is
+recommended for reliable high load servers.
+
+There are plenty of areas of CMUCL that could use some work to better
+support CL-HTTP: improving the multi-thread support, improved network
+error handling, equalp hash tables, declaration handling, compiler bug
+fixes, etc.
+
+
+Regards
+Douglas Crosher

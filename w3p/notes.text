@@ -1,0 +1,67 @@
+-*- Mode: Text -*-
+
+;;;------------------------------------------------------------------- 
+;;;
+;;; Implementation Notes 
+;;;
+
+new presentation-types: 
+MIXED-SEQUENCE. needed a way to conveniently present a list of different
+element types. BASIC-STRING. clim:string is not that general. BASIC-STRING.
+collects different string presentation type. BOUNDED-STRING has one optional
+parameter, max-length (as opposed to string which only allows an exact
+length.)  Presentation type STRING has been left the same for compatability.
+
+accepting-values doesn't fit model. depends on active link between client and
+server, plus is built around a particular interface. something like
+accepting-values would be built by a user for  an http-form, etc.
+user function can just specify present-p in accept call to have accept
+generate a query rather than get a value (using accept-present-default)
+
+accept-present-default needs to pass some args like active-p along to the
+method, since these will be handled differently for different renditions.
+tack on as keyword args, maintain generic function.  problem for null-or-type:
+default might need to be "None", but that might not be compatible with the 
+type.  need to be able to hand accept-present-default a string so that the
+default value doesn't have to be presented to a string.  tack on default-string as
+keyword arg to accept-present-default function, methods can choose to use it.
+
+no presentation-type abbreviations
+
+right now define-presentation-type automatically adds &rest rest-args to
+hte parameters if there is no existing &rest.  this insures that inherited 
+methods won't barf on the more specific lambda list they are passed.  maybe
+think of something better.  it's not good enough to skip binding if none are used
+in the body.  superior type might have a subset of the parameters for an inferior.
+checking for variable usage would still be a good optimization.
+
+no presentation object so far, may need this idea later.
+
+left out for now options to presentation-functions that didn't fit current model.
+
+need to handle defaults on textual-view accept methods
+
+completion still needs to be dealt with (?)
+                                       
+changes from clim in input error handling:
+
+new presentation-generic-function:
+handle-input-error (object type &key stream view)
+methods should return both an object and a presentation-type.
+this allows more configurable error handling.
+
+calling the function input-not-of-required-type in an accept method just signals
+an error of type 'input-not-of-required-type.  does not return.
+
+w3p:accept methods should use handle-input-error methods, allowing more modular
+configuration of error handling. when the handle-input-error function is called inside an
+accept method, control is handed over to the appropriate handle-input-error method. the
+default method returns nil for both object and presentation type (without signalling an
+error.) nil for the presentation type denotes that no suitable input was recovered.
+error handling will probably be very application specific.  handle-input-error gives the
+developer a way have control over what (if) accept returns, perform some side effects,
+or signal a condition that the application handles.
+
+handle-input-error can produce a report over a stream, but generating a report usually 
+requires more information than you want to pass to accept, like a url, stream to the client,
+additional application objects.  see server configuration example.

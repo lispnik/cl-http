@@ -1,0 +1,495 @@
+HTTP Working Group                                     Koen Holtman, TUE
+Internet-Draft                              Andrew Mutz, Hewlett-Packard
+Expires: September 11, 1998                             Ted Hardie, NASA
+                                                          March 11, 1998
+
+                    Content Feature Tag Registration Procedure
+
+                     draft-ietf-conneg-feature-reg-00.txt
+
+
+STATUS OF THIS MEMO
+
+This document is an Internet-Draft. Internet-Drafts are working
+documents of the Internet Engineering Task Force (IETF), its areas,
+and its working groups.  Note that other groups may also distribute
+working documents as Internet-Drafts.
+
+Internet-Drafts are draft documents valid for a maximum of six months
+and may be updated, replaced, or obsoleted by other documents at any
+time.  It is inappropriate to use Internet-Drafts as reference
+material or to cite them other than as "work in progress."
+
+To learn the current status of any Internet-Draft, please check the
+"1id-abstracts.txt" listing contained in the Internet-Drafts Shadow
+Directories on ftp.is.co.za (Africa), ftp.nordu.net (Europe),
+munnari.oz.au (Pacific Rim), ds.internic.net (US East Coast), or
+ftp.isi.edu (US West Coast).
+
+Copyright (C) The Internet Society (1998).  All Rights Reserved.
+
+
+Distribution of this document is unlimited.  Please send comments to the
+MEDFREE working group at <ietf-medfree@imc.org>.  Discussions of the
+working group are archived at <URL: http://www.imc.org/ietf-medfree/>.
+
+
+
+ABSTRACT
+
+  Recent Internet applications, such as the World Wide Web, tie
+  together a great diversity in data formats, client and server
+  platforms, and communities.  This has created a need for content
+  feature descriptions and negotiation mechanisms in order to identify
+  and reconcile the form of information to the capabilities and
+  preferences of the parties involved.
+  
+  Extensible content feature identification and negotiation mechanisms
+  require a common vocabulary in order to positively identify content
+  features.  A registration process and authority for content features
+  is defined with the intent of sharing this vocabulary between
+  communicating parties. In addition, a URI tree is defined to enable
+  sharing of content feature definitions without registration.
+  
+  This document defines a registration procedure which uses the
+  Internet Assigned Numbers Authority (IANA) as a central registry for
+  the content feature vocabulary.
+
+
+TABLE OF CONTENTS
+
+   1 Introduction
+
+   2 Feature tag definitions
+    2.1 Feature tag purpose
+    2.2 Feature tag syntax
+
+   3 Feature tag registration
+    3.1 Registration trees
+    3.1.1 IETF tree
+    3.1.2 Global tree
+    3.1.3 URL tree
+    3.1.4 Additional registration trees
+    3.2 Location of registered feature tag list
+    3.3 IANA procedures for registering feature tags
+    3.4 Registration template
+
+   4 Security considerations
+
+   5 Acknowledgments
+
+   6 References
+
+   7 Authors' addresses
+
+   Appendix A: IANA and RFC editor to-do list
+
+
+
+1 Introduction
+
+  Recent Internet applications, such as the World Wide Web, tie
+  together a great diversity in data formats, client and server
+  platforms, and communities.  This has created a need for content
+  feature descriptions and negotiation mechanisms in order to identify
+  and reconcile the form of information to the capabilities and
+  preferences of the parties involved.
+  
+  Extensible content feature identification and negotiation mechanisms
+  require a common vocabulary in order to positively identify content
+  features.  A registration process and authority for content features
+  is defined with the intent of sharing this vocabulary between
+  communicating parties. In addition, a URI tree is defined to enable
+  sharing of content feature definitions without registration.
+  
+  This document defines a registration procedure which uses the
+  Internet Assigned Numbers Authority (IANA) as a central registry for
+  the content feature vocabulary.
+
+
+2 Feature tag definitions
+
+2.1 Feature tag purpose
+
+  Content feature tags represent individual and simple dimensions of
+  feature capability.  Examples of content features related to media
+  are:
+  
+  * the color depth of the screen on which something is to be displayed
+  * the support of the `floating 5 dimensional tables' feature
+  * the type of paper available in a printer
+  * the fonts which are available to the recipient
+  * the capability to display graphical content
+  
+  A feature tag identifies a single dimension of characteristic. Feature
+  tag values should be represented as(and must be representable or
+  isomorphic to) boolean, enumerated values, or numeric values.
+  Examples of feature tags are defined in detail elsewhere [4].
+  
+  
+  Many features are not Boolean and require values to qualify them.
+  Examples of feature tags with values are:
+  * the width of a display in pixels represented as an integer value.
+  * the fonts available to a recipient as an enumerated list.
+  * the version of a protocol composed of integers "i.j.k", defined as
+  either a value in an enumerated list or isomorphic to the integer
+  numeric value ijk.
+  
+  
+  Complex features should be composed using a number of individual
+  content feature tags [2]. Composition of complex features is described
+  elsewhere [2].  Examples of complex features requiring multiple
+  feature tags are:
+  
+  * the width and height of a display
+  * the combination of color depth and resolution a display can support
+  
+  Features of content already described and registered (such as MIME
+  types) should not be registered again.
+
+  The feature tag namespace is not bound to a particular transport
+  protocol or capability exchange mechanism.  There is no restriction on
+  the type of content feature which may be identified by a feature tag,
+  other than the intent of expressing a capability or a preference
+  regarding a presentation-related feature of content.  Feature tags
+  indicating political or social context are not appropriate.
+
+2.2 Feature tag syntax
+
+  A feature tag is a string consisting of one or more of the following
+  US-ASCII characters: uppercase letters, lowercase letters, digits,
+  colon (":"), slash ("/"), dot (".") and dash ("-"). Feature tags are
+  case-insensitive.  Dots are understood to potentially imply heirarchy;
+  a feature can be subtyped by describing it as tree.feature.subfeature
+  and by indicating this in the feature registration.
+  
+  A feature tag value is a string consisting of one or more of the
+  following US-ASCII characters: uppercase letters, lowercase letters,
+  digits, colon (":"), slash("/"), dot("."), and dash ("-"). Values are
+  case-insensitive.  Feature tag values should be simple atomic values
+  of either enumerated or numeric form and must be isomorphic with
+  either enumerated or numeric values.  The form of feature tag values
+  is indicated upon feature registration.
+  
+
+
+3 Feature tag registration
+
+  Feature tags can be registered in several different registration
+  trees, with different requirements as discussed below.  In general, a
+  feature tag registration proposal is circulated and reviewed in a
+  fashion appropriate to the tree involved.  The feature tag is then
+  registered if the proposal is accepted.  Review of a feature tag
+  registration in the URI tree is not required.
+
+3.1 Registration trees
+
+  The following subsections define registration "trees", distinguished
+  by the use of faceted names (e.g., names of the form "tree.feature-
+  name").
+
+
+3.1.1 IETF tree
+
+  The IETF tree is intended for feature tags of general interest to the
+  Internet Community.  Registration in the IETF tree requires approval
+  by the IESG and publication of the feature tag specification an RFC.
+  Submissions for feature tag registration in the IETF tree can
+  originate in any WG of IETF.
+  
+  Feature tags in the IETF tree normally have names that are not
+  explicitly faceted, i.e., do not contain period (".", full stop)
+  characters.
+  
+  The "owner" of a feature tag in the IETF tree is assumed to be the
+  IETF itself.  Modification or alteration of the specification requires
+  the same level of processing (e.g. standards track) required for the
+  initial registration.
+
+3.1.2 Global tree
+
+  Tags in the global tree will be distinguished by the leading facet
+  "g.". That may be followed, at the discretion of the registration, by
+  either a designation indicative of the feature, (e.g., "g.blinktags")
+  or by an IANA-approved designation of the producer's name which is
+  then followed by a designation of the feature (e.g.,
+  g.bigcompany.obscurefeature).
+  
+  
+  Registration of a new content feature tag in the global tree is
+  initiated by the submission of a registration proposal to IANA.  The
+  global tree is intended for feature tags of general interest to the
+  Internet Community.  Unlike registration in the IETF tree,
+  registration in the global tree does not imply or require approval by
+  the IESG.  A registration may be placed in the global tree by anyone
+  who has the need to allow for communication on a particular capability
+  or preference.
+  
+  If the creator of an Internet service or product introduces a new
+  content feature to the Internet Community, and if it is meaningful to
+  identify a content feature tag with it, the feature can be associated
+  with a feature tag by registration in the global tree.
+  
+  Registration of a content feature tag does not in itself imply any
+  form of ownership or control of the underlying feature by the
+  originator of the registration.
+  
+  The owner of "global" content feature tag is the person or entity
+  making the registration, or one to whom responsibility has been
+  transferred as described below.
+
+  While public exposure and review of feature tags to be registered in
+  the global tree is not required, using the ietf-feature-tags@iana.org
+  list for review is strongly encouraged to improve the quality of those
+  specifications.
+
+
+3.1.3 URI tree
+
+  A feature tag may be defined as a URI using the restricted character
+  set defined above. Feature tags in the URI tree are identified by the
+  leading facet "u.". The author of the URI is assumed to be
+  registration authority regarding features defined and described by the
+  content of the URI.  These tags are considered unregistered for the
+  purpose of this document.
+
+3.1.4 Additional registration trees
+
+  From time to time and as required by the community, the IANA may, with
+  the advice and consent of the IESG, create new top-level registration
+  trees. These trees may be created for external registration and
+  management by (for example) well-known permanent bodies, such as
+  scientific societies for content feature types specific to the
+  sciences they cover.  Establishment of these new trees will be
+  announced through RFC publication approved by the IESG.
+
+3.2 Location of registered feature tag list
+
+  Feature tag registrations will be posted in the anonymous FTP
+  directory "ftp://ftp.isi.edu/in-notes/iana/assignments/feature- tags/"
+  and all registered feature tags will be listed in the periodically
+  issued "Assigned Numbers" RFC [currently STD 2, RFC-1700].  The
+  feature tag description and other supporting material may also be
+  published as an Informational RFC by sending it to "rfc-
+  editor@isi.edu" (please follow the instructions to RFC authors [RFC-
+  1543]).
+
+
+3.3 IANA procedures for registering feature tags
+
+  The IANA will only register feature tags in the IETF tree in response
+  to a communication from the IESG stating that a given registration has
+  been approved.
+  
+  Global tags will be registered by the IANA automatically and without
+  any formal review as long as the following minimal conditions are met:
+  
+  (1)   A feature tag must serve as an actual identifier of an area of
+       content feature or capability.
+  
+  (2)   A feature tag name must be unique, and must conform to the
+       syntax in section 2.
+  
+  (3)   An openly available description of the feature or capability is
+       minimally required.  The specification of a feature tag must
+       state whether the choice in the indicated area is a simple yes/no
+       choice, a numeric value, or a choice among enumerated or multiple
+       values. If the choice is among multiple values, and a canonical
+       format for these values is defined, these values must conform to
+       the syntax in section 2.
+
+  (4)   Any security considerations given must not be obviously bogus.
+       (It is neither possible nor necessary for the IANA to conduct a
+       comprehensive security review of feature tag registrations.
+       Nevertheless, the IANA has the authority to identify obviously
+       incompetent material and exclude it.)
+
+
+3.4 Registration template
+
+   To: ietf-feature-tags@iana.org (Feature tags mailing list)
+        (or directly to iana@iana.org)
+   Subject: Registration of feature tag XXXX
+
+
+    | Instructions are preceded by `|'.  Some fields are optional.
+
+   Content feature tag name:
+
+   Summary of the content feature indicated by this feature tag:
+
+    | Include a short (no longer than 4 lines) description or summary
+    | Examples:
+    |   `Use of the xyzzy feature is indicated by ...'
+    |   `Support of color display is indicated by ...'
+    |   `Number of colors in a palette which can be defined ...'
+
+   Number of possible values associated with this feature tag:
+
+     [ ] 1. The feature tag is Boolean and the feature tag has no
+          associated value. The tag indicates presence (or absence) of
+          the feature.
+     [ ] 2. The feature has an associated numeric or enumerated value.
+
+   For case 1: describe the nature of the `yes' and `no' alternatives:
+
+
+   For case 2: How is a single alternative result naturally identified?
+
+     [ ] 2a. With a name, keyword, label, or tag (e.g. a language tag)
+     [ ] 2b. With an integer value
+     [ ] 2c. With a numeric value of a non-integer type (e.g. float)
+     [ ] 2d. Other (must be isomorphic to 2a, 2b, or 2c.)
+
+  (Only for case 2) Detailed description of the feature value meaning,
+  and of the format (for 2a,2d) and meaning of the feature tag values
+  for the alternative results:
+
+    | If the number of alternative results is small, the description
+    | could simply enumerate the identifiers of the different results
+    | and describe their meaning.
+    |
+    | If there is a limited useful numeric range of result (2b, 2c), 
+    | indicate the range.
+    |
+    | The identifiers of the alternative results could also be
+    | described by referring to another IANA registry, for example
+    | the MIME media type registry.
+
+  Expected value or behavior in the absence of the feature tag (if
+  applicable):
+
+  The feature tag is intended primarily for use in the following
+  applications, protocols, services, or negotiation mechanisms:
+                                                   [optional]
+
+    | For applications, also specify the number of the first version
+    | which will use the tag, if applicable.
+
+   Examples of typical use:                               [optional]
+
+   Related standards or documents:                        [optional]
+
+   Considerations particular to use in individual applications,
+   protocols, services, or negotiation mechanisms:        [optional]
+
+   Interoperability considerations:                       [optional]
+
+   Security considerations:
+
+     Privacy concerns, related to exposure of personal information:
+
+     Denial of service concerns related to consequences of specifying
+     incorrect values:
+     
+     Other:
+
+   Additional information:                                [optional]
+
+     Keywords:                                            [optional]
+
+     Related feature tags:                                [optional]
+
+     Related media types or data formats:                 [optional]
+
+     Related HTML markup tags:                            [optional]
+
+   Person & email address to contact for further information:
+
+   Intended usage:
+
+    | one of COMMON, LIMITED USE or OBSOLETE
+
+   Author/Change controller:
+
+   Requested IANA publication delay:                      [optional]
+
+    | A delay may only be requested for registration in global or
+    | local trees, with a maximum of two months.
+
+   Other information:                                     [optional]
+
+    |  Any other information that the author deems interesting may be
+    |  added here.
+
+
+4 Security considerations
+
+   When used, negotiation mechanisms usually reveal some information
+   about one party to other parties.  This may raise privacy concerns,
+   and may allow a malicious party to make more educated guesses about
+   the presence of security holes in the other party.
+
+
+5 Acknowledgments
+
+   The details of the registration procedure in this document were
+   directly adapted from [1].  Much of the text in section 3 was
+   directly copied from this source.
+
+  The idea of creating a vocabulary of areas of content features,
+  maintained in a central open registry, is due to discussions on
+  extensible negotiation mechanisms [3] in the IETF HTTP working group.
+  The authors wish to thank Ted Hardie, Larry Masinter and Graham  Klyne
+  for contributing to discussions about feature tag registration.
+
+
+6 References
+
+  [1] N. Freed, J. Klensin, J. Postel, Multipurpose Internet Mail
+     Extensions (MIME) Part Four: Registration Procedures.  RFC 2048,
+     BCP 13, Network Working Group, November 1996
+
+  [2] G. Klyne, An algebra for describing media feature sets, Internet
+     Draft: <draft-ietf-conneg-feature-algebra-00.txt> Work in progress
+     March 1998
+
+  [3] Holtman, K., et al, "The Alternates Header Field", Internet-Draft
+     draft-ietf-http-alternates-01.txt, Work in progress, November 1997.
+
+  [4] Masinter, L., et al, "Media Features for Display, Print, and Fax",
+     Internet-Draft draft-ietf-conneg-media-features-00.txt, Work in
+     progress , March 1998.
+
+
+7 Authors' addresses
+
+   Koen Holtman
+   Technische Universiteit Eindhoven
+   Postbus 513
+   Kamer HG 6.57
+   5600 MB Eindhoven (The Netherlands)
+   Email: koen@win.tue.nl
+
+   Andrew H. Mutz
+   Hewlett-Packard Company
+   11000 Wolfe Rd. 42UO
+   Cupertino CA 95014 USA
+   Fax +1 408 447 4439
+   Email: andy_mutz@hp.com
+
+   Edward Hardie
+   NASA NIC
+   hardie@nic.nasa.gov
+
+
+
+
+Appendix A: IANA and RFC editor to-do list
+
+   VERY IMPORTANT NOTE:  This appendix is intended to communicate
+   various editorial and procedural tasks the IANA and the RFC
+   Editor should undertake prior to publication of this document
+   as an RFC.  This appendix should NOT appear in the actual RFC
+   version of this document!
+
+   This document refers to the feature tags mailing list
+   ietf-feature-tags@iana.org.  This list does not exist at the
+   present time and needs to be created.
+
+   The ftp://ftp.isi.edu/in-notes/iana/assignments/feature-tags/" 
+   area does not exist at the present time and needs to be created.
+
+
+Expires: September 11, 1998
+

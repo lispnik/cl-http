@@ -1,0 +1,865 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.5 (Macintosh; U; PPC) [Netscape]">
+   <title>CL-HTTP Development Projects</title>
+<!-- -*- Mode: Text -*- -->
+</head>
+<body text="#000000" bgcolor="#FFFFFF">
+
+<h1>
+<img SRC="/cl-http/icons/power.gif" ALT="CL-HTTP" height=59 width=134 align=CENTER><b>CL-HTTP
+Development Projects</b></h1>
+
+<hr>
+<dl>
+
+<dt><i><font size=+0><a href="#overview">Overview</a></font></i></dd>
+
+<dt><i><font size=+0><a href="#ideas">Project Ideas</a></font></i><dd>
+
+<ol type="A">
+<i><li><font size=+0><a href="#enhancements">Server Enhancements</a></font></i>
+
+<i><li><font size=+0><a href="#documentation">Server Documentation</a></font></i>
+
+<i><li><font size=+0><a href="#client">Client Enhancements</a></font></i>
+
+<i><li><font size=+0><a href="#web-walker">Web Walker Enhancements</a></font></i>
+
+<i><li><font size=+0><a href="#HyperArchive">Mail HyperArchive</a></font></i>
+
+<i><li><font size=+0><a href="#Database-Projects">Database Projects</a></font></i>
+
+<i><li><font size=+0><a href="#LambdaVista">LambdaVista</a></font></i>
+
+<i><li><font size=+0><a href="#Log-Analysis">Log Analysis</a></font></i>
+
+<i><li><font size=+0><a href="#Platform-Specific-Projects">Platform-Specific
+Projects</a></font></i>
+
+<ol type="a">
+<i><li><font size=+0><a href="#lispm">Lisp Machine</a></font></i>
+
+<i><li><font size=+0><a href="#Macintosh">Macintosh Platform</a></font></i>
+
+<i><li><font size=+0><a href="#unix">UNIX Platform</a></font></i>
+
+<i><li><font size=+0><a href="#pc">PC Platform</a></font></i>
+</ol>
+
+<i><li><font size=+0><a href="#extensions">Extensions, Add-ons &amp; Applications</a></font></i>
+</ol>
+</dl>
+
+<img SRC="/cl-http/icons/line-rain.gif" >
+<h2>
+<a NAME="overview"></a>Overview</h2>
+This page describes a set of development projects that you could contribute
+to the CL-HTTP community. You will work with an international team of CL-HTTP
+developers, and perhaps learn some interesting things about advanced Common
+Lisp programming as you win recognition and build your reputation in the
+Lisp community.
+<p><b>Please be a good citizen and contribute something, no matter how
+small, to improve these tools for yourself and other users.</b> Not only
+did somebody else write this server, client, web walker, proxy, full-text
+search engine,
+<br>mail hyperarchive, and numerous extensions, they also empowered you
+with the source code. Why not invest a little effort in return? In the
+end, you will help yourself by showing that the Lisp culture can produce
+shared resources and motivating the major developer to continue providing
+high-quality advanced software to you without charge.
+<p>Before contributing code, you may wish to consult the <a href="/cl-http/guidelines.html">guidelines</a>
+and <a href="/cl-http/efficiency.html">efficiency considerations</a>.
+<p>If you are working on some code for CL-HTTP, please send a paragraph
+(or a URL) to <a href="mailto:www-cl@ai.mit.edu">www-cl@ai.mit.edu</a>
+(or <a href="mailto:bug-cl-http@ai.mit.edu">bug-cl-http@ai.mit.edu</a>
+if you would prefer less notice) explaining what you are doing, your time
+frame, and how to contact you. That way, people will know what you are
+doing and can contact you if they have ideas, suggestions, or want to help
+out. It can also help avoid duplicated effort. Have a look at the <a href="http://www.ai.mit.edu/projects/iiip/doc/cl-http/home-page.html#archives">WWW-CL
+archives</a> to see what other people are doing.
+<br>&nbsp;
+<h2>
+<a NAME="ideas"></a>Project Ideas</h2>
+
+<ol type=A>
+<h3>
+<a NAME="enhancements"></a><b><li>Server Enhancements</b></h3>
+
+<ol>
+
+<b><li>Protocol Conformance</b> 
+
+<ul>
+<b><li>HTTP 1.1 Proxying:&nbsp;</b> Complete remaining details of HTTP proxying.
+Maximize efficiency and flexibility. Support on all platforms.
+
+<b><li>HTTP 1.1 Digest Authentication: </b>Update the current digest implementation
+to conform with the latest draft of the digest specification (proposed
+standard digests).
+
+<b><li>File Upload: </b>Complete and polish implementation of file upload standard,
+making sure that it works on all platforms. Obtain code from John Mallery.
+
+<b><li>New Cookies: </b>Implement the new cookie extension specification for
+HTTP.
+
+<b><li>HTTP Features: </b>Implement the HTTP feature extension that allows
+clients and servers to advertise the set of features that they support
+in a standardized way.
+
+<b><li>Content Negotiation:</b> Implement the HTTP 1.1 content negotiation
+specification. (see: <a href="/cl-http/standards/rfc2068.text">RFC 2068</a>)
+
+<b><li>Multiple Languages &amp; Character Sets</b>
+
+<b><li>HTTP 1.1 Details: </b>Make sure all advanced and obscure features of
+HTTP 1.1 are implemented.
+</ul>
+
+<b><li>HTML 4.0 Generation: </b>Implement HTML 4.0 as an extension of current
+generation tools.
+
+<b><li>XML Generation &amp; Parsing:</b>&nbsp; Provide efficient tools for
+generating and parsing XML. This should include RDF and some RDF schemas
+as a high priority.
+
+<li>
+<a NAME="style-sheets" href="http://www.w3.org/pub/WWW/Style/"></a><a NAME="style-sheets" href="http://www.w3.org/pub/WWW/Style/"></a><a NAME="style-sheets" href="http://www.w3.org/pub/WWW/Style/"></a><b><a href="http://www.w3.org/pub/WWW/Style/" name="style-sheets">Cascading
+Style Sheets</a>:</b> Implement style sheet generation tools (CSS2) for
+integration with HTML 3.2 generation facilities.
+
+<b><li>CLIM Server Window: </b>Overhaul the existing CLIM window so that:
+
+<ul>
+<li>
+It runs on multiple platforms
+
+<li>
+It offers a full set of relevant commands
+
+<li>
+It edits user access control information
+
+<li>
+It offers a variety of useful displays, including:
+
+<ul>
+<li>
+Realtime log display
+
+<li>
+Performance statistics
+
+<li>
+Metering of URL access times
+</ul>
+</ul>
+
+<b><li>Efficiency Enhancements</b>
+
+<ul>
+<b><li>Header Buffers: </b>Parse HTTP headers into resourced header buffers.
+Resource header objects. Raw header strings become offsets into the header
+buffer.
+
+<b><li>Resource URLs: </b>Uninterned URL are created with increasing frequency
+by search URLs, proxying, and other applications, these should be resourced
+to minimize consing.
+
+<b><li>Data Caching Facility:</b>
+
+<ul>
+<li>
+Develop caching policies for the pathname datacaching facility.
+
+<li>
+Develop directory-oriented caching policy that is invoked via a keyword
+on directory export.
+
+<li>
+Where applicable,&nbsp; provide areas to hold cache data structures and
+GC policies for optimal performance.
+
+<li>
+Integrate the caching proxy with the datacache facility.
+</ul>
+
+<b><li>Server Metering: </b>Use Henrik Frystyk's (<a href="mailto:frystyk@w3.org">frystyk@w3.org</a>)
+TCP metering tools and test suite to improve server latency, throughput
+and efficiency.
+
+<b><li>Double-Buffered Asynchronous Transfer: </b>Develop platform-specific
+facilities, where applicable, for multi-buffered asynchronous TCP transfers.
+This improves performance by queuing new buffers TCP to ship, and thus,
+freeing Lisp to continue computing rather than blocking waiting for TCP
+to complete delivery of the current buffer.
+</ul>
+
+<b><li>Implementation Enhancements</b>
+
+<ul>
+<li>
+Declarative Header Parsing/Generation
+
+<li>
+Declarative URL Parsing/Generation
+
+<li>
+Escape Characters In Exported Pathnames
+
+<li>
+Fill CLOS Caches On Start-Up Or Save of Binary Images
+
+<li>
+Factor Into Component Modules
+
+<ul>
+<li>
+Client
+
+<li>
+HTML Synthesis
+</ul>
+</ul>
+
+<b><li>Compressed Page Transfer Encoding</b>
+
+<ul>
+<li>
+Provide GZIP compression of static files in a manner analogous to CRLF encoding.
+
+<li>
+Implement Deflate Compression and Uncompression
+
+<li>
+Integrate with Server &amp; Client
+
+<li>
+Support
+
+<ul>
+<li>
+Compressed Static Pages
+
+<li>
+On-the-fly Compression
+
+<li>
+On-the-fly Uncompression
+</ul>
+</ul>
+
+<b><li>Portable Dynamic Form Processing: </b>Use the W3P presentation system
+to replace CLIM in the Dynamic Forms module. Make Dynamic Forms run portably.
+The Dynamic Form processing facility is a high-level object-oriented form
+processing facility that predates HTML form and allows very high level
+coding of forms with maximal code reuse. It has been used in COMLINK for
+5 years and currently drives all the forms used over SMTP and HTTP on the
+White House Publications system.
+
+<b><li>Secure HTTP:</b> Implement HTTP tunneling using after-download cryptography.&nbsp;
+The first step involves implementing a digest authenticated tunnel that
+allows the client to know&nbsp; with complete certainty that the server
+received the HTTP message in tact and processed the request successfully.
+
+<b><li>Proxy Service:</b> Add intelligent caching to proxy implementation (see
+the <a href="http://www.w3.org/hypertext/WWW/Daemon/Status.html">CERN server</a>).
+This is pretty important for many companies that operate through firewalls.
+It is also very handy for downloading URLs to a powerbook for <a href="/cl-http/configure.html#local-talk">disconnected
+use</a>
+
+<b><li>Custom Logging: </b>Develop a variety of custom log formats that yield
+useful information about HTTP operations. Useful ideas include logging:
+
+<ul>
+<li>
+Form submissions and responses
+
+<li>
+Metering information for URLs
+
+<li>
+Proxy operation
+
+<li>
+Precomputed server analyses
+</ul>
+
+<b><li>Portable Remote CLOS Interface:</b> Develop an object interface using
+<a href="ftp://ftp.parc.xerox.com/pub/ilu/ilu.html">Inter-Language
+Unification</a> (ILU) from <a href="http://www.xerox.com">Xerox</a>'s <a href="http://pubweb.parc.xerox.com">Palo
+Alto Research Center</a>. Develop interfaces to readily available persistent
+object stores and <a href="http://www.acl.lanl.gov/sunrise/DistComp/Objects/corba.html">CORBA</a>.
+
+<b><li>Performance Tools</b>
+
+<ul>
+<b><li>Logfile Replayer (aka Web Monkey): </b>Given an HTTP logfile, re-execute
+the requests against a selected server. This is an indispensable tool for
+serious performance tuning of CL-HTTP ports.
+
+<b><li>Metering: </b>Develop higher level metering facilities atop the current
+facilities that capture computation expended on a per URL basis.
+
+<b><li>HTML Display of Performance Statistics: </b>Write HTML displays to facilitate
+use of metering information to enhance URL performance.
+
+<b><li>Tracing Tools</b>
+
+<ul>
+<b><li>Show Execution Process</b>
+</ul>
+</ul>
+
+<b><li>Secure Sockets Layer (SSL): </b>Integrate SSL support into the Web server
+and client using foreign function calls into the freely available reference
+implementation in C. The <a href="http://home.netscape.com/newsref/std/SSL.html">C
+code and specification</a> distributed by Netscape allows non-commercial
+use for free and commerical use for a license fee. A more ambitious effort
+would rewrite the C code in Lisp tuned for speed. See also <a href="http://www.apache.org/related_projects.html">Apache-SSL</a>
+
+<b><li>Digital Signatures:</b>
+
+<ul>
+<li>
+Develop a framework for digitally signing static and dynamic resources.
+
+<li>
+Ensure portability DSS signature code (available from John Mallery).
+
+<li>
+Devise key management&nbsp; system.
+
+<li>
+Document secure operation of digital signature facility.
+</ul>
+
+<b><li>Site Management Tools: </b>Develop a change management facility and
+incorporate it into tools for managing the content of Web site. Contact
+Rainer Joswig for existing code and further suggestions.
+
+<b><li>Portable Lisp Substrate: </b>Develop an integrate substrate from the
+various port sources that allows CL-HTTP to run across platforms with minimal
+platform-specific code. Special attention needs to be paid to creating
+common frameworks for:
+
+<ul>
+<li>
+Networking
+
+<li>
+Processes
+
+<li>
+Locking
+
+<li>
+Streams
+</ul>
+
+<b><li>Cruise the source code</b> and look for bugs, incomplete features, better
+numerical declarations, inefficiencies and write patches to fix them.
+</ol>
+
+<h3>
+<a NAME="documentation"></a><b><li> Server Documentation Projects</b></h3>
+
+<ol>
+
+<b><li> <a NAME="tutorial"></a>Develop a CL-HTTP Tutorial Using <a
+href="http://www.contrib.andrew.cmu.edu/~plb/In<terBook.html&quot;">Interbook</a></b>.
+Contact Peter Brusilovsky <a
+href="mailto:plb@cs.cmu.edu">plb@cs.cmu.edu</a> for further
+information.
+
+<b><li>Extend the online <a href="/cl-http/cl-http.html">manual</a> or <a href="/cl-http/sources/examples/exports.lisp">tutorial</a></b>
+by writing one or more sections that explains how to do something. The
+manual should be written in HTML and should explain things with live working
+examples. We need to target these audiences:
+
+<ul>
+<b><li>Naive users</b> who just want to serve web pages with minimal fuss.
+
+<b><li>Novices who want to Learn Lisp</b>
+
+<b><li>Lisp-capable people</b> who want to write their own response functions
+and hook up their own systems but do not want to learn more about CL-HTTP
+than it takes to solve their problem.
+
+<b><li>Lisp Programmers who want to Learn the Server</b>
+
+<ul>
+<b><li>Extend and annotate the example file <a href="/cl-http/sources/examples/exports.lisp">exports.lisp</a>.</b>
+Improve the comments to make this example more of a live tutorial. Add
+additional examples illustrating any previously undocumented features.
+
+<b><li>Improve documentation strings and comments in source code:</b> Give
+priorities to those areas people are most likely to use or find confusing.
+</ul>
+
+<b><li>Wizards</b> who want to understand the details of CL-HTTP and the Web
+so they can experiment with new extensions to CL-HTTP and the Web. There
+may be a category of wizards who are not lisp hackers and we should have
+a way to reach them.
+</ul>
+
+<b><li>Overview Server &amp; Architecture</b>
+
+<b><li>Interfacing Existing Applications</b>
+
+<ul>
+<li>
+CLIM To Web
+
+<li>
+GGIs To LISP
+</ul>
+
+<b><li>Create icons and gifs</b> for use spicing up CL-HTTP generated pages
+and advertising the technology.
+
+<b><li>Dynamic FAQ: </b>Implement a facility for capturing, storing, searching,
+and displaying FAQs. The facility should provide ultra-targeted answers
+to user queries based on an inventory of questions and answers,
+
+<b><li> Graphical Class Hierarchy Browser:</b> Implement a Web-based interface
+for browsing CLOS class hierarchy and viewing associated documentation
+strings.  Use this to document CL-HTTP class structure. The interface should
+utilize Lisp's introspection capabilities, using basic (widely supported)
+Meta-Object Protocol calls to generate and update the tree structure.  Pick a
+few standard starting points, such as the url class.  Tree layout algorithms
+could be combined with the GIF generation code or Java to provide a nice
+graphical front-end.
+
+</ol>
+
+<h3>
+<a NAME="client"></a><b><li> Client Projects</b></h3>
+
+<ol>
+
+<b><li> <a NAME="client-conformance"></a>Client HTTP 1.1
+Conformance:</b> Identify all the client MUSTs in the http 1.1
+specification. Prioritize them. Implement them in the order of
+priority.
+
+<b><li>Make the client RPC facility faster and more robust</b>
+</ol>
+
+<h3>
+<a NAME="web-walker"></a><b><li> Web Walker Projects</b></h3>
+
+<ol>
+<b><li>Multithreaded: </b>Use the task queue facility to make the Web walker
+operate asynchronously with multiple threads.
+
+<b><li>Persistence: </b>Develop a persistent storage model for use with the
+Web walker.
+
+<b><li> CLIM Interface:</b> Develop a CLIM interface to operate the Web
+Walker. It should include facilities for:
+
+<ul>
+<li>
+Defining Activities
+
+<li>
+Defining Constraints
+
+<li>
+Monitoring Operation
+
+<li>
+Debugging Errors
+</ul>
+
+<b><li>Web Site Maintenance:</b> Develop an Web walker application for finding
+all the dead urls on a web site.
+
+<li>
+<b>Generate VRML views of Sites</b>
+
+<b><li>Develop Facilities for Periodic Site Walking:</b> This involves developing
+persistent actions that awake a certain times to execute a Web Walking
+operation. The operations and any predicates need to be store persistent
+as well. See: server realms (file or OODB storage) and COMLINK persistent
+actions.
+
+<b><li>URL Reminders: </b>Improve the URL reminder application from Rainer
+Joswig.
+
+<b><li>XML Parsing: </b>Integrate an XML parser.
+
+<b><li>Index Web Structures: </b>Use LambdaVista to index and retrieve Web
+structures.
+</ol>
+
+<h3>
+<a NAME="HyperArchive"></a><b><li> HyperArchive</b></h3>
+
+<ol>
+
+<b><li>Archive Migration:</b> Develop management policies and
+associated implementations that migrate messages to archives at
+specified intervals or archive sizes.
+
+<b><li>MIME Support: </b>Add MIME support so that MIME multipart messages can
+be viewed using appropriate helper applications.
+</ol>
+
+<h3>
+<a NAME="Database-Projects"></a><b><li> Database Projects</b></h3>
+
+<ol>
+<b><li>Flatfile Database:</b> Develop a database building from the specialized
+code used by the Mail HyperArchive.
+
+<b><li>Generic API: </b>Provide a generic database API so that platforms can
+specialize into various native database backends.
+</ol>
+
+<h3>
+<a NAME="Lambdavista"></a><b><li> LambdaVista</b></h3>
+
+<ol>
+<b><li>Documentation:</b> Write documentation strings for major functions and datastructures.
+
+<b><li>Document Universes:</b> Abstract the document-universe data structure into CLOS mixins.
+
+<b><li>Web Walker Support</b>
+
+<b><li>Documentation Search:</b> Full text search in CL documentation.
+
+<b><li>Substring Search via Thesaurus</b>
+
+<b><li>Easy Document Indexing With Fragment Support</b>
+
+<b><li>WAlS Interface</b>
+
+<b><li>WordNet Interface: </b>Implement an interface to WordNet
+designed to enable higher level applications atop a tookit of WordNet
+operations.
+
+<ul>
+<li>
+Utilize to improve indexing &amp; retrieval performance of LambdaVista
+</ul>
+</ol>
+
+<h3>
+<a NAME="Log-Analysis"></a><li>Log Analysis</h3>
+
+<ol>
+<b><li>Efficient Storage Format: </b>Develop a storage format that requires
+no parsing or analysis when loading log files into memory. The format should
+be modular so that only logfiles in a time interval need to be examined.
+
+<b><li>KDTREE Implementation: </b>Revise the Common Lisp KDTree implementation
+for high efficiency needed in logging applications.
+</ol>
+
+<h3>
+<a NAME="Platform-Specific-Projects"></a><b><li>Platform Specific Projects</b></h3>
+
+<ol type="a">
+<h4>
+<a NAME="lispm"></a><li> Lisp Machine Platform</h4>
+
+<ol>
+<b><li>Mail HyperArchive: </b>Recognize epsilon encodings and render them in
+corresponding HTML.
+
+<b><li>Concordia Interface:</b> Develop a Web interface that provides access
+to the Symbolics document examiner.
+</ol>
+
+<h4>
+<a NAME="Macintosh"></a><li> Macintosh Platform</h4>
+
+<ol>
+
+<b><li>OpenTransport Polish:</b> Tune the MCL OpenTransport interface.
+correctly.  See: ``<a
+href="http://developer.apple.com/technotes/tn/tn1145.html">Technote 1145
+Living in a Dynamic TCP/IP Environment</a>'' which describes how to
+write OpenTransport code that correctly handles multiple IP addresses,
+dial-up links, sleep and wakeup on PowerBooks, modem disconnection, and
+user reconfiguration.
+
+<b><li>Binary Application with User Interface:</b> Develop a stand-alone
+binary app so people without MCL can run the server. This involves
+developing a GUI user interface from which the user can operate and
+maintain the server.  Among other things, it means an interface to
+specifying the configuration file and ensuring that it is loaded on
+start up. Have a look at the <a
+href="http://www.uwtc.washington.edu/Computing/WWW/Remote.html">remote
+administration interface</a> for MacHTTP. Alternatively, a forms-based
+approach would be portable across multiple platforms and would be safe
+once secure http is incorporated.
+
+<ul>
+<li>
+Special Application
+
+<li>
+Top-Level Loop
+
+<li>
+Catch Errors
+
+<li>
+Handle Apple Events
+</ul>
+
+<b><li>QuickDraw 3D Integration</b>
+
+<b><li>Wood DB Interface</b>
+
+<b><li>ODBC Interface</b>
+
+<b><li>MCL-Based WYSIWYG Web Client In FRED</b>
+
+<b><li>Improve Performace of MD5 &amp; SHA:</b> Integrate some 16bit MD5
+code from Digitool and apply the sae ideas to SHA.
+
+</ol>
+
+<h4>
+<a NAME="unix"></a><li> UNIX Platforms</h4>
+
+<ol>
+<b><li>Send-Mail Interface</b>
+
+<b><li>Revise CGI Interfaces to Conform with CGI Work in MCL</b>
+</ol>
+
+<h4>
+<a NAME="pc"></a><li> PC Platform</h4>
+
+<ol>
+<b><li>ACL 5.0: </b>Bring port up to HTTP 1.1 conformance
+
+<b><li>Port to C Lisp</b>
+
+<b><li>ODBC DB Interface</b>
+</ol>
+</ol>
+
+<h3>
+<a NAME="extensions"></a><li> Extensions, Add-Ons &amp; Applications</h3>
+
+<ol>
+<b><li>Higher-Level HTML Synthesis</b>
+
+<ul>
+<li>
+Cliche &amp; Abstractions
+
+<ul>
+<li>
+Lisp To HTML Translator
+
+<li>
+Graphics
+
+<ul>
+<li>
+Bar Charts
+
+<li>
+Graphs
+
+<li>
+Tree-Drawing
+</ul>
+
+<li>
+Command Processor
+</ul>
+
+<li>
+Automatic Generation of Navigational Links
+
+<li>
+Graphics For Space Filling (e.g., Backgrounds)
+</ul>
+
+<b><li>Java Synthesis</b>
+
+<ul>
+<li>
+Java Presentations For Client
+
+<li>
+Java Primitives Composable From LISP
+</ul>
+
+<b><li>Indexing &amp; Search For Web Regions</b>
+
+<ul>
+<li>
+Gatherers On The Server
+
+<li>
+Brokers For Delivery To Clients
+
+<li>
+Specification For Collecting &amp; Distributing Site Indices. See work
+by Harvest group.
+</ul>
+
+<b><li>Server Collaboration Site</b>
+
+<ul>
+<li>
+Register Servers
+
+<li>
+Register People &amp; Interests &amp; Abilities
+
+<li>
+Share Extensions
+
+<li>
+Advertise Extensions
+
+<li>
+Peer Review Extensions
+
+<li>
+Automatic Patch Distribution
+</ul>
+
+<b><li>Code Sharing and Distribution</b>
+
+<ul>
+<b><li>Build Web Collaboration Systems For Sharing Code: </b>Provide a forms
+interface that allows people to submit code or extensions to CL-HTTP and
+retrieve submissions of others. Incorporate a peer review system that allows
+people to rate software along various dimensions.
+
+<b><li>Java Library: </b>Use the facility to:
+
+<ul>
+<li>
+Capture Java applets from users.
+
+<li>
+Document applet APIs.
+
+<li>
+Locate applets based on search criteria.
+
+<li>
+Invoke applets dynamically.
+</ul>
+</ul>
+
+<b><li>Mobile Lisp Code</b>
+
+<ul>
+<li>
+Secure Lisp Listener
+
+<li>
+Safe Common Lisp Package
+
+<li>
+No Side Effects
+
+<li>
+Bounded Computation Time &amp; Space
+
+<ul>
+<li>
+Bounded Stack Depth
+</ul>
+
+<li>
+Fasl Streams To Clients
+</ul>
+
+<b><li>Modern Common Lisp Defsystem: </b>This will provide superior system
+management that is not wedged in the past, <i>i.e.</i>, based on pathnames.
+It should accept URNs and provide a patching facility and version control
+system at least as good as the Lisp Machine.
+
+<ul>
+<li>
+Start from CLOS-based portable defsystem
+
+<li> URN fragments provide relinearization capability
+
+<li> Tacking of code dependency enables configurable loading
+
+<li> Tree shaking provides small application images.  </ul>
+
+<b><li>Synchronized Multimedia: </b>Implement the current standards for synchronized
+multimedia Web display.
+
+<ul>
+<b><li>Emit Streamed Audio</b>
+
+<ul>
+
+<li> MacInTalk Source
+
+<li> Streamed </ul>
+
+<b><li>Emit Streamed Video: </b>Implement facilities for emitting streamed
+video using standard formats.
+</ul>
+
+<b><li>Integrate CLIM Graphics: </b>Port the <a href="http://www.ai.sri.com/~pkarp/clim-www/tool.html">SRI
+CLIM generation tools</a> to CL-HTTP and portable lisp
+
+<b><li>MacroMedia Shockwave Generation: </b>Develop a facility for generating
+Shockwave on the fly.
+
+<li><b><a NAME="vrml-2-0" href="http://vag.vrml.org/VRML2.0/FINAL/">VRML 2.0 Synthesis:</a></b>
+Implement a VRML 2.0 generation package analogous to the
+distribution <a href="/cl-http/vrml/vrml.html">VRML 1.0 facility</a>.
+4.0 browsers from Netscape and Microsoft implement the standard.
+
+<b><li>Active-X Synthesis</b>
+
+<ul>
+
+<li> Active-X Presentations For Client
+
+<li>Active-X Primitives Composable From LISP
+
+</ul>
+
+<b><li>Use SMTP And NNTP To Distribute Hyperlinks</b>
+
+<ul>
+<li>
+Hyperlink-Based Mail Reader On The Web
+</ul>
+
+<b><li>SMTP Mailer:</b> Extend the current portable SMTP transmission code
+into a full-fledged mailer. Abstract the storage componet so that a database
+can serve as the backend. Use the mailer as an SMTP gateway for the server.
+
+<b><li>NNTP Gateway: </b>Extend the NNTP code (available from John Mallery)
+to gateway between NTTP and the server. Ensure portability of implementation.
+
+<b><li>Server Trouble Shooter:</b> Diagnose of server problems based on
+a case library acquired by experience.
+
+</ol>
+</ol>
+<img SRC="/cl-http/icons/line-rain.gif" >
+<address>
+<b><a href="http://www.ai.mit.edu/people/jcma/jcma.html">John C. Mallery</a>
+(<a href="mailto:jcma@ai.mit.edu">jcma@ai.mit.edu</a>) <a href="http://www.lavielle.com/~joswig/">Rainer
+Joswig</a> (<a href="mailto:joswig@lavielle.com">joswig@lavielle.com</a>)</b></address>
+
+<br><b><a href="http://web.mit.edu/">M.I.T.</a> <a href="http://www.ai.mit.edu/">Artificial
+Intelligence Laboratory</a></b>
+</body>
+</html>

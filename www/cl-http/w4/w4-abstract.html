@@ -1,0 +1,73 @@
+<!-- -*- Mode: Text -*- -->
+<html>
+<head>
+<TITLE>A Constraint-Guided Web Walker</TITLE>
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+
+<center> <h1><a
+href="http://www.ai.mit.edu/projects/iiip/doc/cl-http/w4/w4.html">A
+Constraint-Guided Web Walker<br>for Specialized Activities</a></h1>
+
+<b><A HREF="http://www.ai.mit.edu/people/jcma/jcma.html">John C.
+Mallery</A>, Andrew J. Blumberg &amp; <a href="http://web.mit.edu/cvince/">Christopher R. Vincent</a></b><br>
+
+<A HREF="http://www.ai.mit.edu/iiip/home-page.html">Intelligent Information Infrastructure Project</A><br>
+<A HREF="http://www.ai.mit.edu/index.html">Artificial Intelligence Laboratory</A><br>
+<A HREF="http://web.mit.edu/">Massachusetts Institute of Technology</A>
+
+<p><i><a
+href="http://www.ai.mit.edu/org/alu/dow96/program.html">Proceedings</a> of the
+<a href="http://www.omg.org/ow/cbcoloc.htm">Dynamic Objects Workshop</a></i>
+at <a href="http://www.omg.org:80/ow/oweast.htm">Object World East</a>, <A
+href="http://www-astro.phast.umass.edu/misc/boston.html">Boston</A>, <a
+href="http://WWW.magnet.state.ma.us/">Massachusetts</a>, May 5-6, 1996</p>
+
+</center>
+
+<abstract><p><b>Abstract:</b> A Web walker for the Hypertext Transfer Protocol
+(HTTP) implements a constraint posting control architecture. The Web walker
+uses a declarative and extensible vocabulary of <i>constraints</i> to
+characterize traversals of Web structures.  Starting from a root resource, the
+walker recursively follows all hyperlinks whose associated resource satisfies
+the constraints guiding the walk.  Constraints are sorted according to
+efficiency class before application to candidate resources. This constraint
+ordering conserves computational and network resources.    As the walker
+traverses the structure it performs operations that are specified in a
+declarative and extensible <i>action</i> vocabulary.  Taken together, a set of
+constraints and a set of actions comprise an <i>activity</i>, which can be
+named and reused.</p>
+
+<p>Several Web-accessible applications use this constraint-guided framework:
+
+<ul>
+
+<p><li><b>Web Mapper:</b> Hyperlinks from a root uniform resource indicator (URI)
+are followed and displayed in Hypertext Markup Language (HTML).</p>
+
+<p><li><b>Web Document Locator:</b> A Salton-style statistical retrieval
+algorithm is applied to TEXT or HTML documents, which are reported to the user
+when their score exceeds a threshold.</p>
+
+<p><li><b>Web Archiver:</b> Regions of Web structure are traversed and
+transferred to a local disk drive. Hyperlinks within the structure are
+remapped to preserve link structure in the new location.</p>
+
+</ul>
+
+The Web walker was implemented in Common Lisp as a facility for the <a
+href="http://www.ai.mit.edu/projects/iiip/doc/cl-http/home-page.html">Common
+Lisp HTTP Server</a>.</p> </ABSTRACT>
+
+<P><B>Keywords:</B> Actions, Common Lisp, Constraints, Constraint Posting,
+HTML, HTTP, Intelligent Agents, Internet, Resource Discovery, Technology,
+Servers, Web Robot, Web Walker, World Wide Web.
+
+<P><b>Hypertext:</B> <A
+href="http://www.ai.mit.edu/projects/iiip/doc/cl-http/w4/w4.html">http://www.ai.mit.edu/projects/iiip/doc/cl-http/w4/w4.html</A>
+<br><b>Postscript:</B> <A
+href="http://www.ai.mit.edu/projects/iiip/doc/cl-http/w4/w4.html">http://www.ai.mit.edu/projects/iiip/doc/cl-http/w4/w4.ps</A>
+
+</body>
+</html>

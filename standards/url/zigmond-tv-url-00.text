@@ -1,0 +1,166 @@
+
+
+Network Working Group                                         D. Zigmond
+Internet-Draft                                            WebTV Networks
+draft-zigmond-tv-url-00.txt                                    June 1997
+
+
+        Uniform Resource Locators for Television Broadcasts
+
+
+1. Status of this Document
+
+This document is an Internet-Draft. Internet-Drafts are working
+documents of the Internet Engineering Task Force (IETF), its Areas,
+and its Working Groups. Note that other groups may also distribute
+working documents as Internet-Drafts.
+
+Internet-Drafts are working documents valid for a maximum of six
+months. Internet-Drafts may be updated, replaced, or obsoleted by
+other documents at any time. It is not appropriate to use
+Internet-Drafts as reference material or to cite them other than as a
+"working draft" or "work in progress."
+
+To learn the current status of any Internet-Draft, please check the
+1id-abstracts.txt listing contained in the Internet-Drafts Shadow
+Directories on ds.internic.net, nic.nordu.net, ftp.isi.edu, or
+munnari.oz.au.
+
+Distribution of this document is unlimited. Please send comments to
+djz@corp.webtv.net.
+
+
+2. Introduction
+
+World-Wide Web browsers are starting to appear on a variety of
+consumer electronic devices, such as television sets and television
+set-top boxes, which are capable of receiving television programming
+from either terrestrial broadcast, satellite broadcast, or cable. On
+these devices, some of the URL schemes described in [1] are
+inappropriate. For example, many of these devices lack local storage,
+so the "file" scheme is of little use. This draft proposes a new URL
+scheme for uniquely identifying streams of television broadcasts on
+such devices.
+
+
+3. Television URL
+
+The basic structure of a television URL is:
+
+	tv:<broadacst>
+
+where broadcast is an alpha-numeric description of the data source.
+This description can take the form of an over-the-air broadcast call
+sign, a channel number, or a network indentifier. For example:
+
+	tv:wqed		the WQED station
+	tv:12		channel 12
+	tv:nbc		the NBC network
+
+For a browser to understand non-numeric stream identifiers, it will
+require a local channel map for the device. The nature of this map and
+the way in which it is used will be browser- and device-specific and
+is beyond the scope of this draft. In this way, the "tv" scheme is
+somewhat analagous to the "news" and "file" schemes in [1]: it merely
+names a television broadcast signal but assumes that the local browser
+has some means for actually retrieving that signal on the local
+device. A variety of software systems currently provide
+device-specific mappings from such identifiers to specific channel
+numbers. These systems can be incorprated into television sets or
+set-top boxes to facilitate the interpretation of television URLs by
+the client device.
+
+
+4. BNF for Television URLs
+
+The following is a formal specification for the new URLs:
+
+	tvurl		= "tv:" broadcast
+	broadcast	= call-sign | network-id | channel-number
+	call-sign	= 1*[ alpha | digit ]
+	network-id	= 1*[ alpha | digit ]
+	channel-number  = 1*digit
+
+The definitions of alpha and digit are from RFC 1738.
+
+The call-sign must follow the conventions for broadcast call-signs
+established by the International Telecommunications Union. These are
+assigned by national broadcasting authorities and are universally
+unique. Examples of television URLs using a call-sign are:
+
+	tv:wqed
+	tv:kqed
+
+The network-ids are not currently assigned by an international body.
+These generally define streams of video content originating from a
+national network (such as NBC or CNN in the United States) which may
+be sent over a variety of frequencies in different locations as well
+as over a variety of media (often terrestrial broadcast, satellite
+broadcast, and cable). These network-ids should be registered with
+IANA before use to ensure that mutliple networks are not using the
+same identifier. Conflicts between networks over identifiers will be
+resolved by IANA. [Author's note: exactly how this registration will
+work remains to be worked out.] Examples of television URLs using a
+network-id are:
+
+	tv:nbc
+	tv:cnn
+	tv:bbc
+
+Unlike call-signs and network-ids, channel-numbers are not intended to
+be universally unique and simply represent a given television channel
+on a particular device. When used with a channel-number, a television
+URL is similar to a file URL (without a hostname) in that it describes
+a purely local resource. An example of a television URL using a
+channel-number is:
+
+	tv:3
+
+
+4. Acknowledgments
+
+Many of the ideas in this document came out of conversations with
+Andrew Lochart. Other people who supplied valuable input include Matt
+Trifiro and Eric Del Sesto.  The original draft of this URL scheme was
+developed while the author was at Wink Communications.
+
+
+5. Security Considerations
+
+This new URL scheme is subject to the same security implications as
+the general URL scheme [1]. It is possible that the mere act of
+viewing a television broadcast signal may causes costs to be incurred
+to the viewer in some instances (eg, "pay-per-view" movies and
+events). Any software that uses this URL scheme to allow automatic
+tuning of a client device to a particular television broadcast signal
+should alert users before performing actions that may incur costs to
+the user.
+
+
+6. IANA Considerations
+
+IANA will register network identifiers for use in this URL scheme.
+[Author's note: Exactly how the registration process will work and how
+disputes between registrants will be resolved has not yet been
+decided.]
+
+
+7. References
+
+[1] Berners-Lee, T., Masinter, L., McCahill, M. (editors), "Uniform
+Resource Locators (URL)", RFC 1738, December 1994.
+ftp://ds.internic.net/rfc/rfc1738.txt
+
+
+8. Author's Address
+
+Dan Zigmond
+WebTV Networks
+305 Lytton Avenue
+Palo Alto CA 94301
+USA
+
+Email: djz@corp.webtv.net
+Voice: +1-415-614-6071
+Fax: +1-415-463-1670
+

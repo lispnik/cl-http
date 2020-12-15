@@ -1,0 +1,782 @@
+
+Videotex URL Specification                                  20 May 1997
+
+
+
+
+ETSI TE1 Working Group                                       D. Mavrakis
+Internet-Draft                                               H. Layec
+draft-mavrakis-videotex-url-spec-01.txt                      K. Kartmann
+
+May 20, 1997                                 Expires -> November 19, 1997
+
+                          Videotex URL Specification
+
+                  <draft-mavrakis-videotex-url-spec-01.txt>
+
+
+Status of this Memo
+
+     This document is an Internet-Draft.  Internet-Drafts are working
+     documents of the Internet Engineering Task Force (IETF), its
+     areas, and its working groups.  Note that other groups may also
+     distribute working documents as Internet-Drafts.
+
+     Internet-Drafts are draft documents valid for a maximum of six
+     months and may be updated, replaced, or obsoleted by other
+     documents at any time.  It is inappropriate to use Internet-
+     Drafts as reference material or to cite them other than as
+     ``work in progress.''
+
+     To learn the current status of any Internet-Draft, please check
+     the ``1id-abstracts.txt'' listing contained in the Internet-
+     Drafts Shadow Directories on ftp.is.co.za (Africa),
+     nic.nordu.net (Europe), munnari.oz.au (Pacific Rim),
+     ds.internic.net (US East Coast), or ftp.isi.edu (US West Coast).
+
+     Distribution of this document is unlimited. Please send comments
+     to <mavrakis@mctel.fr>. This specification is also available via
+     the Web in HTML form, see: http://www.mctel.fr/vtxurl.html
+
+
+1) Abstract
+
+A new URL scheme, "videotex" is defined. It allows videotex client
+software or terminals to connect to videotex services compliant to the
+ITU-T and ETSI videotex standards, including among others:
+- ITU/T Recommendation T.101: International Interworking for Videotex
+  [3]
+- ETS 300 072: Videotex presentation layer protocol, videotex
+  presentation layer data syntax [7].
+- ETS 300 073: Videotex presentation layer protocol, Geometric
+  display [12].
+- ETS 300 076: Videotex Terminal Facility Identifier (TFI) [14]
+
+
+Mavrakis, Layec & Kartmann                                       Page 1
+
+Videotex URL Specification                                   20 May 1997
+
+
+- ETS 300 149: Videotex presentation layer protocol, Audio Syntax [16].
+- ETS 300 177: Videotex presentation layer protocol, Photographic
+  Syntax [15].
+- ANSI X3.110 - CSA T500: Videotex/Teletext Presentation Level
+  Protocol Syntax [17].
+
+The well-known port number 516 has been assigned by IANA to the videotex
+protocol [2].
+
+
+2) Videotex URL scheme utility and operability:
+
+Numerous countries (mostly in Europe but also in another parts of the
+world) have setup and are using videotex networks.
+
+These networks allows users to call videotex servers using either
+stand-alone videotex terminals or software emulators running on PC,
+that could even be integrated with Web browsers as plug-ins or Java
+applets or applications (through this document, 'videotex terminal'
+may refer either to a dedicated terminal or to a computer system
+running any kind of videotex software emulator).
+
+The Videotex URL scheme will be used in several cases to allow access
+to videotex services from the Internet [1]:
+- to select a videotex service using a Internet/Videotex gateway:
+  Most videotex networks operators now want to allow their videotex
+  networks to be accessed through the Internet. Several methods could
+  be used to this end [1], but the most easier (and the one mostly
+  used right now, e.g. in France http://www.minitel.fr), is to
+  distribute a videotex software emulator supporting TCP/IP, and to
+  install in the network a gateway between the Internet and the
+  videotex world (that uses mostly X.25 as transport network).
+
+   -----------                                        --------------
+   | PC with |             |\ TCP/IP - X.25           |  videotex  |
+   | videotex|   Internet  | \ gateway                |   server   |
+   | emulator|-------------|  >-----------------------| connected  |
+   |    on   |             | /         X.25 network   |  to X.25   |
+   | TCP/IP  |             |/                         |  videotex  |
+   -----------                                        |   network  |
+        |                                             --------------
+        |                                             --------------
+        |                                             |  videotex  |
+        |                                             |access point|
+        |                                             |or videotex |
+        |           TCP/IP Internet                   |   server   |
+        |---------------------------------------------| with TCPIP |
+                                                      |   support  |
+                                                      --------------
+
+
+Mavrakis, Layec & Kartmann                                       Page 2
+
+Videotex URL Specification                                   20 May 1997
+
+
+- In the same way, a videotex server or a videotex access point (which
+  provides the access to the videotex network) may also support
+  direct TCP/IP connections (see lower part of the figure) from such
+  TCP/IP videotex emulators.
+
+The Videotex URL scheme will then be used in both cases to perform 
+videotex service selection: A videotex server or an Internet/Videotex
+gateway will listen on its videotex well-known port for incoming
+connections. The server or the gateway could of course be engaged in
+many simultaneous connections, and after a connection is established,
+the terminal must be able to select the videotex application desired,
+as a same system may host or give access to different videotex
+applications.
+
+The best mechanism to fully describe the videotex service to activate is 
+the URL mechanism.
+
+
+3) Description of the videotex scheme
+
+The videotex URL scheme is used to designate videotex interactive
+services conforming to videotex standards.
+
+A videotex URL takes the form:
+    videotex://<host>:<port>/<videotexservice>;
+    <attribute>=<value>
+
+as specified in Section 3.1. of RFC 1738. If :<port> is omitted, the
+port defaults to 516 (client software may choose to ignore the optional
+port number in order to increase security). The <videotexservice>
+part is optional and may be omitted.
+
+This URL does not designate a data object, but rather a videotex
+interactive service. A videotex service starts a session managing
+videotex screens and interacting with the user during the session. To 
+the difference of other stateless protocols, the link between the client 
+and the server is maintained during the whole session.
+
+The <videotexservice> is the name of the videotex service to activate.
+This field is not mandatory and could be omitted for example if the
+remote host or gateway gives access to only one videotex service or
+activates a videotex service by default when no service is specified.
+If this field is omitted in the URL and the remote host requests it,
+it is assumed that the videotex terminal will prompt the user for it.
+
+In addition, after the <videotexservice>, optional attributes and values
+(parameters) associated with the videotex service may be specified as
+part of the URL. When present, each parameter (attribute/value pair)
+
+
+
+Mavrakis, Layec & Kartmann                                       Page 3
+
+Videotex URL Specification                                   20 May 1997
+
+
+is separated from each other and from the rest of the URL by a ";"
+(semicolon). The name of the attribute and its value are separated
+by a "=" (equal sign). If present, these fields are used to transmit
+additional data useful for service selection or to request to perform
+a specific processing. For example, the $USERDATA field can be specified
+to transmit additional user-specified data to the videotex service.
+
+
+4) Client/server dialog during service selection
+
+The videotex terminal will interpret the videotex URL to connect to the
+remote host or gateway to access the specified videotex service. After
+connecting to the remote system, the host or gateway may prompt the
+videotex client for service name and optional user identification.
+
+The videotex service selection and the optional user identification
+procedure are performed using a simple dialog between the terminal
+and the host or gateway, in videotex or ANSI terminal telnet mode. It
+is expected the videotex terminal will display this exchange in the
+terminal window.
+
+As existing remote systems may expect to be called by TCP/IP videotex
+emulators supporting or not supporting automatic service selection
+using videotex URL specification, a videotex dialog for service selection
+may be widely used. It is therefore recommended that TCP/IP videotex
+emulators supporting automatic service selection be able to perform
+automatically when possible the service selection in both modes (videotex
+and terminal). When the service selection phase could not be performed
+automatically (e.g. because the terminal has not recognized the
+request strings from the host server), the user identification and
+service selection requests must be answered manually by the user in
+terminal or videotex dialog mode.
+
+The service, username and password information are transmitted by
+the videotex terminal to the host in answer to the corresponding
+requests received from the host. The following behavior is expected
+from the terminal:
+- wait for the optional request strings from the host server
+  ('service:', 'login:' and 'password:') that could be received
+  in any order, and answer them (respectively by <videotexservice>,
+  value defined in the URL and the <username> and <password> entered
+  by the user if required). It should be noted that, in videotex
+  mode, these strings ('service:', 'login:' and 'password:' may be
+  embedded within videotex data.
+  The terminal answers may be sent automatically if the answers are
+  known (that is if they are specified in the URL or terminal
+  configuration) or it may prompt the user for the needed
+  informations.
+  When parameters (attribute and value pairs) are present in the URL,
+
+
+Mavrakis, Layec & Kartmann                                       Page 4
+
+Videotex URL Specification                                   20 May 1997
+
+
+  these fields will be sent following the <videotexservice> transmitted
+  to the host in answer to the 'service:' request received from the
+  host, separated from the <videotexservice> value by a semicolon.
+- the client answers are to be followed by a Carriage Return (CR)
+  in telnet mode and by the Send function key or equivalent in 
+  videotex mode. In telnet mode, if a Line Feed (LF) is transmitted
+  after the CR, it will be ignored by the remote server or gateway.
+  The remote host shall accept and process in addition to CR in
+  both telnet mode and videotex mode the equivalent videotex function
+  keys (e.g. SEND (1/3h, 4/1h) in Teletel mode, 1/Ch in Btx or # in
+  Prestel mode). The remote host may optionally also recognize and manage
+  the other videotex functions keys (e.g. CANCEL, GUIDE, REPEAT,
+  CORRECTION,...).
+- The remote host may echo the characters received from the videotex
+  terminal, the received CR being echoed as CR LF. The server may
+  echo the password characters as stars or any other scrambled output
+  for safety purpose.
+- during the service selection phase and optional identification
+  procedure, the terminal will display the exchange of information in
+  the videotex terminal window (this is the reason why the service,
+  username and password data are requested by the server using a telnet
+  or videotex compatible dialog).
+  In the same way, additional negotiation with the user (e.g. request for
+  the user approval of the charging for paying services) may be conducted
+  in videotex or telnet mode before establishing the connection to
+  the service. In order to allow an automatic processing of the charging
+  request for approval, it is recommended that it follows the scenario
+  described below:
+  + the charging to be applied to the service is described by the remote
+    system in videotex mode (e.g. "service charged 1.20 FRF/min").
+  + the charging approval request sent by the host includes the string
+    "accept charging (y/n):"
+  + on receipt of this string, the terminal may answer automatically
+    "y" (accept the charging) or "n" (reject the charging) if it has been
+    able to understand the charging description and if its configuration
+    allows to accept or reject automatically such a charging.
+    Otherwise, the charging approval or rejection will have to be
+    performed manually by the user.
+
+Should an error occur during videotex service activation, the remote host
+may inform the user by displaying the error cause. It is recommended
+that, when possible and applicable, the status code syntax described in
+HTTP [8] [9] be used to facilitate automatic processing by the client of
+the host answer during error or normal operation. Some implementations
+may choose to display instead the error and the continue to interact
+with the user using a videotex dialog.
+
+
+
+
+
+Mavrakis, Layec & Kartmann                                       Page 5
+
+Videotex URL Specification                                   20 May 1997
+
+
+5) Proposed syntax
+
+The proposed BNF syntax is encoded as specified in RFC 1738 [5]:
+
+; videotex (see ITU-T and ETSI videotex standards)
+
+videotexurl     = "videotex://" hostport [ "/" videotexservice *[ parameter ] ]
+videotexservice = *[ uchar | "/" | "?" | ":" | "@" | "&" | "=" | "#" ]
+parameter       = ";" attribute "=" value
+attribute       = *[ uchar | "/" | "?" | ":" | "@" | "&" ]
+value	        = *[ uchar | "/" | "?" | ":" | "@" | "&" ]
+
+This syntax:
+- allows the user to specify the remote host address by its name or 
+  numeric address. Although he could select a specific port, it is
+  expected the information providers and videotex software will mostly
+  use the port number assigned to videotex (516) [2]. For security
+  reasons, the username and password could not be specified in the URL.
+- allows him to select a specific videotex service if the remote host or
+  gateway manages access to several different videotex services. The
+  videotex service to be accessed may be referred by its name or its
+  X.25 number (including X.25 subaddress if needed).
+- allows also to send additional data to the service using the 
+  parameter syntax during the service selection phase. To the difference
+  of the params syntax used in [4], the parameter syntax requires each
+  value to be labeled by an attribute. The parameter attribute names
+  are case-insensitive. Parameter values may or may not be case-sensitive,
+  depending on the attribute.
+
+All the values of fieldname beginning by a dollar ($) sign are reserved 
+for specific use, including:
+- $ECHO: the value of this field may be either LOCAL (stating the echo
+  of characters typed by user is performed by the videotex emulator) or
+  REMOTE (stating the echo of characters typed by the user is performed
+  by the remote system).
+  If this parameter is not present, the default value is LOCAL (due to
+  high latency of the Internet network, a remote echo often leads to
+  unacceptable response times).
+  When the echo is performed locally by the videotex terminal, it is
+  expected to complies with the videotex access point behavior regarding
+  the echo of videotex sequences or the processing of function keys and
+  local buffer (e.g. some function keys or data transmitted by the
+  terminal to the network must not be echoed).
+- $USERDATA: user data specific by the user and to be processed by the 
+  videotex service. If the remote system is a videotex host server, it 
+  will process the USERDATA as if they have been received as X.25 user
+  data in an incoming X.25 call. If the remote system is an
+  Internet/Videotex gateway, it will forward the USERDATA to the
+
+
+
+Mavrakis, Layec & Kartmann                                       Page 6
+
+Videotex URL Specification                                   20 May 1997
+
+
+  called videotex service in the X.25 user data field. It should be 
+  noted that the user data field of an X.25 call packet could contain
+  at most 16 bytes (without fast select, see below), and that usually
+  a 4-bytes protocol identifier is used at the beginning so there is
+  12 bytes left.
+- $FASTSELECT: user data to be processed or transmitted to the remote
+  host as X.25 fast select user data. If the remote system is a videotex
+  host server, it will process the FASTSELECT data as if they have been
+  received as X.25 fast select data in an incoming X.25 call. If the
+  remote system is an Internet/Videotex gateway, it will forward the
+  FASTSELECT data to the called videotex service in the X.25 fast
+  select data field.
+  This field and the $USERDATA field are mutually exclusive.
+  It should be noted that the user data field of an X.25 call packet with
+  fast select could contain at most 128 bytes (the first fourth being
+  usually used for the protocol identifier).
+  It should also be noted that the configuration of some X.25 videotex
+  servers may not allow them to use the fastselect facility.
+- $LANGUAGE: specify the user current or preferred language, encoded
+  as specified in RFC 1766 [18].
+- $CONTEXTDATA: context data.
+- $ENCRYPTION: specify the encryption mechanism to be used between the
+  videotex client and the remote system, in order to protect the
+  privacy of the videotex session.
+- $EMULATION: specify the default emulation mode supported to access
+  this videotex service. Among the possible values for this field:
+  CEPT1 (BTX), CEPT2 (Teletel latin mode), CEPT2GREEK (Teletel greek mode),
+  CEPT2ARABIC, CEPT3 (Prestel), CEPT4, NAPLPS, CAPTAIN, VT52, VT100, VT220.
+  It should be noted that the remote host may check the terminal
+  capabilities using the Videotex Terminal Facility Identifier
+  (TFI, ETS 300 076 [14]) and switch the terminal to the desired mode
+  (even before starting the service selection phase).
+
+
+6) Examples:
+
+Some examples are presented below, they are for information only:
+
+a) A simple videotex URL for a videotex service that does not enforce
+   access control might be:
+     URL: videotex://ares.mctel.fr/demo
+   In this case, the exchange between client and server is as follow
+   (server requests at the left, client answers at the right):
+...establishing TCP/IP link to ares.mctel.fr...
+service:        demo
+200 OK                     {status code returned by the videotex host}
+...starting videotex session...
+
+
+
+
+Mavrakis, Layec & Kartmann                                       Page 7
+
+Videotex URL Specification                                   20 May 1997
+
+
+b) If the remote server hosts only one videotex service, this field may be 
+   omitted and the URL might be:
+     URL: videotex://ares.mctel.fr
+   In this case, the videotex interactive session is started immediately
+   by the host without requesting first the service name.
+
+c) The URL could not include the username and password. In this case,
+   should they be requested by the host, the videotex client may use a
+   default specified for this service or prompt the user for them (for
+   example it could propose anonymous and user e-mail address as
+   defaults):
+     URL: videotex://zeus.mctel.fr/demo
+   In this case, the exchange between client and server may be as follow:
+...establishing TCP/IP link to zeus.mctel.fr...
+service:        demo
+login:          anonymous        {user has been prompted for username}
+password:       mavrakis@ties.itu.ch   {user prompted for password}
+401 Unauthorized                 {an anonymous user is not allowed to 
+                                 access the service}
+...closing TCP/IP link between client and server...
+
+d) When the user access to videotex services is done through a gateway
+   that checks the user authorization before allowing him to access
+   videotex services on the network, the dialog may be:
+...establishing TCP/IP link to gateway...
+login:          xyz        {the user is prompted for it}
+password:       ******     {the user password echo is scrambled by the gateway}
+service:        demo
+200 OK                     {status code returned by the videotex host}
+...starting videotex session...
+
+e) Some services may use additional data transmitted in the parameter 
+   fields, for example:
+     URL: videotex://minitel.fr/demo;$USERDATA=smith
+   The USERDATA contents will be transmitted to the remote host in the
+   X.25 user data field (if the called system is an Internet/Videotex
+   gateway) or will be managed by the called system as X.25 user data
+   (if the remote system is a gateway).
+   If no access check is done by the host, the dialog might be:
+...establishing TCP/IP link to mctel.fr...
+service:        demo;$USERDATA=smith
+200 OK
+...starting videotex session...
+
+f) The access to some services may be restricted to identified users
+   and charged. In this case, the user approval of the charging to be
+   applied may be requested by the host:
+
+
+
+
+Mavrakis, Layec & Kartmann                                       Page 8
+
+Videotex URL Specification                                   20 May 1997
+
+
+...establishing TCP/IP link to remote host...
+login:          	xyz        {the user is prompted for it}
+password:       	******     {the user password echo is scrambled}
+service:        	demo
+service charged 0.75 FRF/min
+accept charging (y/n): 	y          {automatic or manual approval of charging}
+200 OK                     {status code returned by the videotex host}
+...starting videotex session...
+
+
+7)  Procedure to use when a videotex URL is encountered without videotex
+    support:
+
+The videotex URL support may be built-in some Web browsers, or offered
+by an associated software interworking with the user browser, for
+example using an API command to register the videotex protocol, or a
+videotex plug-in or Java application.
+
+When a Web browser encounters a videotex URL without having videotex
+support, two cases may occur:
+- some browsers will detect an unrecognized scheme and signal an error 
+  directly.
+- others will build a relative URL including the URL entered and will 
+  request it from the host having sent the current document. In this
+  case the host HTTP server will usually return the error "not found".
+
+Among the mechanisms that could be used in order to offer a friendly 
+interface to both users with and without videotex support:
+- when the second case occurs and the relative URL including the
+  videotex:// string is transmitted to the server, the HTTP server may
+  be modified in order to recognize such URL and to propose the
+  downloading of a videotex client software or plug-in.
+- the HTML document including the videotex URL allowing to start the
+  videotex session may propose both options, for example:
+     If your browser supports videotex or if you have a videotex
+     plug-in installed, then directly
+     <A HREF="videotex://ares.mctel.fr/TEST">access the videotex
+     service</A>, otherwise 
+     <A HREF="ftp://ftp.mctel.fr/videotex.exe">download first a
+     videotex client software</A>.
+- the application/videotex MIME type is defined below in 10) (to allow for 
+  example exchange of videotex screens). A possible way is for the server
+  to look in the HTTP Accept header field and to deduce that if 
+  application/videotex is supported, then the videotex support exists
+  (in this case, application/videotex is to be defined in the browser
+  and associated with the videotex decoder).
+
+
+
+
+Mavrakis, Layec & Kartmann                                       Page 9
+
+Videotex URL Specification                                   20 May 1997
+
+
+8) Session control:
+
+A session control mechanism must be provided to allow the remote system
+or gateway to control the behavior of the videotex terminal, and
+especially the features previously managed in X.25 mode by the videotex
+access point and that are now performed by the TCP/IP terminal.
+
+This is especially true when the echo is performed locally by the
+videotex terminal, because in a non-TCP/IP videotex network the echo
+is usually performed by the Videotex Access Point and may be disabled
+or enabled again by the remote videotex server, using an X.29 PAD
+command. The remote system must interpret such a command and in
+most cases could use the videotex terminal supported command set to
+stop temporarily the echo of the characters.
+
+
+9) Security considerations:
+
+The videotex URL scheme is subject to the same security implications as
+the general URL scheme [5], so the usual precautions outlined in [5]
+apply (for example, it is not allowed to store the username and password
+in the URLs).
+
+The videotex remote interactive services may vary widely in their access 
+control policies; in practice, when a prompt for username or password is
+received, the videotex terminal should request them from the user (e.g.
+proposing by default "anonymous" as username and the Internet e-mail
+address of the user accessing the service as password) or use if
+specified the default values stored in its configuration.
+
+Such an identification mechanism using the username/password scheme is 
+unsecure and is provided for backwards compatibility only. The videotex
+services requiring a safe identification procedure must rely on other 
+alternative mechanisms (e.g. S/KEY or other). It must also be pointed
+out that in most cases the identification procedure is done within the
+videotex service using a dialog in videotex mode between the user and
+the server.
+
+
+10) application/videotex MIME type
+
+Videotex usually refers to a videotex interactive service and the
+videotex data (screens, sounds,...) are usually received during a
+continuous videotex session. However, videotex screens or part of
+screens or other videotex data (e.g. sounds) could also be transmitted
+and exchanged using other mechanisms, for example using HTTP, through
+e-mail, and so on... The assignement of a MIME media type
+
+
+
+Mavrakis, Layec & Kartmann                                       Page 10
+
+Videotex URL Specification                                   20 May 1997
+
+
+application/videotex will allow this transport and exchange of
+videotex data, and this paragraph describes this media type [10].
+
+Furthermore, for Web browsers not supporting the addition of new URL
+protocol schemes, the application/videotex MIME type may also be used
+to transmit, instead of videotex data, a text file containing the
+videotex URL to activate to connect to a videotex server. In this case
+the videotex emulator software will be associated with the
+application/videotex media type as an helper application, and will
+process the videotex URL specified in the text file to connect to the
+specified service.
+
+10A) DESCRIPTION:
+
+MIME media type name: "application"
+
+MIME subtype name: "videotex"
+
+Required parameters: none
+
+Optional parameters:
+It is recommended that the videotex data includes at the beginning
+the assigned switching sequences allowing to specify and select the
+relevant data syntax type and profile used to encode the videotex
+data, as well as the type of data (alpha mosaic or alpha geometric,
+photographic, audio,...).
+However if this sequence is not present, the following optional
+parameters may be used to specify the data syntax type and profile.
+- Data Syntax: specify the data syntax used for encoding videotex
+  data, that may be 1 (Data Syntax I, Captain Japanese syntax), 2
+  (Data Syntax II, European syntax) or 3 (Data Syntax III, NAPLPS
+  North-American syntax).
+- Profile: specify the encoding profile for Data Syntax II, that may
+  be 1 (BTX), 2 (Teletel), 3 (Prestel) or 4.
+
+10B) ENCODING CONSIDERATIONS:
+
+The "base64" mechanism is preferred because videotex encoding could
+use either a native 8-bit format or other formats (7 bits, even
+parity).
+
+10C) SECURITY CONSIDERATIONS:
+
+Refer to paragraph 9.
+
+10D) INTEROPERABILITY CONSIDERATIONS:
+
+The videotex data such videotex screens and sounds could be transmitted
+and exchanged between any platform running a videotex decoder.
+
+
+Mavrakis, Layec & Kartmann                                       Page 11
+
+Videotex URL Specification                                   20 May 1997
+
+
+11) Liaison address:
+
+For all technical questions regarding this document, please contact:
+
+	Daniel Mavrakis
+	Monaco Telematique MC-TEL
+	P.O. Box 225
+	MC 98004 Monte-Carlo Cedex
+	PRINCIPALITY OF MONACO
+	e-mail: Mavrakis@mctel.fr
+	Tel: (+377) 9216 8860
+	Fax: (+377) 9330 4545
+
+Comments may also be addressed to:
+
+	Mr. Herve Layec,
+	ETSI MTA
+        06921 SOPHIA ANTIPOLIS Cedex
+        FRANCE
+	e-mail: herve.layec@dri.france-telecom.fr
+	Tel: (+33) 2 99 12 73 01
+	Fax: (+33) 2 99 38 49 61
+
+	Mr. Kurt Kartmann
+	Consulting
+	Telecommunication+Multimedia
+	Gabelsbergerstr. 2
+	D-64807 DIEBURG
+	GERMANY
+	e-mail: k.kartmann@t-online.de
+	Tel: (+49) 6071 1528
+	c/o Deutsche Telekom AG
+	Tel. (+49)6151 834965, Fax (+49) 6151 834284
+
+The authors thank the other members of the ETSI MTA Working Group
+for their comments:
+- Yannick Surzur (surzur@ccett.fr)
+- Herwart Wermescher (Herwart.Wermescher@infonova.at)
+
+
+
+
+
+
+
+
+
+
+
+
+
+Mavrakis, Layec & Kartmann                                       Page 12
+
+Videotex URL Specification                                   20 May 1997
+
+
+11) References:
+
+[1] "Interworking between Videotex and Internet", DTR/TE-01065,
+    Draft European Technical Report, June 26, 1996, European
+    Telecommunications Standards Institute.
+
+[2] "Port Numbers",
+    ftp://ftp.isi.edu/in-notes/iana/assignments/port-numbers
+
+[3] "International Interworking for Videotex Services", ITU
+    Recommendation T.101, version 1994-11.
+
+[4] R. Fielding: "Relative Uniform Resource Locators", RFC 1808, June 
+    1995.
+
+[5] T. Berners-Lee, L. Masinter, M. McCahill: "Uniform Resource 
+    Locators (URL)", RFC 1738, December 1994.
+
+[6] D. Mavrakis, H. Layec, K. Kartmann: "VEMMI URL Specification",
+    RFC 2122, March 1997.
+	
+[7] ETS 300 072: "Videotex presentation layer protocol, videotex
+    presentation layer data syntax", November 1991.
+
+[8] T. Berners-Lee, R. Fielding, H. Frystyk: "Hypertext Transfer
+    Protocol - HTTP/1.0", RFC 1945, MIT/LCS, UC Irvine, May 1996.
+
+[9] R. Fielding, J. Gettys, J. Mogul, H. Frystyk, T. Berners-Lee:
+    "Hypertext Transfer Protocol - HTTP/1.1", 	RFC 2068, UC Irvine,
+    January 1997.
+
+[10] N. Freed, J. Klensin, J. Postel: "Multipurpose Internet Mail
+     Extensions (MIME) Part Four Registration Procedures", BCP 13,
+     RFC 2048, November 1996.
+
+[11] L. Masinter, D. Zigmond, H. T. Alvestrand: "Guidelines and
+     Process for the new URL Schemes", Work In Progress,
+     <draft-masinter-url-process-01.txt>, March 26, 1997.
+
+[12] ETS 300 073: "Videotex presentation layer protocol, Geometric
+     display", November 1990
+
+[13] ETS 300 073: "Videotex presentation layer protocol, Transparent
+     data", November 1990
+
+[14] ETS 300 076: "Videotex Terminal Facility Identifier (TFI)",
+     Edition 3, December 1994.
+
+
+
+
+Mavrakis, Layec & Kartmann                                       Page 13
+
+Videotex URL Specification                                   20 May 1997
+
+
+[15] ETS 300 177: "Videotex: Photographic Syntax", January 1995,
+     Edition 2.
+
+[16] ETS 300 149: "Videotex Audio Syntax", March 1992.
+
+[17] ANSI X3.110-1983 et CSA T500-1983: "Videotex/Teletext Presentation
+     Level Protocol Syntax: North American PLPS", December 1983.
+
+[18] H. Alvestrand: "Tags for the Identification of Languages",
+     RFC 1766, UNINETT, March 1995.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Mavrakis, Layec & Kartmann                                       Page 14

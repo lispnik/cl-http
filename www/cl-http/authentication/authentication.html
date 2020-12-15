@@ -1,0 +1,282 @@
+<html>
+
+<head>
+
+<title> User Authentication</title>
+
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+
+<h1> User Authentication </h1>
+
+<p>
+<font size=3>
+<i>
+<b>Contents:</b>
+<ol>
+<li><a href="#overview">Overview</a>
+<li><a href="#examples">Examples</a>
+<li><a href="#init-digest">Initializing Digest Authentication</a>
+<li><a href="#authorization-interfaces">Authorization Interfaces</a>
+<li><a href="#security-policies">Security Policies for Side-Effecting HTTP Methods</a>
+</ol></i></font></p>
+
+<p><img src="/cl-http/icons/line-rain.gif"></p>
+
+<ol>
+
+<h2><a name="overview"><li> Overview</a></h2>
+
+<p>The server provides two mechanisms for controlling access to URLs:
+
+<p><ul>
+
+<p><li> <b>Subnet Security:</b> IP access control is specified by the secure-subnets argument to <a
+href="/cl-http/show-documentation?HTTP:EXPORT-URL">http:export-url</a>.</p>
+
+<p><li> <b>User Passwords:</b> The rest of this page describes how to set up password
+controlled pages.</p>
+
+</ul></p>
+
+Both subnet security and password control can be combined.</p>
+
+<p>The authorization domain contains the following elements:
+
+<p><ul>
+
+<p><li><b>Realms</b> define a space which is authenticated by means of an
+<i>authentication scheme</i>. Authentication schemes refer to the
+security or cryptographic techniques used to determine the identity of a
+user. All users, groups, and access controls can belong only to single
+realm. Because no elements are shared across realms and each realm uses
+a single authentication scheme, the level of security for a realm cannot
+be compromised by elements using a weaker authentication scheme.</p>
+
+<p><li><b>Users</b> contain personal names and email addresses for users as
+well as properties such as user-id and password specific to
+authentication schemes.</p>
+
+<p><li><b>Groups</b> aggregate users and groups into named entities that can
+be authorized to access specific resources.</p>
+
+<p><li><b>Access Controls</b> aggregate users or groups and specify the
+HTTP methods which they are authorized to invoke on a URL. Access
+control objects are linked to URLs and govern all accesses to
+URLs <i>after</I> a client has passed any IP address restrictions.</p>
+
+</ul></p></p>
+
+<p>The HTTP protocol provides the following authentication schemes:</p>
+
+<p><ul>
+
+<p><li><b>Basic Authentication</b> is a very weak scheme that merely
+encodes the user-id and password with base 64 encoding. It is useful
+only because it is widely deployed in many clients, but the reliance on
+base 64 encoding merely keeps honest people honest. One way to use basic
+authentication with slightly more confidence is by combining it with
+secure subnets. See discussion in <a
+href="/cl-http/standards/http/http-v11-spec-rev-05.text">Hypertext Transfer
+Protocol</a>.</p>
+
+<p><li><b>Digest Authentication</b> is a moderately strong scheme that uses a
+one-way function (MD5) to encode the username, password, and a transaction
+token. Replay attacks are prevented for different URLs and different IP
+addresses, assuming network packets are not intercepted in realtime.  As long
+as password assignment does not involve sending the clear-text password over
+an insecure network, this authentication scheme is dramatically better than
+basic authentication. See Internet RFC 2069 <a
+href="/cl-http/standards/http/rfc2069.text">An Extension to HTTP : Digest
+Access Authentication </a> and the <a
+href="/cl-http/standards/http/draft-http-digest-rev-00.text">draft
+revision</a>, which is required extension for HTTP 1.1.</p>
+
+</ul></p>
+
+<p>It is important to remember that neither secure subnets nor password
+schemes are able to keep a determined and sophisticated snoop from
+monitoring network traffic and gaining access to access controlled
+information.  The only way to prevent such access is by using suitable
+cryptographic techniques.</p>
+
+<p>Nevertheless, the digest authentication scheme is pretty good, provided the
+user password never travels over the network when first assigned or whenever
+changed.  There is a small window of vulnerability to replay attack that depends
+on the time window during which a nonce remains valid.  If this window is
+short, or digest authentication is combined with subnet security, reasonable
+access control can be assured. (See <a
+href="/cl-http/show-documentation?HTTP:*DIGEST-AUTHENTICATION-NONCE-LIFE-TIME*">
+http:*digest-authentication-nonce-life-time*</a>)
+</p>
+
+<h2><a name="examples"><li> Examples</a></h2>
+
+<p>Given these considerations, several pages explain how to use the
+access control facilities in CL-HTTP.
+
+<p><ul>
+
+<p><li><b><a href= "/cl-http/authentication/access-control.html">Access
+Control on URLs</a></b> explains how to add secure access to URLs.</p>
+
+<p><li><b><a href= "/cl-http/authentication/basic-example.html">Basic
+Authentication</a>:</b> Provides examples of how to create realms,
+groups, and users using the basic authentication scheme.</p>
+
+<p><li><b><a href= "/cl-http/authentication/digest-example.html">Digest
+Authentication</a>:</b> Provides examples of how to create realms,
+groups, and users using the digest authentication scheme.</p>
+
+</ul></p> </p>
+
+<h2><a name="init-digest"><li> Initializing Digest Authentication</a></h2>
+
+<p>When you first set up a server, you need to perform the following
+one-time initializations:
+
+<ul>
+
+<p><li> <b>Random Seed:</b> Evaluate the form <b>(<a
+href="/cl-http/show-documentation?HTTP:DIGEST-AUTHENTICATION-RANDOM-SEED">http:digest-authentication-random-seed</a>
+t)</b> sixteen times by hand.   Manual evaluation allows the time variability
+of exactly when you execute the form to increase the randomness of the seed.
+By ensuring that the random seed starts off with sufficient randomness, this
+initialization makes your Digest Authentication passwords most secure.</p>
+
+<p><li> <b>Maintenance Password:</b> Give the <em>Webmaster</em> account a
+password in the <em>Server</em> realm (Digest Authentication) by evaluating
+the form:</p>
+
+<p><pre>(http:save-authentication-object
+          (http:intern-user :server "Webmaster"
+                            :personal-name "Common Lisp Wizard"
+                            :password "xxxxxxx"
+                            :email-address "user-id@my-host.domain"))</pre></p>
+
+<p>This account allows you to perform server maintenance over the Web, for
+example, <a href="/cl-http/describe-realm?">modifying user accounts</a>. But,
+remember <em>never</em> to set this password over the network because the new
+password would travel in clear text that could potentially be intercepted.
+When editing user accounts, you are best advised to combine subnet security
+with password protection and to not set passwords from beyond the local
+network. For maximum security, set passwords for Digest authenticated realms
+only from the server console. This does not matter for basic passwords because
+they use no cryptographic techniques and therefore provide no security against
+unauthorized access.</p>
+
+<p><li> <b>Password Directory:</b> Secure the password directory (<a
+href="/cl-http/pw/">HTTP:PW;</a>) against unauthorized access.  For maximum
+security (and best performance), the password directory, should reside on the
+same machine as the server runs.  In the final analysis, your CL-HTTP server
+is as secure as this directory, the access to the binaries or images that the
+server runs, and obscurity of Common Lisp for mainstream crackers.</p>
+
+</ul>
+
+<h2><a name="authorization-interfaces"><li> Authorization Interfaces</a></h2>
+
+<p>After the user of an access controlled URL has been authenticated,
+the server instance (bound to <a
+href="/cl-http/show-documentation?HTTP:*SERVER*">http:*server*</a>) contains
+the user object and the authentication method.  These can be accessed
+with:</p>
+
+<p><ul>
+
+<li><a
+href="/cl-http/show-documentation?HTTP:SERVER-USER-OBJECT">HTTP:SERVER-USER-OBJECT</a>
+
+<li><a href="/cl-http/show-documentation?HTTP:SERVER-AUTHENTICATION-METHOD">HTTP:SERVER-AUTHENTICATION-METHOD</a>
+
+</ul></p>
+
+<p>
+Most major methods on user objects are defined on server objects.
+Additionally, Common Log File entries for CL-HTTP record all
+authenticated users by qualified name (e.g., "realm|user-name").  In the
+usage of user properties and logging, service providers should strictly
+respect people's privacy.</p>
+
+<p>The examples use clear text passwords in lisp files for pedagogical
+purposes only.  For best security, all production sites should use
+the following functions to save and restore password data:</p>
+
+<p><ul>
+
+<li><a
+href="/cl-http/show-documentation?HTTP:SAVE-AUTHENTICATION-DATA">HTTP:SAVE-AUTHENTICATION-DATA</a>
+
+<li><a
+href="/cl-http/show-documentation?HTTP:RESTORE-AUTHENTICATION-DATA">HTTP:RESTORE-AUTHENTICATION-DATA</a>
+
+</ul></p>
+
+<p>If you use these functions to save password data, only an MD5 digest of the passwords is saved with
+associated user objects. Nevertheless, access to the file containing the authentication data compromises security.
+It is therefore important to ensure the security of your authentication data. </p>
+
+<p>The following operations are available on authenticated users and
+other authorization object:
+
+<p><ul>
+
+<li><a href="/cl-http/find-documentation?HTTP:ACCESS-CONTROL"><b>Access Controls</b>.
+
+<li><a href="/cl-http/find-documentation?HTTP:GROUP"><b>Groups</b>
+
+<li><a href="/cl-http/find-documentation?HTTP:REALM"><b>Realms</b>
+
+<li><a href="/cl-http/find-documentation?HTTP:USER"><b>Users</b></a>
+
+</ul></p></p>
+
+
+<h2><a name="security-policies"><li> Security Policies for Side-Effecting HTTP Methods</a></h2>
+
+<p>HTTP methods such as PUT and DELETE change the state of your web server.  A
+webmaster may wish to impose a security policy that provides an appropriate
+level of authentication for users to PUT or DELETE URLs. Each security policy
+imposes minimum the requirements to invoke these methods. The security policy
+can be selected via the <a
+href="/cl-http/maintenance/configure-server.html">server configuration
+interface</a> or by setting the variable <a
+href="/cl-http/find-documentation?HTTP:*ACCEPT-WRITE-METHODS*">http:*accept-write-methods*</a>.</p>
+
+<p>The following security policies are available:
+
+<p>
+
+<ul>
+
+     <li><b>Access-Controlled:</b> Requires URLs to restrict users via either user
+     authentication or subnet security.
+
+     <li><b>Authenticated-Users:</b> Requires URLs to restrict users only via user
+     authentication.
+
+     <li><b>Authenticated-Users-on-Secure-Subnets:</b> Requires URLs to restrict users
+     via both user authentication and subnet security.
+
+     <li><b>Local-Host:</b> Requires users to be on the local host running the server.
+
+     <li><b>None:</b> No users can invoke side-effecting methods.
+
+     <li><b>Remote-Host:</b> Requires URLs to control access, but respects any global or
+URL level access controls.
+
+     <li><b>Secure-Subnets:</b> Requires URLs to restrict access to trusted hosts.
+</ul></p></p>
+
+</ol>
+
+<p><img src="/cl-http/icons/line-rain.gif"></p>
+
+<address><a href="http://www.ai.mit.edu/people/jcma/jcma.html">John C. Mallery</a> -- <a
+href="mailto:jcma@ai.mit.edu">jcma@ai.mit.edu</a><br>
+<a href="http://web.mit.edu/">M.I.T.</a> <a href="http://www.ai.mit.edu/">Artificial Intelligence Laboratory</a> </address>
+
+</body>
+
+</html>

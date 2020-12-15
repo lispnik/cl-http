@@ -1,0 +1,552 @@
+
+<TITLE>Common LISP Hypermedia Server</TITLE>
+
+<h1>A Common LISP Hypermedia Server</h1>
+
+<address><A HREF="http://www.ai.mit.edu/people/jcma/jcma.html">John C. Mallery</A> (JCMA@AI.MIT.EDU)</address>
+<address><A HREF="http://www.ai.mit.edu/">Artificial Intelligence Laboratory</A></address>
+<address><A HREF="http://web.mit.edu/">Massachusetts Institute of Technology</A></address>
+<P>
+5 May, 1994
+
+<P><I><A href="http://www1.cern.ch/WWW94/finalProgramme.html">Proceedings of
+The First International Conference on The World-Wide Web</A></I>, Geneva:
+CERN, May 25, 1994. See also the versions <A
+href="http://www.ai.mit.edu/projects/iiip/doc/cl-http/server-paper.html">published</A>,
+<A
+href="http://www.ai.mit.edu/projects/iiip/doc/cl-http/server-paper.ps">postscript</A>.
+
+
+<P><B>Keywords:</B> Common Lisp, HTML, HTTP, Hypermedia, Interactivity, Server.
+
+<P>
+
+<ABSTRACT><B>Abstract</B>: A World-Wide Web (WWW) server was implemented in
+Common LISP in order to facilitate exploratory programming in the
+<I>interactive</I> hypermedia domain and to provide access to complex research
+programs, particularly artificial intelligence systems.  The server was
+initially used to provide interfaces for document retrieval and for email
+servers.  More advanced applications include interfaces to systems for
+inductive rule learning and natural-language question answering. Continuing
+research seeks to more fully generalize automatic form-processing techniques
+developed for email servers to operate seamlessly over the Web. The
+conclusions argue that presentation-based interfaces and more sophisticated
+form processing should be moved into the clients in order to reduce the load
+on servers and provide more advanced interaction models for users.</ABSTRACT>
+
+<P>
+
+<H2>Overview</h2>
+
+<UL>
+
+<P><LI><B>Motivations</B>: The <A href="#introduction">Introduction</A>
+discusses the motivations for developing a Common LISP HTTP server.
+
+<P><LI><B>Server</B>: The design ideas embodied in the server are overviewed
+in the sections:
+
+<UL>
+
+<P><LI><A href="#server-features">Server Features</A>,
+<LI><A HREF="#url-classes">Classes of HTTP URLs</A>,
+<LI><A HREF="#url-export">Exporting URLs</A>, 
+<LI><A href="code-example.html">Computed URL Example</A>,
+<LI><A HREF="#code-availability">Code Availability</A>.
+
+</UL>
+
+<P><LI><B>Applications</B>: <a HREF="snapshots.html"> Screen snapshots</A>
+show variety of <a href="#initial-applications">applications</A>, ranging from
+document retrieval and form-processing email servers to artificial
+intelligence applications, such as automatic rule induction and natural-
+language question answering.
+
+<P><LI><B>Programming Language</B>: Several sections provide background on <A
+href="common-lisp.html">Common LISP</A>, its <A Href="common-lisp.html#CLOS">object system</A>,
+and the <A href="common-lisp.html#CLIM">Common LISP Interface Manager</A>.
+
+<P><LI><B>Related Systems</B>: A system for distributing documents is briefly
+reviewed in the <A href="#comlink">COMLINK</A> section because it uses the
+Common LISP HTTP server as a WWW interface and because it embodies
+form-processing technology useful for the Web.
+
+<P><LI><B>Recommendations</B>: The <A HREF="#conclusions">Conclusions</A>
+recap an argument for extending HTTP/HTML form-processing with design
+concepts tested in the <A href="common-lisp.html#CLIM">Common LISP Interface Manager</A> and
+the <A href="#comlink">COMLINK system</A>.
+
+<P><LI><B>Pointers</B>: See <A href="#acknowledgments">Acknowledgements</A>,
+and <A HREF="references.html">References</A>.
+
+</UL>
+
+<P><h2><A name=introduction>Introduction</A></h2>
+
+<P>
+	
+	A World-Wide Web (WWW) server was implemented in Common LISP (see <A
+HREF="http://www.cis.ohio-state.edu/hypertext/faq/usenet/lisp-faq/top.html">the
+FAQs</A>, <A
+HREF="http://www.cs.rochester.edu/users/staff/miller/alu.html">the Association
+of Lisp Users</A>, and <A HREF="ftp://parcftp.xerox.com/pub/cl/dpANS2/">the
+ANSI specification</A>) in order to facilitate exploratory programming in the
+<I>interactive</I> hypermedia domain and to provide access to complex research
+systems over the Web.  The general motivation for developing this server was
+to provide a computational tool that would strengthen the link between the <A
+HREF="http://ai.iit.nrc.ca/ai_point.html">artificial intelligence</A>
+researchers and the <A HREF="http://www.w3.org/">distributed hypermedia
+community</A>.  As the amount of information available over the <I>World-Wide
+Web</I> grows, it will become increasingly necessary to deploy intelligent
+methods to store, retrieve, analyze, filter, and present information. At the
+same time, high-productivity programming tools employed by AI researchers will
+become increasingly relevant for testing new ideas in servers before
+incorporating them into standards-based clients. A Common LISP <A
+HREF="http://www.w3.org/hypertext/WWW/Protocols/HTTP/HTTP2.html">HTTP</A>
+server provides a bridge that allows AI researchers to plug their systems into
+the WWW as it affords developers of distributed hypermedia standards a vehicle
+through which they can import effective and relevant technologies.  In this
+spirit, the conclusion proposes that <A
+HREF="http://www.w3.org/hypertext/WWW/MarkUp/MarkUp.html">HTML</A> borrow
+ideas from the <A HREF="common-lisp.html#CLIM">CLIM Presentation System</A> in
+order to modernize the user interfaces in clients, to upgrade the interaction
+paradigm, and to achieve a number of efficiency gains for servers.
+
+<P> More specific motivations for this work in the context of the <A
+HREF="http://www.ai.mit.edu/projects/iiip/overview/project-overview.html">Intelligent
+Information Infrastructure Project</A> at M.I.T. were to develop an HTTP
+server meeting these criteria:
+
+<P>
+<UL>
+
+<LI><B>High-Productivity Programming:</B> Since all of our research systems
+are programmed in Common LISP and are incrementally extensible to meet
+research requirements, the server should be fully accessible from LISP and
+able to evolve at the same pace.
+
+<P><LI><B>Multiple Transport Media:</B> We wanted to generalize our existing
+technology, and so, to develop a specification and control framework that
+works seamlessly over email and HTTP.
+
+<P><LI><B>Automatic Form-Processing:</B> Since we already had an automatic
+form-processing substrate developed in an <A HREF="#comlink">email
+server application</A>, the server should be able to apply the same technology
+over the Web.
+
+<P><LI><B>Dynamic HTML Generation:</B> Since our research emphasizes
+tailoring output to meet user requirements, we needed HTML operators that our
+research systems could use to generate HTML dynamically.
+
+</UL>
+<P>
+
+The current server is excellent for rapid-prototyping precisely because it
+builds on <A HREF="common-lisp.html">Common LISP</A> and provides a fine-grained
+vocabulary of operators which are easily combined and modified according to
+evolving application requirements and draft protocol standards.  The server
+itself is an example of rapid prototyping as its 2700 lines of LISP were
+written from scratch and debugged by one person in about two weeks.  A <A
+HREF="#initial-applications">high-profile demonstration</A> at the end of the
+period was well-received.
+
+<P>
+
+More recently, an authoring tool for email-based forms was generalized to emit
+HTML (<A HREF="references.html#renaud-1994">Renaud, 1994</A>).  This
+graphical tool is now used to author forms that can work over email and WWW.
+The authoring tool is important for the generalization of email forms across
+the Web because form processing in email servers performs automatic retries
+when user input is syntactically or semantically incorrect.  To implement
+automatic retries over the WWW, it is necessary to dynamically generate retry
+forms to explain the problem, incorporate all correct answers from the
+original form, and allow the user to correct the erroneous answers.  Computing
+form retries requires datastructures beyond those normally associated with
+scripting languages.  <footnote>[Other research (<A
+href="references.html#houh-lindblad-wetherall-1994"> Houh, Lindblad, &
+Wetherall, 1994</A>) arrives at similar conclusions concerning the limitations
+of scripting languages for more advanced, dynamic WWW
+applications.]</footnote> In general, more advanced form-based applications
+will need the richer datastructures offered by full-featured programming
+languages like Common LISP.
+
+<P>
+<h2><A name=initial-applications>Initial Applications</A></h2>
+
+<P> The Common LISP HTTP Server implementation was driven initially by the
+desire to provide WWW access to email servers and associated document or
+survey databases, which were built on the <A HREF="#comlink">COMLINK
+System</A>.  Development of a native server offered WWW access not just for
+these specific applications, but also, for the COMLINK substrate systems in
+general. Thus, any application developed on top of COMLINK would automatically
+have the World-Wide Web as a user interface.
+
+<P> The initial applications included:
+
+<P>
+<UL>
+
+<LI><B>Document Search</B>: Retrieve government documents via a the <A
+HREF="http://clinton.ai.mit.edu/search/white-house-publications">taxonomy of
+categories</A> used to distribute them over email (see <A
+HREF="http://clinton.ai.mit.edu/search/white-house-publications">search
+index</A> and <A
+HREF="http://clinton.ai.mit.edu/retrieve-documents.html">form</A> interfaces).
+
+<P> <LI><B>Standing Search URLs:</B> Find the latest, topically-focused
+documents with convenient anchors that prespecify criteria for dynamic
+searches (see <A
+HREF="http://clinton.ai.mit.edu/wh-test.html">publications</A> for example).
+
+<P> <LI><B>Public Access Email:</B> Send correspondence to elected government
+officials through a <A
+HREF="http://clinton.ai.mit.edu/correspondence.html">forms interface</A> to an
+email server.
+
+<P> <LI><B>Electronic Publications:</B> Subscribe to electronic publications
+through a <A HREF="http://clinton.ai.mit.edu/publications.html">forms
+interface</A> to an email server.
+
+</UL>
+
+<P>All these applications handle invalid or incoherent user input by returning
+dynamically generated HTML that explains the problem and guides the user's
+efforts to resubmit.
+
+<P>
+<h2>Advanced Applications</h2>
+
+<P> Two artificial intelligence applications were fielded by the end of the
+development period:
+
+<P>
+<UL>
+
+<LI><A HREF="i2d.html"><B>Rule Induction:</B></A> Learn <I>if-then</I> rules
+over the Web (<A HREF="references.html#renaud-1994">Renaud, 1994</A>) using an
+advanced datahandling environment (<A
+HREF="references.html#mallery-1994">Mallery, 1994</A>) and a sophisticated
+rule induction module (<A HREF="references.html#Unseld-Mallery-1991">Unseld &
+Mallery, 1991</A>).  <A HREF="http://tj.ai.mit.edu/rule-learning">Learn
+if-then rules</A> to see how this works.  See snapshots of the <A
+href="snapshots.html#rule-experiment">experiment</A> and <A
+HREF="snapshots.html#rules-learned">several rules learned</A>.
+
+<P> <LI><A HREF="start.html"><B>Natural-Language Question Answering:</B></A>
+Ask English questions about the M.I.T. Artificial Intelligence Laboratory to a
+natural language system (<A HREF="references.html#Katz-1990">Katz,
+1990</A>; <A HREF="references.html#Katz-1994">Katz, 1994</A>).  <A
+HREF="http://sakharov.ai.mit.edu/start">Ask an English question</A> to see how
+this works.  See snapshots of <A HREF="snapshots.html#start-question">asking a
+question</A> and <A HREF="snapshots.html#start-answer">viewing the answer</A>.
+
+</UL>
+<P>
+
+Integration with both of these large LISP systems was possible within several
+of hours of work each.
+
+<P>
+<h2><A name=server-features>Server Features</A></h2>
+<P>
+The main implemented features of the server include:
+
+<P>
+<UL>
+
+<LI><B>All Major Content Types Served:</B> The server not only handles text
+and HTML but also serves images (xbitmap, gif, jpeg), audio, video (mpeg), and
+application (postscript).
+
+<P><LI><B>Major Methods Handled:</B> The server fully supports the GET
+and HEAD operations, and handles the POST method to receive user values
+in form processing. Proxy service is supported with the conditional GET
+method and <a
+href="http://www.ai.mit.edu/projects/iiip/doc/cl-http/export-types.html">
+URL expirations</a>.
+
+<P><LI> <B>Object-Oriented Implementation:</B> <A HREF="common-lisp.html#CLOS">The Common LISP
+Object System (CLOS)</A> is used to implement key server components. This
+allows modular programming based on generic operations defined on URL and
+server object.
+
+<P> <LI> <B>Typed Condition Handling:</B> The Common LISP condition system is
+used to signal various conditions, or errors, that may occur.  Condition
+classes are defined for all HTTP response codes and are arranged
+hierarchically.  When most conditions are signalled, execution transfers to a
+handler at the top-level of the server.  This handler applies a generic
+response function to the condition object that transmits the appropriate
+response code to the client.  Conditions can specialize their method for the
+response function in order to <I>customize behavior</I>.
+
+<P> <LI><B>HTML Authoring Functions:</B> A series of functions and macros
+provide a vocabulary of HTML operations, at least as complete as support of
+HTML by reference clients. (See the <A href="code-example.html">example
+code</A>.)  The authoring functions serve a number of purposes:
+
+<P>
+<UL>
+
+<LI><B>Defined Interface:</B> Provide a functional interface for generating
+HTML under program control, whether on the fly to respond to a user or batch
+to write static files.  
+
+<P> <LI><B>More Compact Vocabulary:</B> Quite often authoring abstractions
+condense a range of HTML tags into a single parameterized function. For
+example, an enumeration macro and a text style macro span the various
+available tags. (See the <A href="code-example.html">example code</A>.)
+
+<P><LI><B>Input Types:</B> Tags for HTML input fields were consolidated in an
+abstraction analogous to <A HREF="common-lisp.html#CLIM">CLIM presentation types</A>.
+Implemented as <A HREF="common-lisp.html#CLOS">CLOS</A> classes, <I>input types</I> support
+generic methods for <I>accepting</I> input from the user by writing the
+appropriate HTML tags during form creation and interpreting returns during
+form submission.  A single set of arguments for the generic function
+standardizes parameters across all input types (audio, date, float, image,
+integer-range, multi-line-text, multiple-choice, radio-button, reset-button,
+select-choices, string, submit-button, url).
+
+
+<P><LI><B>Query Abstraction</B>: The query abstraction from <A
+HREF="#comlink">COMLINK</A> is imposed on HTML/HTTP form processing to
+facilitate asking the user atomic questions and responding to user answers.
+Although it simplifies accepting single-valued input types, the query concept
+has an even bigger impact for input types returning multiple values:  Here,
+the input type system takes care to <I>reintegrate</I> what HTML treats as
+<I>separate</I> queries into a <I>single</I> sequence-valued return. This
+conserves code abstraction by preventing every <A href="#form-url">response
+function</A> for a form from having to reinvent the same program cliche.
+
+<P> <LI><B>Smooth Code Evolution:</B> An abstraction layer separates code that
+generates HTML from the raw tags. This allows the authoring functions to be
+updated when the underlying specification changes, and thereby, obviating the
+need to update <I>any</I> calling functions.
+
+<P>
+</UL>
+
+<LI><B> Network Security:</B> The server implements subnet security based on
+client IP address.
+
+</UL>
+
+<P>
+<h2><A name=url-classes>Classes of HTTP URLs</A></h2>
+<P>
+
+<I>Uniform Resource Locators</I> are implemented as <A HREF="common-lisp.html#CLOS">CLOS</A>
+objects, to which URL strings are mapped upon receipt. Although the URL
+implementation handles all URL schemes defined by the <A
+HREF="http://www.w3.org/hypertext/WWW/Addressing/Addressing.html">URL
+specification</A>, only the base classes for HTTP scheme will be described
+here:
+
+<P>
+<UL>
+
+<LI><B>Path URLs</B> are analogous to a directory in a file system because
+they contain no specific URL name and extension type. These can map to a
+physical file if desired, or just to a directory hierarchy.
+
+<P> <LI><B>Object URLs</B> are specific documents with a name and usually an
+extension that indicates the kind of data available in the URL.
+
+<P> <LI><B>Search URLs</B> specify searches for particular databases and may
+have an associated HTML document that describes the search.  Parameterized <A
+href="#url-export">export types</A> are defined for kinds of database
+interfaced.
+
+<P> <LI><B><A name=form-url>Form URLs</A></B> are just like an object URL with
+extension HTML, except that they take a response function to be called
+whenever a client submits (POSTs) form values.
+
+<P> <LI><B>Computed URLs</B> are much like form URLs except that they fully
+compute their response to a GET operation. (See the <A
+href="code-example.html">example code</A>.)
+
+<P> <LI><B>Computed Form URLs</A></B> are a cross between a computed URL
+and a form URL, where storage of the form HTML in a file is replaced by
+a form function computes it. The form returns in the POST method are
+handled just like a form URL.
+
+
+</UL>
+
+<P>
+<h2><A name=url-export>Exporting URLs</A></H2>
+
+<P> URLs become accessible via the server once they have been exported with
+the function <a
+href="http://www.ai.mit.edu/projects/iiip/doc/cl-http/export-types.html">EXPORT-URL</A>.
+The export function always takes an external URL name and a <I>export
+type</I>, which defines the computation used to serve the data denoted by the
+URL.  In most cases, some additional arguments are provided, depending on
+export type.  For example, when data resides in a file, the physical pathname
+where the data is stored is passed as an argument to export.  Similarly, when
+a database is searched, the database is passed as an export argument along
+with the URL. The following export types are defined:
+
+<P>
+
+<UL>
+
+<LI><B>Text Types</B>: Text-File, HTML-File, LISP-File, Text-Directory
+(computes a display of links to substructure), LISP-Directory, HTML-Directory,
+Search HTML-Form, HTML-Computed.
+
+<P><LI><B>Other Types</B>: X-Bitmap-Image, GIF-Image, JPEG-Image, Basic-Audio,
+MPEG-Video, Postscript-File.
+
+<p><li><b>Searchable Images</b>: GIF-Image, JPEG-Image X-Bitmap-Image can be
+exported as searchable objects. An associated response function computes
+returned the HTML returned by the server based on the image coordinates sent
+by the client.
+
+<P><LI><B>Redirect</B>: When a URL has moved to another host, the export types
+redirect and temporary-redirect inform the server to signal an HTTP redirect
+that tells the client where to find the document.
+
+</UL>
+
+<P>
+<h2><A name=comlink>The COMLINK System</A></h2>
+
+Over the past year and a half, the author developed a system that performs
+sophisticated operations over email, routes documents, and automatically
+surveys users.  The COMLINK system uses a transaction-controlled,
+persistent-object database to represent users, hosts, mailing lists, document
+categories, documents, and more.  For the purposes of this paper, three
+aspects of this system are relevant.
+
+<P>
+<h3>Document Routing and Retrieval</h3>
+
+<P> The COMLINK system supports <I>document universes</I> with associated
+taxonomies of categories. As documents are distributed through document
+universes, they are archived and indexed by some categories.  Users can
+subscribe to a publications stream or retrieve documents by means of boolean
+combinations of categories.  When retrieving documents, users may also provide
+temporal and quantity constraints to further circumscribe the documents found.
+The document retrieval and publication code that stands behind the <A
+HREF="#initial-applications">initial WWW applications</A> uses this technology
+as a back-end.
+
+<P>
+<h3>Automatic Form Processing</h3>
+
+<P>The COMLINK system interacts with users via textual forms exchanged in
+email, as well as conventional ``subject line'' commands, much like those
+found in standard listservers.  Email servers are associated with a <I>command
+interface</I> that provides access to all the forms and subject line commands.
+
+<P> <I>Forms</I> are composed of a series of queries.  In addition to a
+question or instructions, a <I>query</I> has an associated <A
+HREF="common-lisp.html#CLIM">CLIM presentation type</A> that presents any
+default value and parses any new value supplied by the user.  Forms are
+written to a stream by calling the WRITE-FORM function with a set of value
+bindings for each query of the form. As WRITE-FORM calls the generic operation
+to present each query, the queries present themselves by calling the PRESENT
+method for their presentation type.  
+
+<P>Forms are parsed by finding queries and converting the textual input
+associated with each query into its internal representation. The basic
+procedure for parsing a query is:
+
+<UL>
+<P><B><LI>Scan</B>: Locate the query between special delimiters.
+
+<P><B><LI>Intern</B>: Convert the query name into the query object associated with
+the form.
+
+<P><B><LI>Accept</B>: Parse the textual representation that follows the
+delimited query name by calling the interned query's accept method, which in
+turn calls the accept method for the associated presentation type.
+
+<P><B><LI>Handle Errors</B>: If the query value fails to conform to
+requirements of the presentation type, signal the condition so that the user
+can be asked to respecify failing queries.  Typed error objects carry the
+information needed to provide the user with user-friendly explanations about
+what was wrong and how to correct it.
+
+</UL>
+
+<P>When query values are successfully parsed, the form's response function is
+applied to the parsed query values to perform the computation associated with
+the form. If there are query parsing errors, the system returns to the user a
+form with all the correct values defaulted and an explanation about how to
+correct the failing queries for successful resubmission.
+
+<P>
+<h3>Graphical Form Authoring Tool</h3>
+
+<P> A graphical form authoring tool was written by Renaud (<A
+HREF="references.html#renaud-1994">1994</A>) for the COMLINK system.  Coded in
+CLIM, the interface defines meta-level abstractions for forms, queries, and
+presentation types that allow users to define automatic surveys and forms
+without having to write LISP code.  At the same time, the data structures are
+abstracted in a way that forms can be defined dynamically under program
+control.  For the set of presentation types previously defined for COMLINK,
+Renaud defined new presentation and accept <A
+HREF="common-lisp.html#CLOS">multimethods</A> that dispatch on the HTML
+<I>presentation view</I>.  This means that the same presentation type, which
+already worked for the <I>email view</I>, could now operate for the <I>HTML
+view</I>, displaying itself in HTML and accepting its input with the HTML
+form-processing facilities.
+
+<P>Unlike HTML form input types, CLIM has a rich basic set of presentation
+types, which are <I>routinely</I> extended by application programs.   After
+pairing up the presentation types that match between CLIM and HTML form input
+types, Renaud defined the appropriate cliches to accept input from the user
+for CLIM presentation types via HTML cliches. Once this small correspondence
+set was exhausted, the rest of the task reduced to accepting a text string
+from the client and applying the CLIM accept method to parse the input from
+the string.  Unfortunately, all the computation required to parse input
+strings must remain on the server because there is <I>currently</I> no defined
+way to tell clients how to accept the input or check its validity.
+
+<P><h2>Conclusions</h2>
+
+<P>An immediate goal for the Common LISP server is to develop seamless form
+processing over both email and the Web.  At first, CLIM presentation types
+will be evaluated by the server as it checks the values returned in HTML
+forms for validity and parses them into the appropriate internal
+representations. After a period of experimentation, during which a good set of
+presentation types will be identified, it should be possible to propose a set
+of presentation types that clients can handle without undue difficulty.  If
+servers could transfer definitions to clients, the presentation types
+available to remote applications could be extended or refreshed dynamically.
+This would require extensions to the HTTP protocol and agreement on a safe
+language(s) for transferring presentation parsers and generators to clients.
+By relocating the main responsibility for validating user input, considerable
+computational load and unnecessary connections can be offloaded from servers
+and distributed among clients.
+
+<P> The Common LISP HTTP server makes it possible to interface complex LISP
+systems often found in artificial intelligence applications to the World-Wide
+Web. Although the immediate goal of the server was to serve as a research tool
+for a project on intelligent information routing at M.I.T., the server can be
+useful for many other members of the world-wide LISP community and allow them
+to participate in the explosion of interesting WWW applications.  At the same
+time, the rapid prototyping features of Common LISP can now become available
+to the WWW research community so that they can more quickly mock up and test
+out new ideas.
+
+<P><h2><A name=code-availability>Availability</A></h2>
+
+<P> The server home page at <a
+href="http://www.ai.mit.edu/projects/iiip/doc/cl-http/home-page.html">
+http://www.ai.mit.edu/projects/iiip/doc/cl-http/home-page.html</a> explains
+how to obtain copies of the server and provides further information, including
+source access.
+
+<P><h2><A name=acknowledgments>Acknowledgments</A></h2>
+
+This paper and the server was improved by comments from Marc Andreessen, Mark
+Nahabedian, Benjamin Renaud, Howard Shrobe, and Robert Thau. Benjamin Renaud
+implemented the WWW interface to the rule learning system. Boris Katz adapted
+his natural language system to allow WWW access. This paper describes research
+done at the Artificial Intelligence Laboratory of the Massachusetts Institute
+of Technology.  Support for the M.I.T. Artificial Intelligence Laboratory's
+artificial intelligence research is provided in part by the <A
+HREF="http://ftp.arpa.mil/">Advanced Research Projects Agency</A> of the
+Department of Defense under contract number MDA972-93-1-003N7.

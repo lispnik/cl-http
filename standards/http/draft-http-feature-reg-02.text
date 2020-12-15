@@ -1,0 +1,809 @@
+
+HTTP Working Group                                     Koen Holtman, TUE
+Internet-Draft                              Andrew Mutz, Hewlett-Packard
+Expires: January 28, 1998                                  July 28, 1997
+
+                    Feature Tag Registration Procedures
+
+                     draft-ietf-http-feature-reg-02.txt
+
+
+STATUS OF THIS MEMO
+
+        This document is an Internet-Draft. Internet-Drafts are
+        working documents of the Internet Engineering Task Force
+        (IETF), its areas, and its working groups. Note that other
+        groups may also distribute working documents as
+        Internet-Drafts.
+
+        Internet-Drafts are draft documents valid for a maximum of
+        six months and may be updated, replaced, or obsoleted by
+        other documents at any time. It is inappropriate to use
+        Internet-Drafts as reference material or to cite them other
+        than as "work in progress".
+
+        To learn the current status of any Internet-Draft, please
+        check the "1id-abstracts.txt" listing contained in the
+        Internet-Drafts Shadow Directories on ftp.is.co.za
+        (Africa), nic.nordu.net (Europe), munnari.oz.au (Pacific
+        Rim), ds.internic.net (US East Coast), or ftp.isi.edu (US
+        West Coast).
+
+        Distribution of this document is unlimited.  Please send
+        comments to the HTTP working group at
+        <http-wg@cuckoo.hpl.hp.com>.  Discussions of the working
+        group are archived at
+        <URL:http://www.ics.uci.edu/pub/ietf/http/>.  General
+        discussions about HTTP and the applications which use HTTP
+        should take place on the <www-talk@w3.org> mailing list.
+
+        A HTML version of this document can be found at
+        <URL:http://gewis.win.tue.nl/~koen/conneg/>.
+
+ABSTRACT
+
+   Recent Internet applications, such as the World Wide Web, tie
+   together a great diversity in data formats, client and server
+   platforms, and communities.  This has created a need for various
+   kinds of negotiation mechanisms, which tailor the data which is
+   exchanged, or the exchange process, to the capabilities and
+   preferences of the parties involved.  
+
+   Extensible negotiation mechanisms need a vocabulary to identify
+   various things which can be negotiated on.  To promote
+   interoperability, a registration process is needed to ensure that
+   that this vocabulary, which can be shared between negotiation
+   mechanisms, is developed in an orderly, well-specified, and public
+   manner.
+
+   This document defines registration procedures which use the
+   Internet Assigned Numbers Authority (IANA) as a central registry
+   for this vocabulary, which is the vocabulary of feature tags.
+
+
+TABLE OF CONTENTS
+
+   1 Introduction
+
+   2 Basic concepts and definitions
+    2.1 Areas of negotiation and feature tags
+    2.2 Complexity of negotiation
+    2.3 The result in an area of negotiation
+    2.4 Feature tag syntax
+ 
+   3 Feature tag registration
+    3.1 Registration trees
+    3.1.1 IETF tree
+    3.1.2 Global tree
+    3.1.3 Local or specialized tree
+    3.1.4 Special `x.' tree
+    3.1.5 Additional registration trees
+    3.2 Registration requirements
+    3.2.1 Functionality requirement
+    3.2.2 Naming requirements
+    3.2.3 Specification requirements
+    3.2.4 Interchange recommendations
+    3.2.5 Security requirements
+    3.2.6 Publication requirements
+    3.3 Registration procedure
+    3.3.1 Present the feature tag to the community for review
+    3.3.2 IESG approval
+    3.3.3 IANA registration
+    3.3.4 Delayed publication
+    3.4 Comments on feature tag registrations
+    3.5 Location of registered feature tag list
+    3.6 IANA procedures for registering feature tags
+    3.7 Change control
+    3.8 Registration template
+
+   4 Security considerations
+
+   5 Acknowledgments
+
+   6 References
+
+   7 Authors' addresses
+
+   Appendix A: IANA and RFC editor to-do list
+
+
+
+1 Introduction
+
+   Recent Internet applications, such as the World Wide Web, tie
+   together a great diversity in data formats, client and server
+   platforms, and communities.  This has created a need for various
+   kinds of negotiation mechanisms, which tailor the data which is
+   exchanged, or the exchange process itself, to the capabilities and
+   preferences of the parties involved.
+
+   Extensible negotiation mechanisms need a vocabulary to identify
+   various things which can be negotiated on.  To promote
+   interoperability, a registration process is needed to ensure that
+   that this vocabulary, which can be shared between negotiation
+   mechanisms, is developed in an orderly, well-specified, and public
+   manner.
+
+   This document defines registration procedures which use the
+   Internet Assigned Numbers Authority (IANA) as a central registry
+   for this vocabulary, which is the vocabulary of feature tags.
+
+
+2 Basic concepts and definitions
+
+2.1 Areas of negotiation and feature tags
+
+   Something which can be negotiated on is called an `area of
+   negotiation' in this document.  Examples of areas of negotiation
+   are:
+
+     * the MIME media type of the data which is transmitted  
+     * the language of the text document which is transmitted
+     * the color depth of the screen on which something is to be
+       displayed
+     * whether the recipient supports the `floating 5 dimensional
+       tables' feature
+     * the fonts which are available to the recipient
+     * whether a Web user prefers speed over graphical detail
+     * whether the recipient is capable of displaying graphical
+       content
+     * whether the user prefers a blue background with purple dots over
+       a green background with pictures of small furry animals, except
+       on Fridays.
+
+   A feature tag identifies a single area of negotiation.
+
+   It is expected that the majority of feature tags will identify new
+   areas of negotiation, in which the object of negotiation is to
+   decide on the presence or use of some new feature in a software
+   product.  This explains the name `feature tag'.
+
+   It is recognized that there is continuous growth in the number of
+   areas in which some form of negotiation is desirable.  To keep up
+   with this growth, extensible negotiation mechanisms are needed,
+   which refer to the feature tag vocabulary to identify new areas of
+   negotiation, rather than relying on hard-coded knowledge about a
+   few areas.
+
+   To avoid the duplication of work, and to promote the interoperable
+   naming of areas of negotiation across protocols and applications,
+   the feature tag namespace is not bound to a particular protocol or
+   negotiation mechanism.  Also, there is no prior restriction on the
+   areas of negotiation which may be identified by a feature tag,
+   other than that it must be conceivable to negotiate in these areas
+   in the context of some Internet application.
+
+
+2.2 Complexity of negotiation
+
+   Negotiation processes can often be complex.  Two frequent sources
+   of complexity are:
+
+    1. An area of negotiation may be inherently complex.  For
+       example, negotiating on the use of a particular media type is
+       inherently more complex than negotiating on the presence of a
+       single feature, because there are more possible outcomes.
+   
+    2. There may be complex of interdependencies between the choices
+       in different areas of negotiation.  For example, if the
+       following versions of a document are available on a Web server:
+
+           * text/html, English
+           * text/plain, French
+           * audio/x-wav, German
+           
+       then the content negotiation mechanism cannot treat the areas
+       of `MIME media type negotiation' and `language negotiation' as
+       separate.
+
+   It is recognized that extensible negotiation mechanisms will often
+   differ in the type and amount of complexity they can handle.  Thus,
+   though negotiation mechanisms share the feature tag namespace, it
+   will not be the case that every tag is usable in every negotiation
+   mechanism, or that every negotiation mechanism will be able to
+   handle all possible interdependencies.
+
+
+2.3 The result in an area of negotiation
+
+   During negotiation, negotiation mechanisms will often need to
+   transmit (canonical representations of) the possible results in
+   various areas of negotiation over the wire.  Also, at the end of a
+   negotiation process, the mechanism may need to return (a
+   canonical representation of) the result to the application which
+   invoked it.
+
+   In many areas of negotiation, there will be a natural, canonical
+   representation of the result.  For example, in the area
+
+     * whether the recipient supports the `floating 5 dimensional
+       tables' feature
+
+   the canonical representation of the result is a boolean value (yes,
+   the feature is supported, or no, the feature is not supported).  In
+   the area
+
+      * the MIME media type of the data which is transmitted  
+
+   the canonical representation of the result will be a MIME media
+   type identifier like text/html or application/postscript.  In some
+   areas of negotiation, the result could be a compound value (e.g. a
+   coordinate in a 3D space).
+
+   To promote interoperability, the registration entry of a feature
+   tag can include a definition of the canonical representations of
+   the possible results in the corresponding area of negotiation.
+
+
+2.4 Feature tag syntax
+
+   A feature tag is a string consisting of one or more of the
+   following US-ASCII characters: uppercase letters, lowercase
+   letters, digits, the dot (".") and the dash ("-").  Feature tags
+   are case-insensitive.
+
+
+3 Feature tag registration
+
+   Registration of a new feature tag starts with the construction of a
+   registration proposal.  Registration may occur in several different
+   registration trees, which have different requirements as discussed
+   below.  In general, the new registration proposal is circulated and
+   reviewed in a fashion appropriate to the tree involved.  The
+   feature tag is then registered if the proposal is acceptable.  The
+   following sections describe the requirements and procedures used
+   for each of the different registration trees.
+
+
+3.1 Registration trees
+
+   The following subsections define registration "trees",
+   distinguished by the use of faceted names (e.g., names of the form
+   "tree.feature_name").
+
+
+3.1.1 IETF tree
+
+   The IETF tree is intended for feature tags of general interest to
+   the Internet Community.  Registration in the IETF tree requires
+   approval by the IESG and publication of the feature tag
+   specification as some form of RFC.
+
+   Feature tags in the IETF tree normally have names that are not
+   explicitly faceted, i.e., do not contain period (".", full stop)
+   characters.
+
+   The "owner" of a feature tag in the IETF tree is assumed to be the
+   IETF itself.  Modification or alteration of the specification
+   requires the same level of processing (e.g. standards track)
+   required for the initial registration.
+
+3.1.2 Global tree
+
+   The global tree is intended for feature tags of general interest to
+   the Internet Community.  Unlike registration in the IETF tree,
+   registration in the global tree does not require approval by the
+   IESG.  A registration may be placed in the global tree by anyone
+   who has the need to allow for feature negotiation on a particular
+   capability or preference.
+
+   Typically, if the creator of an Internet service or product
+   introduces something new to the Internet Community, and if it is
+   meaningful to do negotiation on it, the vendor can register a
+   feature tag in the global tree.
+
+   The owner of "global" tags and associated specifications is the
+   person or entity making the registration, or one to whom
+   responsibility has been transferred as described below.
+
+   Tags in the global tree will be distinguished by the leading facet
+   "g.". That may be followed, at the discretion of the registration,
+   by either a designation of an area of negotiation, (e.g.,
+   "g.blinktags") or by an IANA-approved designation of the producer's
+   name which is then followed by a designation of an area of
+   negotiation (e.g., g.bigcompany.obscurefeature).
+
+   While public exposure and review of feature tags to be registered
+   in the global tree is not required, using the ietf-feature-tags
+   list for review is strongly encouraged to improve the quality of
+   those specifications.  Registrations in the global tree may be
+   submitted directly to the IANA.
+
+3.1.3 Local or specialized tree
+
+   The local tree is intended for feature tags identifying areas
+   of negotiation which are relevant in a localized, specialized,
+   restricted, or experimental context.
+
+   The owner of "local" tags and associated specifications is the
+   person or entity making the registration, or one to whom
+   responsibility has been transferred as described below.
+
+   Tags in the local tree will be distinguished by the leading facet
+   "l.".  While public exposure and review of feature tags to be
+   registered in the local tree is not required, using the
+   ietf-feature-tags list for review is strongly encouraged to improve
+   the quality of those specifications.  Registrations in the local
+   tree may be submitted directly to the IANA.
+
+3.1.4 Special `x.' tree
+
+   Feature tags with "x." as the first facet are reserved for use in
+   experimental contexts.  These tags are unregistered, experimental,
+   and should be used only with the active agreement of the parties
+   exchanging them.
+
+   However, with the simplified registration procedures described
+   above for vendor and personal trees, it should rarely, if ever, be
+   necessary to use unregistered experimental tags, and as such use of
+   these tags is discouraged.
+
+3.1.5 Additional registration trees
+
+   From time to time and as required by the community, the IANA may,
+   with the advice and consent of the IESG, create new top-level
+   registration trees.  It is explicitly assumed that these trees may
+   be created for external registration and management by well-known
+   permanent bodies, such as scientific societies for media types
+   specific to the sciences they cover.  In general, the quality of
+   review of specifications for one of these additional registration
+   trees is expected to be equivalent to that which IETF would give to
+   registrations in its own tree.  Establishment of these new trees
+   will be announced through RFC publication approved by the IESG.
+
+
+3.2 Registration requirements
+
+   Feature tag registration proposals are all expected to conform to
+   various requirements laid out in the following sections.  Note that
+   requirement specifics sometimes vary depending on the registration
+   tree, again as detailed in the following sections.
+
+3.2.1 Functionality requirement
+
+   A feature tag must function as an actual identifier of an area of
+   negotiation, and it must be conceivable to negotiate in this area
+   in the context of some Internet application.
+
+   This requirement applies regardless of the registration tree
+   involved.
+
+3.2.2 Naming requirements
+
+   All feature tag names must be unique, and must conform to the 
+   syntax in section 2.4.
+
+   This requirement applies regardless of the registration tree
+   involved.
+
+   The IANA may reject tag names which are obviously bogus or
+   misleading.  Note however that other than in the IETF tree, the
+   acceptance of a feature tag does not imply certification that the
+   tag is adequately named.
+
+3.2.3 Specification requirements
+
+   If a feature tag is registered in the IETF tree, a precise and
+   openly available specification of the indicated area of negotiation
+   is required, and must at a minimum be referenced by, if it isn't
+   actually included in, the feature tag registration proposal itself.
+   For the global and local trees, an openly available description of
+   the area is minimally required.
+
+   Regardless of the tree, the specification of a feature tag must
+   state whether the choice in the indicated area is a simple yes/no
+   choice, or if it is a choice for a single value among multiple
+   values.
+
+   If the choice in the indicated area is among multiple values, and
+   it is possible to define canonical representations for the
+   different possible result values, and the tag is registered in the
+   IETF tree, a precise and openly available specification of the
+   canonical format, and the exact meaning of the values is required,
+   and must at a minimum be referenced by, if it isn't actually
+   included in, the feature tag registration proposal itself.  For any
+   canonical format which is defined, it must be possible to map this
+   format onto octet strings.
+
+   If the registration is motivated by the creation of a new feature
+   in a product, it is specifically permitted to name the product
+   involved, and the product version number for which the feature was
+   or will be first implemented.
+
+   The registration of feature tags referencing patented technology is
+   specifically permitted.  However the restrictions set forth in RFC
+   1602 on the use of patented technology in standards-track protocols
+   must be respected when the specification of a feature tag is part
+   of a standards-track protocol.
+
+3.2.4 Interchange recommendations
+
+   Feature tags should, whenever possible, interoperate across as many
+   systems, applications, and negotiation mechanisms as possible.
+   However, some feature tags will by nature be bound to specific
+   systems, and feature tag may indicate areas of negotiation in which
+   the choice is made among types of values which can only be handled
+   by highly specialized negotiation mechanisms.
+
+   Universal interoperability of feature tags is not required, but
+   known interoperability issues should be identified whenever
+   possible.  Publication of a feature tag does not require an
+   exhaustive review of interoperability, and the interoperability
+   considerations section is subject to continuing evaluation.
+
+   These recommendations apply regardless of the registration tree
+   involved.
+
+3.2.5 Security requirements
+
+   An analysis of security issues is required for all feature tags
+   registered in the IETF tree.  (This is in accordance with the basic
+   requirements for all IETF protocols.)  A similar analysis for
+   feature tags registered in the global or local trees is encouraged
+   but not required.  All descriptions of security issues must be as
+   accurate as possible regardless of registration tree.  In
+   particular, a statement that there are "no security issues
+   associated with the indicated feature tag" must not be confused
+   with "the security issues associates with this feature tag have not
+   been assessed".
+
+   There is absolutely no requirement that systems which negotiate
+   using the feature tags registered in any tree be secure or
+   completely free from risks.  Nevertheless, all known security risks
+   must be identified in the registration of a feature tag, again
+   regardless of registration tree.
+
+   The security considerations section of all registrations is subject
+   to continuing evaluation and modification, and in particular may be
+   extended by use of the "comments on feature tags" mechanism
+   described in subsequent sections.
+
+3.2.6 Publication requirements
+
+   Proposals for feature tags registered in the IETF tree must be
+   published as RFCs.  RFC publication of global and local feature tag
+   proposals is not required.  In all cases the IANA will retain
+   copies of all feature tag proposals and "publish" them as part of
+   the feature tag registration tree itself.
+
+   Other than in the IETF tree, the registration of a feature tag does
+   not imply endorsement, approval, or recommendation by the IANA or
+   the IETF or even certification that the specification is adequate.
+
+   It is neither possible nor necessary for the IANA to conduct a
+   comprehensive review of feature tag registrations.  Nevertheless,
+   the IANA has the authority to identify obviously incompetent
+   material and exclude it.
+
+
+3.3 Registration procedure
+
+   The following procedure has been implemented by the IANA for review
+   and approval of new feature tags.  This is not a formal standards
+   process, but rather an administrative procedure intended to allow
+   community comment and sanity checking without excessive time delay.
+   For registration in the IETF tree, the normal IETF processes should
+   be followed, treating posting of an internet-draft and announcement
+   on the ietf-types list (as described in the next subsection) as a
+   first step.  For registrations in the global or local trees, the
+   initial review step described below may be omitted and the tag
+   registered directly by submitting the template and an explanation
+   to the IANA (at iana@isi.edu).  However, authors of global or local
+   feature tag specifications are encouraged to seek community review
+   and comment whenever that is feasible.
+
+3.3.1 Present the feature tag to the community for review
+
+   Send a proposed feature tag registration to the
+   "ietf-feature-tags@iana.org" mailing list for a two week review
+   period.  This mailing list has been established for the purpose of
+   reviewing proposed feature tags.  Proposed feature tags are not
+   formally registered and must not be used; the "x." prefix can be
+   used until registration is complete.
+
+   The intent of the public posting is to solicit comments and
+   feedback on the choice of tag name, the clarity of the tag
+   specification, and a review of any interoperability or security
+   considerations.  The submitter may submit a revised registration
+   proposal, or withdraw the registration proposal completely, at any
+   time.
+
+3.3.2 IESG approval
+
+   Feature tags registered in the IETF tree must be submitted to
+   the IESG for approval.
+
+3.3.3 IANA registration
+
+   Provided that the proposed tag meets the requirements for feature
+   tags and has obtained whatever approval is necessary, the
+   author may submit the registration request to the IANA, which
+   will register the feature tag and make the feature tag
+   registration available to the community.
+
+3.3.4 Delayed publication
+
+   By default, feature tag registration proposals are published by the
+   IANA immediately after registration of the tag.
+
+   In some situations, a vendor may not wish that a specification of a
+   tag for a planned new feature is published before the date at which
+   the software implementing this feature is released to the Internet
+   Community.  Therefore, when submitting a feature tag registration
+   proposal for a planned feature, a vendor may request a publication
+   delay of up to two months after registration of the tag by the
+   IANA.  After registration, IANA will delay its publication of the
+   registration proposal for at least the duration of the requested
+   period.
+
+   Immediately after receiving a notification of registration from the
+   IANA, the vendor may release software which recognizes the tag to
+   the Internet Community, and make public the tag specification
+   though his own channels.
+
+
+3.4 Comments on feature tag registrations
+
+   Comments on registered feature tags may be submitted by members of
+   the community to the IANA.  These comments will be passed on to the
+   "owner" of the feature tag if possible.  Submitters of comments may
+   request that their comment be attached to the feature tag
+   registration itself, and if the IANA approves of this the comment
+   will be made accessible in conjunction with the tag registration
+   itself.
+
+
+3.5 Location of registered feature tag list
+
+   Feature tag registrations will be posted in the anonymous FTP
+   directory "ftp://ftp.isi.edu/in-notes/iana/assignments/feature-
+   tags/" and all registered feature tags will be listed in the
+   periodically issued "Assigned Numbers" RFC [currently STD 2,
+   RFC-1700].  The feature tag description and other supporting
+   material may also be published as an Informational RFC by sending
+   it to "rfc-editor@isi.edu" (please follow the instructions to RFC
+   authors [RFC-1543]).
+
+
+3.6 IANA procedures for registering feature tags
+
+   The IANA will only register feature tags in the IETF tree in
+   response to a communication from the IESG stating that a given
+   registration has been approved.
+
+   Global and local tags will be registered by the IANA automatically
+   and without any formal review as long as the following minimal
+   conditions are met:
+
+    (1)   A feature tag must function as an actual identifier of an area
+          of negotiation.
+
+    (2)   All feature tag names must be unique, and must conform to the 
+          syntax in section 2.4.
+
+    (3)   An openly available description of the area of negotiation is
+          minimally required.  The specification of a feature tag must
+          state whether the choice in the indicated area is a simple
+          yes/no choice, or if it is a choice among multiple values.
+          If the choice is among multiple values, and a canonical
+          format for these values is defined, it must be possible to
+          map this format onto octet strings.
+
+    (4)   Any security considerations given must not be obviously
+          bogus. (It is neither possible nor necessary for the
+          IANA to conduct a comprehensive security review of
+          feature tag registrations.  Nevertheless, the IANA has
+          the authority to identify obviously incompetent material
+          and exclude it.)
+
+
+3.7 Change control
+
+   Once a feature tag has been published by the IANA, the owner may
+   request a change to its definition.  The descriptions of the
+   different registration trees above designate the "owners" of each
+   type of registration.  The change request follows the following
+   procedure:
+
+    (1) Publish the revised template on the ietf-feature-tags list.
+
+    (2) Leave at least two weeks for comments.
+
+    (3) Publish using the IANA after formal review if required.
+
+   Changes should be requested only when there are serious omissions
+   or errors in the published specification.  When review is required,
+   a change request may be denied if it renders a use of tags that was
+   valid under the previous definition invalid under the new
+   definition.
+
+   The owner of a feature tag may pass responsibility for the feature
+   tag to another person or agency by informing the IANA and the
+   ietf-feature-tags list; this can be done without discussion or
+   review.
+
+   The IESG may reassign responsibility for a feature tag.  The most
+   common case of this will be to enable changes to be made to tags
+   where the author of the registration has died, moved out of contact
+   or is otherwise unable to make changes that are important to the
+   community.
+
+   Feature tag registrations may not be deleted; feature tags which
+   are no longer believed appropriate for use can be declared OBSOLETE
+   by a change to their "intended use" field; such feature tags will
+   be clearly marked in the lists published by the IANA.
+
+
+3.8 Registration template
+
+   To: ietf-feature-tags@iana.org (Feature tags mailing list)
+        (or directly to iana@iana.org)
+   Subject: Registration of feature tag XXXX
+
+
+    | Instructions are preceded by `|'.  Some fields are optional.
+
+   Feature tag name:
+
+   Summary of the area of negotiation indicated by this feature tag:
+
+    | Include a short (no longer than 4 lines) description or summary
+    | Examples:
+    |   `Negotiation on whether to use the xyzzy feature of ...'
+    |   `Negotiation on the MIME media type of the data which
+    |    is transmitted for ...'
+    |   `Negotiation on whether to use colors in displaying ...'
+    |   `Negotiation on the number of colors to use in displaying ...'
+
+   Number of alternative results in this area of negotiation:
+
+     [ ] 1. Two alternatives, which can be labeled with `yes' and `no'
+     [ ] 2. More than two alternatives, or two alternatives with no
+            natural `yes/no' labeling
+
+   For case 1: nature of the `yes' and `no' alternatives:
+
+     [ ] 1a. A particular feature is used/invoked/enabled, or not
+     [ ] 1b. Other
+
+   For case 2: How is a single alternative result naturally identified?
+
+     [ ] 2a. With a name, keyword, label, or tag (e.g. a language tag)
+     [ ] 2b. With an integer value
+     [ ] 2c. With a numeric value of a non-integer type (e.g. float)
+     [ ] 2d. Other
+     [ ] 2e. There is no simple way to identify a single result
+
+   (Only for case 1a) Description of the feature which is used,
+   invoked, or enabled if the result is `yes':
+
+    | Descriptions may also reference outside material.
+
+   (Only for case 1b) Description of the effect of the 'yes' result:
+
+   (Only for case 1b) Description of the effect of the 'no' result:
+
+   (Only for case 2) Detailed description of the area of negotiation,
+   and (in cases 2a-2d) of the format and meaning of the identifiers
+   for the alternative results:
+   
+     | If the number of alternative results is small, the description
+     | could simply enumerate the identifiers of the different results
+     | and describe their meaning.  
+     | 
+     | The identifiers of the alternative results could also be
+     | described by referring to another IANA registry, for example
+     | the MIME media type registry.
+
+   Default negotiation result (if applicable to the intended
+   application domain):
+
+   The feature tag is intended for use in the applications, protocols,
+   services, or negotiation mechanisms:                   [optional]
+
+    | For applications, also specify the number of the first version
+    | which will use the tag, if applicable.
+
+   Examples of typical use:                               [optional]
+
+   Related standards or documents:                        [optional]
+
+   Considerations particular to use in individual applications,
+   protocols, services, or negotiation mechanisms:        [optional]
+
+   Interoperability considerations:                       [optional]
+
+   Security considerations:
+
+   Additional information:                                [optional]
+
+     Keywords:                                            [optional]
+
+     Related feature tags:                                [optional]
+
+     Related media types or data formats:                 [optional]
+
+     Related HTML markup tags:                            [optional]
+
+   Person & email address to contact for further information:
+
+   Intended usage:
+
+    | one of COMMON, LIMITED USE or OBSOLETE
+
+   Author/Change controller:
+
+   Requested IANA publication delay:                      [optional]
+
+    | A delay may only be requested for registration in global or
+    | local trees, with a maximum of two months.
+
+   Other information:                                     [optional]
+
+    |  Any other information that the author deems interesting may be
+    |  added here.
+
+
+4 Security considerations
+
+   When used, negotiation mechanisms usually reveal some information
+   about one party to other parties.  This may raise privacy concerns,
+   and may allow a malicious party to make more educated guesses about
+   the presence of security holes in the other party.
+
+
+5 Acknowledgments
+
+   The details of the registration procedure in this document were
+   directly adapted from [1].  Much of the text in section 3 was
+   directly copied from this source.  
+
+   The idea of creating a vocabulary of areas of negotiation, which is
+   maintained in a central open registry, is due to discussions on
+   extensible negotiation mechanisms in the IETF HTTP working group.
+   The authors wish to thank Larry Masinter and Graham Klyne for
+   contributing to discussions about feature tag registration.
+
+
+6 References
+
+   [1] N. Freed, J. Klensin, J. Postel, Multipurpose Internet Mail
+       Extensions (MIME) Part Four: Registration Procedures.  RFC
+       2048, BCP 13, Network Working Group, November 1996
+
+
+7 Authors' addresses
+
+   Koen Holtman
+   Technische Universiteit Eindhoven
+   Postbus 513
+   Kamer HG 6.57
+   5600 MB Eindhoven (The Netherlands)
+   Email: koen@win.tue.nl
+
+   Andrew H. Mutz
+   Hewlett-Packard Company
+   1501 Page Mill Road 3U-3
+   Palo Alto CA 94304, USA
+   Fax +1 415 857 4691
+   Email: mutz@hpl.hp.com
+
+
+Appendix A: IANA and RFC editor to-do list
+
+   VERY IMPORTANT NOTE:  This appendix is intended to communicate
+   various editorial and procedural tasks the IANA and the RFC
+   Editor should undertake prior to publication of this document
+   as an RFC.  This appendix should NOT appear in the actual RFC
+   version of this document!
+
+   This document refers to the feature tags mailing list
+   ietf-feature-tags@iana.org.  This list does not exist at the
+   present time and needs to be created.
+
+   The ftp://ftp.isi.edu/in-notes/iana/assignments/feature-tags/" area
+   does not exist at the present time and needs to be created.
+
+
+Expires: January 28, 1998
+

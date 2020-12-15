@@ -1,0 +1,34 @@
+Windows NT/95 users should obtain the latest sources-XX-XX.tar.gz at
+ftp://ftp.ai.mit.edu/pub/users/jcma/cl-http/ and unpack these using
+"gunzip -c -d sources-XX-XX.tar.gz | tar xvfm -" to install and
+run the port to Franz' ACLPC. Obtain gunzip*.exe and tar*.exe from:
+ftp://ftp.cs.washington.edu/pub/ntemacs/latest/i386/utilities/win95
+Obtain ACLPC 3.0.1 from www.franz.com.
+
+If a patch file named: acl-patch-XX-XX-Y-ZZ-ZZ.tar.Z(gz) is at the ftp site
+matching the version XX-XX of CL-HTTP you use, you should fetch it.
+It contains updates specific for the ACL port for version XX-XX of CL-HTTP.
+Version Y-ZZ-ZZ indicates the date of the ACL specific patch (fetch the
+most recent one.)
+
+If the contents of this patch file contains "acl", use it to replace the
+"acl" directory provided with CL-HTTP-XX-XX. However a patch containing
+updates to CL-HTTP common source code will only contain minimal replacement
+files. For example if the "server" directory is present in the patch
+file it will only contains the minimal files for replacement in the common
+code.
+
+Using on UNIX or {PC} respectively:
+
+$ cd{chdir} ~cl-http-XX-XX  	# Directory where CL-HTTP-XX-XX is installed
+$ mv{move} acl acl-old		# Rename current acl ONLY IF replacement "acl"
+				# directory is PRESENT in this PATCH.
+
+$ zcat acl-patch-XX-XX-Y-ZZ-ZZ.tar.Z | tar xvf -
+Or using GNU gunzip and tar on UNIX or PC:
+$ gunzip -c -d acl-patch-XX-XX-Y-ZZ-ZZ.tar.gz | tar xvfm -
+
+$ mv{move} acl-Y-ZZ-ZZ/acl acl	# Move acl directory under ~cl-http-XX-XX
+
+Then move the remaining common code updates "acl-Y-ZZ-ZZ/{not acl}" manually
+to the corresponding ~cl-http-XX directory tree if needed.

@@ -1,0 +1,100 @@
+#! /bin/sh
+
+####
+# Note: You may setup symbolic links for ~/cl-http and ~/LispWorks
+# so you don't have to edit this file each time you get a new CL-HTTP version.
+#
+# Edit the path of the LispWorks image at your site
+LISPIMAGE="$HOME/LispWorks/lw-3-2-2"
+#
+# Edit the path of the present version of CL-HTTP
+HTTP="$HOME/cl-http"
+#
+# Edit the path for installing or running the image LispWorks+CL-HTTP image
+HTTPIMAGE="$HOME/LispWorks/lw-3-2-2-http"
+####
+
+
+OPTION="$1"
+
+case $OPTION in
+
+        -compile*)
+        if [ $OPTION = -compile-debug ]; then DEBUG="T"; else DEBUG="NIL"; fi
+        echo "Compiling CL-HTTP from $HTTP using image $LISPIMAGE with debug = $DEBUG"
+        echo "\
+(progn\
+  (setq *cl-http-options* '((:compile . t)))\
+  (lw:toggle-source-debugging $DEBUG)\
+  (load \"$HTTP/lw/start\")\
+  (lw:bye))"\
+ | $LISPIMAGE -init - ;
+        ;;
+
+        -build*)
+        echo "Building CL-HTTP from $HTTP using image $LISPIMAGE to $HTTPIMAGE"
+        echo "\
+(progn\
+  (setq *cl-http-options* '())\
+  (load \"$HTTP/lw/start\")\
+  (let ((sys::*complain-about-init-file-loaded* nil)) (lw:save-image \"$HTTPIMAGE\"))\
+  (lw:bye))"\
+ | $LISPIMAGE -init - ;
+        ;;
+
+        -run*)
+        echo "Running CL-HTTP from $HTTP using image $LISPIMAGE"
+        echo "\
+(progn\
+  (setq *cl-http-options* '((:enable . t)))\
+  (load \"$HTTP/lw/start\")\
+  (progn (mp:process-kill mp:*current-process*) nil))"\
+ | $LISPIMAGE -init - -multiprocessing ;
+        ;;
+
+        -help*)
+        echo "Usage:
+        $0                   ; start CL-HTTP service without Log (default)
+        $0 -build            ; build the CL-HTTP from a LispWorks image
+        $0 -compile          ; compile and load the sources into LispWorks
+        $0 -compile-debug    ; compile and load the sources with debugging information into LispWorks
+        $0 -run              ; load the sources into LispWorks and start http
+        $0 -log              ; start CL-HTTP service with Log file
+        $0 -help             ; print this message
+"
+        ;;
+        -log*)
+        if test -x $HTTPIMAGE
+        then    echo "\
+(progn\
+  (http:enable-http-service)\
+  (format t \"~&CL-HTTP serving at ~a - With log.~%\" http::*http-ports*)\
+  (mp:process-kill mp:*current-process*)\
+  (values))"\
+ | $HTTPIMAGE -init - -multiprocessing ;
+        else
+        HELP=yes
+        fi
+
+        ;;
+        # This must be last
+        *)
+        if test -x $HTTPIMAGE
+        then    echo "\
+(progn\
+  (http:enable-http-service)\
+  (http:log-notifications-on (first http::*all-logs*) nil)\
+  (format t \"~&CL-HTTP serving at ~a - NO log.~%\" http::*http-ports*)\
+  (mp:process-kill mp:*current-process*)\
+  (values))"\
+ | $HTTPIMAGE -init - -multiprocessing ;
+        else
+        HELP=yes
+        fi
+        ;;
+esac
+
+test $HELP && (echo "The CL-HTTP image: $HTTPIMAGE
+is not found or not executable.
+You may need to compile and then build this image.";
+$0 -help;)

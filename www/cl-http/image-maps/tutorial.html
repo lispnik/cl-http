@@ -1,0 +1,116 @@
+<html>
+
+<head>
+
+<title>
+     Exporting Image-Maps
+</title>
+
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+
+<h1>
+     Exporting Image-Maps
+</h1>
+
+<p><img src="/cl-http/icons/line-rain.gif"></p>
+
+These are the basic steps for creating and exporting an image-map.  This page outlines how to create an
+image in the correct format, generate its map file, export the image-map on the server, and refer to 
+it in an HTML document.
+
+<p>
+
+<dl>
+
+<p> <dt> 1. <b>Obtain Graphic in Appropriate Format.</b> <dd>
+         Graphics should almost always be of type GIF.  If the application you are using to create
+         images does not support GIF, there are converters available for several formats (see 
+<a href= "/cl-http/image-maps/tools.html"> Image-Map Tools</a>.)
+         You should also be sure to append your filename with the <code>.gif</code> suffix.
+
+<p> <dt> 2. <b>Create Image-Map File.</b> <dd>
+         Once you have your final GIF image, you need to create its map file.  A map file is a text
+         file containing descriptions of image regions along with destination URLs.  You can create map
+         files using a text editor (such as MCL) according to the 
+<a href= "/cl-http/image-maps/cern-example.html">CERN</a>
+         and
+<a href= "/cl-http/image-maps/ncsa-example.html">NCSA</a>
+         formats outlined in this documentation.  There are also 
+<a href= "/cl-http/image-maps/tools.html"> image-map tools</a>
+         available for easily generating map files using a graphical interface.  CL-HTTP users are advised to use the
+	 pathname extensions <code>.ncsa-map</code> or <code>cern-map</code> and the image pathname should have the same 
+         name as the map file. In a future release, CL-HTTP will autoexport these when both appear in the same directory.
+
+<p> <dt> 3. <b>Export Image-Map.</b> <dd>
+       Here is an example call to export-url on an image-map:
+
+<pre>(export-url #u"/my-image.gif?"
+            :image-map
+            :export-type :gif-image
+            :pathname (pathname "http:images;my-image.gif")
+            :map-format :cern
+            :map-pathname (pathname "http:images;my-image.cern-map")
+            :keywords '(:cl-http :demo)
+            :documentation "This is my image map.")</pre>
+         You must place a question mark after the server pathname of you export.  This tells the 
+         server to build the correct data structures for a searchable-image object.  The following list
+         defines the image-map keywords:
+         <dl>
+<dt> <code>:image-map</code>
+<dd> This invokes the appropriate export method.  It must be the first keyword.
+<dt> <code>:export-type</code>
+<dd> Specifies the type of image used.  CL-HTTP will accept any of its defined export types for images.
+<dt> <code>:pathname</code>
+<dd> The pathname for the image file.
+<dt> <code>:map-format</code>
+<dd> This specifies the format of the image-map configuration file (:cern or :ncsa).
+<dt> <code>:map-pathname</code>
+<dd> The pathname for the image-map configuration file.
+         </dl>
+
+
+<p> <dt> 4. <b>Refer to Image-Map.</b> <dd>
+         
+	To use your image-map, you must make reference to it in an HTML
+	document.  When using the HTML authoring tools, use <a
+	href="/cl-http/show-documentation?HTML:IMAGE">HTML:IMAGE</a> to emit
+	the appropriate html.
+
+	<p>Otherwise, you need to understand the HTML syntax for a searchable
+	image.  If the image-map is referenced without the trailing question
+	mark, just the image contents are returned.  If the question mark is
+	present, the server treats the request as an image-map.  Here is a
+	reference in HTML to an image-map:
+
+<pre>&lt;A HREF= "my-image.gif?"&gt; &lt;IMG SRC= "my-image.gif" ISMAP&gt; &lt;/A&gt;</pre>
+         
+         <code>ISMAP</code> is a standard HTML <code>IMG</code> attribute that tells the client to return
+         the coordinates of a user's clicks on an image.  Notice that the hyperlink reference is given the 
+         image-map, while the image source is given just the graphical element.  You can also make a
+         standing search reference:
+<pre>&lt;A HREF= "my-image.gif?34,76"&gt; This refers to a standing search. &lt;/A&gt;</pre>
+
+         This automatically refers to a destination specified in an image-map
+         by passing it coordinates directly.
+
+</dl>
+
+
+<a href= "/cl-http/image-maps/image-maps.html"> Back to Image-Maps on CL-HTTP </a>
+
+<p><img src="/cl-http/icons/line-rain.gif"></p>
+
+<address>
+
+<a href= "http://web.mit.edu/cvince/"> Christopher R. Vincent </a> --
+<a href= "mailto:cvince@ai.mit.edu"> cvince@ai.mit.edu </a> <br>
+<a href= "http://web.mit.edu/"> M.I.T. </a> 
+<a href= "http://www.ai.mit.edu/"> Artificial Intelligence Laboratory </a> 
+
+</address>
+
+</body>
+
+</html>

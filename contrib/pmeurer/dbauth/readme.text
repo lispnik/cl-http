@@ -1,0 +1,24 @@
+Database Interface for Authentication Objects
+
+This database interface for cl-http authentication consists of a general API and 
+an implementation of the API for SQL databases using my SQL/ODBC module (newest versions at ftp://amirani.hit.uib.no).
+
+The facility has only been tested with Oracle 8 (with CL-HTTP running on MCL, LispWorks 4.1/Windows and ACL 5.1/Windows), and I suspect that some minor parts of the code are Oracle specific.
+
+You have to perform some first-time initializations.
+Those are best done by setting *DB-NAME*, *AUTH-USER*, *AUTH-PASSWORD* and *SCHEMA* to appropriate values and setting *INITIALIZE-DB-AUTH* to a true value. When the code is run, the necessary database objects are created.
+Afterwards, set *INITIALIZE-DB-AUTH* back to NIL since an attempt to create those objects again when starting CL-HTTP the next time would lead to an error (or overwrite them, depending on the database system).
+
+Realms, groups, users etc. are manipulated in the normal way, by executing e.g.
+
+  (add-realm :db-test-realm :basic)
+
+Make sure to wrap those expressions in a WITH-DATABASED-REALMS macro or to globally enable databased realms by evaluating
+
+  (enable-databased-realms t)
+
+I would appreciate to get some feedback on the usability of the code.
+
+Paul Meurer
+
+paul.meurer@hit.uib.no

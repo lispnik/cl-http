@@ -1,0 +1,27 @@
+#cvince@ai.mit.edu    1/9/96
+default /cl-http/server-structure/class-structure.html
+rect (99,13) (198,31) /cl-http/server-structure/inspect-node?property-list-mixin
+rect (251,13) (353,32) /cl-http/server-structure/inspect-node?documentation-mixin
+rect (379,13) (496,32) /cl-http/server-structure/inspect-node?displayable-name-mixin
+rect (42,80) (75,96) /cl-http/server-structure/inspect-node?user
+rect (99,81) (132,97) /cl-http/server-structure/inspect-node?group
+rect (159,80) (258,98) /cl-http/server-structure/inspect-node?basic-server-mixin
+rect (290,81) (315,97) /cl-http/server-structure/inspect-node?url
+rect (184,123) (224,137) /cl-http/server-structure/inspect-node?server
+rect (12,222) (55,239) /cl-http/server-structure/inspect-node?file-url
+rect (67,222) (114,239) /cl-http/server-structure/inspect-node?wais-url
+rect (126,222) (183,239) /cl-http/server-structure/inspect-node?mailto-url
+rect (195,222) (254,239) /cl-http/server-structure/inspect-node?gopher-url
+rect (266,222) (313,239) /cl-http/server-structure/inspect-node?http-url
+rect (326,222) (379,239) /cl-http/server-structure/inspect-node?news-url
+rect (391,222) (428,239) /cl-http/server-structure/inspect-node?ftp-url
+rect (440,222) (492,239) /cl-http/server-structure/inspect-node?telnet-url
+rect (40,296) (137,313) /cl-http/server-structure/inspect-node?http-virtual-object
+rect (179,296) (241,313) /cl-http/server-structure/inspect-node?http-search
+rect (286,296) (350,313) /cl-http/server-structure/inspect-node?http-object
+rect (394,296) (445,313) /cl-http/server-structure/inspect-node?http-path
+rect (43,358) (139,375) /cl-http/server-structure/inspect-node?http-dynamic-form
+rect (186,358) (241,375) /cl-http/server-structure/inspect-node?http-form
+rect (262,358) (375,375) /cl-http/server-structure/inspect-node?http-searchable-object
+rect (397,358) (490,375) /cl-http/server-structure/inspect-node?http-computed-url
+rect (164,404) (266,421) /cl-http/server-structure/inspect-node?http-computed-form

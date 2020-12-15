@@ -1,0 +1,51 @@
+This is a port of the CL-HTTP system to LispWorks for UNIX and LispWorks for
+the Windows Operating System from Harlequin Group Ltd.
+
+This version has been tested on Sparc/SunOS4.1.3, Sparc/Solaris2.6,
+Alpha/OSF1, Irix6, Windows NT, and Windows 95 and and Windows 98 with no known
+problems.
+
+System requirements
+-------------------
+
+To run it under LispWorks you need one of the following:
+
+        LispWorks 4.1 on UNIX or Windows.
+        Patches: the latest patch bundle from
+                 http://www.harlequin.com/support/support.html
+
+        LispWorks 4.0.1 on Windows.
+        Patches: the latest patch bundle from
+                 http://www.harlequin.com/support/support.html
+
+        LispWorks 3.2.2 on UNIX.
+        Patches: the latest patch bundle from
+                 http://www.harlequin.com/support/support.html
+                 plus these private patches:
+                   select-output-extra
+                   listen-buffered-pipe,
+                   buffered-tcp-output-streams and
+                   signal-continue-search-in-same-cluster
+                 which are obtainable by mailing lispworks-support@harlequin.com
+
+
+Compiling and running CL-HTTP
+-----------------------------
+
+1) [LispWorks 3.2.2 only] Locate the private patches and edit the defparameter
+in lw/pre-cl-http.lisp *private-patches-directory* to contain the name of the
+directory of the patches.  The value should be a string with a trailing slash
+to denote a directory.
+
+2) Start the LispWorks executable.
+
+3) [UNIX only] Either start the LispWorks windowing environment or execute
+(mp:initialize-multiprocessing) from the tty prompt.  Alternatively, supply
+the -multiprocessing option when starting the executable.
+
+4) Load lw/start.lisp.
+
+The loading script asks various questions, such as you whether want to compile
+and whether you want to start the server.
+
+Please report any bugs to bug-lw-cl-http@ai.mit.edu.

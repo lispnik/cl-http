@@ -1,0 +1,32 @@
+This is development version of the CL-HTTP system ported to Lucid Common
+Lisp for UNIX by Gertjan Kersten (gertjan@aie.nl).
+
+This version has only been tested on Sparc/Solaris 5.4 with no known problems.
+
+There is no guarantee this won't break LCL or other LCL instances running on 
+the same machine until further testing is done. Use at your own risk.
+
+A single directory "lcl" is added to the standard CL-HTTP distribution
+providing lcl specific additions and changes.  This directory should
+appear right under the main CL-HTTP directory.
+
+To run it under Lucid you need the following:
+
+        Lcl 4.2
+
+To run CL-HTTP:
+
+1) Start the Lcl executable.
+
+2) Unless dumped into the lcl image, load the files `ansi-package.sbin'
+   and `clos.sbin'. These files are supplied together with the lcl
+   distribution.
+
+2) Load lcl/start.lisp.
+
+The loading script asks you whether want to compile and whether you want to
+start the server.
+
+Please report any bugs to bug-lcl-cl-http@ai.mit.edu
+
+

@@ -1,0 +1,1480 @@
+<HTML>
+<HEAD>
+   <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+   <META NAME="Author" CONTENT="Ora Lassila, Ralph Swick">
+   <META NAME="GENERATOR" CONTENT="Mozilla/4.05 (Macintosh; I; PPC) [Netscape]">
+   <TITLE>Resource Description Framework (RDF) Model and Syntax</TITLE>
+</HEAD>
+<BODY>
+
+<DIV ALIGN=right>
+<H2>
+<A HREF="http://www.w3.org/"><IMG SRC="w3c_home.gif" ALT="W3C" BORDER=0  ALIGN=LEFT></A>
+WD-rdf-syntax-19980216</H2></DIV>
+
+<CENTER>
+<H1>
+Resource Description Framework<BR>
+(RDF) Model and Syntax</H1></CENTER>
+
+<CENTER>
+<H3>
+W3C Working Draft 16 Feb 1998</H3></CENTER>
+
+<DL>
+<DT>
+This Version:</DT>
+
+<DD>
+<A HREF="http://www.w3.org/TR/1998/WD-rdf-syntax-19980216">http://www.w3.org/TR/1998/WD-rdf-syntax-19980216</A></DD>
+
+<DT>
+Latest Version:</DT>
+
+<DD>
+<A HREF="http://www.w3.org/TR/WD-rdf-syntax">http://www.w3.org/TR/WD-rdf-syntax</A></DD>
+
+<DT>
+Previous Version:</DT>
+
+<DD>
+<A HREF="http://www.w3.org/TR/WD-rdf-syntax-971002">http://www.w3.org/TR/WD-rdf-syntax-971002</A></DD>
+
+<DT>
+Editors:</DT>
+
+<DD>
+Ora Lassila <TT><A HREF="mailto:ora.lassila@research.nokia.com">&lt;ora.lassila@research.nokia.com></A></TT>,
+Nokia Research Center</DD>
+
+<BR>Ralph R. Swick <TT><A HREF="mailto:swick@w3.org">&lt;swick@w3.org></A></TT>,
+World Wide Web Consortium
+<DT>
+<A HREF="#acknowledgements">Acknowledgements</A></DT>
+</DL>
+<FONT SIZE=-1><A HREF="http://www.w3.org/Consortium/Legal/ipr-notice.html#Copyright">Copyright</A>
+&copy;&nbsp; 1997,1998 <A HREF="http://www.w3.org">W3C</A> (<A HREF="http://www.lcs.mit.edu">MIT</A>,
+<A HREF="http://www.inria.fr/">INRIA</A>, <A HREF="http://www.keio.ac.jp/">Keio</A>
+), All Rights Reserved. W3C <A HREF="http://www.w3.org/Consortium/Legal/ipr-notice.html#LegalDisclaimer">liability,</A>
+<A HREF="http://www.w3.org/Consortium/Legal/ipr-notice.html#W3CTrademarks">trademark</A>,
+<A HREF="http://www.w3.org/Consortium/Legal/copyright-documents.html">document
+use</A> and <A HREF="http://www.w3.org/Consortium/Legal/copyright-software.html">software
+licensing</A> rules apply.</FONT>
+<H2>
+Status of This Document</H2>
+This draft specification is a work in progress representing the current
+consensus of the W3C RDF Model and Syntax Working Group. This is a W3C
+Working Draft for review by W3C members and other interested parties. Publication
+as a working draft does not imply endorsement by the W3C membership. While
+the design has stabilized quite a bit since the previous version and we
+do not anticipate substantial changes, we still caution that further changes
+are possible and therefore we recommend that only experimental software
+or software that can be easily field-upgraded be implemented to this specification
+at this time. The RDF Model and Syntax Working Group will not allow early
+implementation to constrain their ability to make changes to this specification
+prior to final release. This is a draft document and may be updated, replaced
+or obsoleted by other documents at any time. It is inappropriate to cite
+W3C Working Drafts as other than "work in progress".
+
+<P><B>Note:</B> As working drafts are subject to frequent change, you are
+advised to reference the above URL for "Latest version" rather than the
+URLs for specific working draft versions themselves. The latest version
+URL will always point to the most current version of this draft.
+
+<P>Comments on this specification may be sent to <A HREF="mailto:www-rdf-comments@w3.org">www-rdf-comments@w3.org</A>.
+The archive of public comments is available at <A HREF="http://www.w3.org/Archives/Public/www-rdf-comments">http://www.w3.org/Archives/Public/www-rdf-comments</A>.
+
+<P>
+<HR WIDTH="100%">
+<H2>
+Table of Contents</H2>
+
+<OL>
+<LI>
+<A HREF="#intro">Introduction</A></LI>
+
+<LI>
+<A HREF="#model">RDF Data Model</A></LI>
+
+<LI>
+<A HREF="#transporting">Transporting RDF</A></LI>
+
+<LI>
+<A HREF="#grammar">RDF Grammar</A></LI>
+
+<LI>
+<A HREF="#signing">Signed RDF</A></LI>
+
+<LI>
+<A HREF="#examples">Examples</A></LI>
+
+<LI>
+<A HREF="#acknowledgements">Acknowledgements</A></LI>
+
+<LI>
+<A HREF="#namespaces">Appendix A: Brief Explanation of XML Namespaces</A></LI>
+
+<LI>
+<A HREF="#usage">Appendix B: Notes about Usage</A></LI>
+
+<LI>
+<A HREF="#openIssues">Appendix C: Open Issues</A></LI>
+
+<LI>
+<A HREF="#references">Appendix D: References</A></LI>
+</OL>
+
+<HR WIDTH="100%">
+<H2>
+<A NAME="intro"></A>1. Introduction</H2>
+RDF &shy; the Resource Description Framework &shy; is a foundation for
+processing metadata; it provides interoperability between applications
+that exchange machine-understandable information on the Web. RDF emphasizes
+facilities to enable automated processing of Web resources. RDF metadata
+can be used in a variety of application areas; for example: in <I>resource
+discovery</I> to provide better search engine capabilities; in <I>cataloging</I>
+for describing the content and content relationships available at a particular
+Web site, page, or digital library; by <I>intelligent software agents</I>
+to facilitate knowledge sharing and exchange; in <I>content rating</I>;
+in describing <I>collections</I> of pages that represent a single logical
+"document"; for describing <I>intellectual property rights</I> of Web pages,
+and in many others. RDF with <I>digital signatures</I> will be key to building
+the "Web of Trust" for electronic commerce, collaboration, and other applications.
+
+<P>Metadata is "data about data" or specifically in the context of RDF
+"data describing web resources". The distinction between "data" and "metadata"
+is not an absolute one; it is a distinction created primarily by a particular
+application. Many times the same resource will be interpreted in both ways
+simultaneously. RDF encourages this view by using XML as the encoding syntax
+for the metadata. The resources being described by RDF are, in general,
+anything that can be named via a URI. The broad goal of RDF is to define
+a mechanism for describing resources that makes no assumptions about a
+particular application domain, nor defines the semantics of any application
+domain. The definition of the mechanism should be domain neutral, yet the
+mechanism should be suitable for describing information about any domain.
+
+<P>This document introduces a model for representing RDF metadata and one
+syntax for expressing and transporting this metadata in a manner that maximizes
+the interoperability of independently developed web servers and clients.
+The syntax described in this document is best considered as a "serialization
+syntax" for the underlying RDF representation model. The serialization
+syntax uses the eXtensible Markup Language [<A HREF="http://www.w3.org/TR/REC-xml">XML</A>].
+RDF and XML are complementary; there will be alternate ways to represent
+the same RDF data model, some more suitable for direct human authoring.
+Future work may lead to including such alternatives in this document.
+<H2>
+<A NAME="model"></A>2. RDF Data Model</H2>
+At the core of RDF is a model for representing named properties and their
+values. These properties serve both to represent attributes of resources
+(and in this sense correspond to usual attribute-value pairs) and to represent
+relationships between resources. The RDF data model is a syntax-independent
+way of representing RDF expressions. This specification shows three representations
+of the data model; as 3-tuples, as a graph, and in XML. These representations
+have equivalent meaning. The mapping between the representations used in
+this specification is not intended to constrain in any way the internal
+representation used by implementations.
+
+<P>RDF expressions that are syntactically very different could mean the
+same thing. This concept of equivalence in meaning is very important when
+performing queries, aggregation and a number of other tasks at which RDF
+is aimed. The equivalence is defined in a clean machine understandable
+way. Two RDF expressions are equivalent if and only if their corresponding
+data model representations are the same. Two RDF string values (defined
+below) are deemed to be the same if their ISO/IEC 10646 representations
+match.
+<H3>
+2.1. RDF Core; "Layer 0"</H3>
+The core data model is precisely defined as:
+<BR>&nbsp;
+<TABLE BORDER >
+<TR>
+<TD>
+<OL>
+<LI>
+There is a set called <I>Nodes</I>.</LI>
+
+<LI>
+There is a subset of <I>Nodes</I> called <I>PropertyTypes</I>.</LI>
+
+<LI>
+There is a set of 3-tuples called <I>Triples</I>, whose elements are called
+<I>properties</I>. The first item of each 3-tuple (triple) is an element
+of <I>PropertyTypes</I>, the second item is an element of <I>Nodes</I>
+and the third item is either an element of <I>Nodes</I> or an atomic value
+(an RDF string).&nbsp;</LI>
+</OL>
+</TD>
+</TR>
+</TABLE>
+In this data model both the resources being described and the values describing
+them are represented as nodes in a directed labeled graph. The arcs connecting
+pairs of nodes correspond to the names of the property types. Each arc
+is said to be <I>labeled</I> by the corresponding property type.
+
+<P>As RDF serialization is written in XML, the character repertoire of
+an RDF string is ISO/IEC 10646 [ISO10646]. An actual RDF string, whether
+in an XML document or in some other representation of the RDF data model,
+may be stored using a direct encoding of ISO/IEC 10646 or an encoding which
+can be mapped to ISO/IEC 10646. Language tagging is part of the string
+value; it is applied to sequences of characters within an RDF string and
+does not have an explicit manifestation in the data model.
+
+<P>Two RDF strings are deemed to be the same if their ISO/IEC 10646 representations
+match. Each RDF application must specify which one of the following definitions
+of 'match' it uses:
+<OL type=a>
+<LI>
+the two representations are identical, or</LI>
+
+<LI>
+the two representations are canonically equivalent as defined by The Unicode
+Standard [Unicode].</LI>
+</OL>
+The application may ignore language tagging within a string; all RDF applications
+must specify whether or not language tagging in string values is significant;
+that is, whether or not language is considered when performing string matching
+or other processing.
+
+<P>An RDF expression is represented pictorially in text with nodes in '[...]'
+and arcs in '--...-->' as follows:
+<UL>
+<PRE>[resource R] ---PropertyType P--> [value V]</PRE>
+</UL>
+This is read "V is the value of the property type P for resource R", or
+left-to-right; "R has property type P with value V".
+
+<P>Consider as a simple example the statement:
+<UL><I>Ora Lassila is the author of the resource http://www.w3.org/People/Lassila</I></UL>
+This statement can be represented as follows:
+<UL>
+<PRE>[http://www.w3.org/People/Lassila] ---Author--> "Ora Lassila"</PRE>
+</UL>
+where the notation '[URI]' denotes the node representing the resource identified
+by URI and quotation marks (") denote an atomic value.
+
+<P>According to the formal definition, this property, i.e. the arc labeled
+"Author" plus its source and target nodes, is the triple:
+<UL>
+<PRE>{Author, [http://www.w3.org/People/Lassila], "Ora Lassila"}</PRE>
+</UL>
+where "Author" denotes a node in <I>PropertyTypes</I> that corresponds
+to this arc label.
+
+<P>A set of triples that all refer to the same node (the second item in
+the triple) can be grouped as a unit called a <I>Description</I>. Descriptions
+are particularly useful when specifying a number of properties of the same
+resource. A Description (here containing two properties) is diagrammed
+as follows:
+<UL>
+<PRE>[resource R] ---PropertyType P1--> [value Vp1]
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; |
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ---PropertyType P2--> [value Vp2]
+
+[Bag B] --------RDF:1------------> [Property P1Vp1]
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; |
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; --------RDF:2------------> [Property P2Vp2]</PRE>
+</UL>
+Each RDF Description has its own node (the node identified as "Bag B" in
+the diagram) identifying the collection of triples, as described below.
+The Description can therefore be described by properties; that is, a Description
+can itself be used as the source node of other arcs describing properties
+of the Description.
+
+<P>The property types in a given Description, as well as any characteristics
+or restrictions of the property values themselves, are defined by one or
+more <I>schemas.</I> Each property type used in a Description is declared
+to be from exactly one schema. A schema is identified by a URI. The schema
+URI may be treated merely as an identifier or it may refer to a machine-understandable
+description of the schema. By definition, to <I>understand</I> a particular
+schema used by a Description means to understand the semantics of each
+of the properties in that Description that are declared to be associated
+with the schema. An application that has no knowledge of the particular
+schema will still be able to parse the Description into the property type
+and property value components and will be able to transport the Description
+intact (e.g. to a cache or to another application).
+<H3>
+2.2. Utility Relations; "Layer 1"</H3>
+The utility relations exist to permit Descriptions about Descriptions and
+to provide definitions for collections of nodes.
+
+<P>The triple composed of a property type, a resource, and a value is an
+RDF <I>property</I>. Such a property can itself be the target node of an
+arc (i.e. the value of some other property) or the source node of an arc
+(i.e. it can have properties). In these cases, the original property must
+be <I>reified</I>; that is, converted into additional nodes and arcs. The
+term <I>reification</I> means to convert the relation expressed by the
+arc into a concrete node to which we can refer. Reification allows us to
+express modalities (e.g. beliefs about properties) or simply attach any
+properties to other properties.
+
+<P>For example, the reification of the expression
+<UL>
+<PRE>[http://www.w3.org/People/Lassila] ---Author--> "Ora Lassila"</PRE>
+</UL>
+is the four properties
+<UL>
+<PRE>[X] ---InstanceOf--> [RDF:Property]
+[X] ---PropName----> [Author]
+[X] ---PropObj-----> [http://www.w3.org/People/Lassila]
+[X] ---Value-------> "Ora Lassila"</PRE>
+</UL>
+That is, a node X and four new triples are added:
+<UL>
+<PRE>{InstanceOf, [X], [RDF:Property]}
+{PropName,&nbsp;&nbsp; [X], [Author]}
+{PropObj,&nbsp;&nbsp;&nbsp; [X], [http://www.w3.org/People/Lassila]}
+{Value,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [X], "Ora Lassila"}</PRE>
+</UL>
+Reified properties are drawn as a single node with several arcs emanating
+from it representing the resource, property name, and value:
+<UL>
+<PRE>[property P1] ----InstanceOf-> [RDF:Property]
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; |
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ----PropName---> [PropertyType P]
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; |
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ----PropObj----> [resource R]
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; |
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ----Value------> [value Vp1]</PRE>
+</UL>
+This allows RDF to be used to make statements about other statements; for
+example, the statement "Ralph believes that the document 'The Origin of
+Species' was authored by Charles Darwin" is represented as:
+<UL>
+<PRE>[Ralph] --Believes--> [statement1] --InstanceOf-> [RDF:Property]
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; |
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; --PropName---> [Author]
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; |
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; --PropObj----> [http://loc.gov/Books/Species]
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; |
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; --Value------> "Charles Darwin"</PRE>
+</UL>
+To help in reifying properties, RDF defines the <I>InstanceOf</I> relation
+(property type) to provide primitive typing, as shown in the previous example.
+
+<P>The formal definition of <I>InstanceOf</I> is:
+<BR><A NAME="InstanceOf"></A>
+<TABLE BORDER >
+<TR>
+<TD>
+<OL start=4>
+<LI>
+There is an element of <I>PropertyTypes</I> known as RDF:InstanceOf.</LI>
+
+<LI>
+Elements of <I>Triples</I> that have RDF:InstanceOf as the first item in
+the triple must have elements of <I>Nodes</I> as their second item and
+third item.&nbsp;</LI>
+</OL>
+</TD>
+</TR>
+</TABLE>
+The formal definition of reification is:
+<BR><A NAME="Property"></A><A NAME="PropName"></A><A NAME="PropObj"></A><A NAME="Value"></A>
+<TABLE BORDER >
+<TR>
+<TD>
+<OL start=6>
+<LI>
+There is an element of <I>Nodes</I>, not contained in <I>PropertyTypes</I>,
+known as RDF:Property.</LI>
+
+<LI>
+There are three elements in <I>PropertyTypes</I> known as RDF:PropName,
+RDF:PropObj, and RDF:Value.</LI>
+
+<LI>
+The reification of an element <I>t</I> of <I>Triples</I> is an element
+<I>n</I> of <I>Nodes</I> representing the reified <I>t</I> and the elements
+<I>t<SUB>1</SUB></I>, <I>t<SUB>2</SUB></I>, <I>t<SUB>3</SUB></I>, and <I>t<SUB>4</SUB></I>
+of <I>Triples</I> where:</LI>
+
+<OL type=a>
+<LI>
+the first item of <I>t<SUB>1</SUB></I> is RDF:PropName, the second item
+is <I>n</I>, and the third item is the first item of <I>t</I>,</LI>
+
+<LI>
+the first item of <I>t<SUB>2</SUB></I> is RDF:PropObj, the second item
+is <I>n</I>, and the third item is the second item of <I>t</I>,</LI>
+
+<LI>
+the first item of <I>t<SUB>3</SUB></I> is RDF:Value, the second item is
+<I>n</I>, and the third item is the third item of <I>t</I>,</LI>
+
+<LI>
+the first item of <I>t<SUB>4</SUB></I> is RDF:InstanceOf, the second item
+is <I>n</I>, and the third item is RDF:Property.</LI>
+</OL>
+</OL>
+</TD>
+</TR>
+</TABLE>
+To reify a property, all that is done is to add to the data model an additional
+node and the four triples with first items (labeled arcs) of RDF:PropName,
+RDF:PropObj, RDF:Value, and RDF:InstanceOf respectively, second item the
+additional node, and third item the corresponding property type, resource
+node, value node, and the RDF:Property node respectively. Note the difference
+between the node RDF:Property and <I>properties</I>. RDF:Property is the
+node defining a particular class of objects. The instances of that class
+are the properties; i.e. triples.
+
+<P>Frequently it is necessary to create a collection of nodes; for example
+to state that a property has an ordered sequence of values. RDF defines
+three kinds of collections: ordered lists of nodes, called <I>Sequences</I>,
+unordered lists of nodes, called <I>Bags</I>, and lists that represent
+alternatives for the (single) value of a property, called <I>Alternatives</I>.
+
+<P>Formally, these three collection types are defined by:
+<BR><A NAME="Seq"></A><A NAME="Bag"></A><A NAME="Alt"></A>
+<TABLE BORDER >
+<TR>
+<TD>
+<OL start=9>
+<LI>
+There are three elements of <I>Nodes</I>, not contained in <I>PropertyTypes</I>,
+known as RDF:Seq, RDF:Bag, and RDF:Alt.</LI>
+
+<LI>
+There is a subset of <I>PropertyTypes</I> corresponding to the ordinals
+(1, 2, 3, ...) called Ord. We refer to elements of Ord as RDF:1, RDF:2,
+RDF:3, ...&nbsp;</LI>
+</OL>
+</TD>
+</TR>
+</TABLE>
+To create a collection of nodes, create a new node with an RDF:InstanceOf
+arc pointing to one of the three node types RDF:Seq, RDF:Bag, or RDF:Alt.
+The remaining arcs from that new node point to each of the members of the
+collection and are labeled using the elements from Ord. There may be at
+most one arc from a single collection node labeled with each element of
+Ord and the elements of Ord must be used in sequence starting with RDF:1.
+For nodes that are instances of the RDF:Alt collection type, there must
+be exactly one member whose arc label is RDF:1 and that is the default
+value for the Alternatives node.
+<H2>
+<A NAME="transporting"></A>3. Transporting RDF</H2>
+Descriptions may be associated with the resource they describe in one of
+four ways:
+<OL>
+<LI>
+The Description may be contained within the resource ("embedded"; e.g.
+<A HREF="#embedHTML">in HTML</A>).</LI>
+
+<LI>
+The Description may be external to the resource but supplied by the transfer
+mechanism in the same retrieval transaction as that which returns the resource
+("along-with"; e.g. <A HREF="#viaHTTP">via HTTP</A>).</LI>
+
+<LI>
+The Description may be retrieved independently from the resource, including
+from a different source ("service bureau"; e.g. <A HREF="#serviceBureau">using
+HTTP</A>).</LI>
+
+<LI>
+The Description may contain the resource ("wrapped"; e.g. RDF itself).</LI>
+</OL>
+All resources will not support all association methods; in particular,
+many kinds of resources will not support embedding and only certain kinds
+of resources may be wrapped.
+
+<P>A human- or machine-understandable description of an RDF schema may
+be accessed through content negotiation by dereferencing the schema URI.
+If the schema is machine-understandable it may be possible for an application
+to learn some of the semantics of the property types named in the schema
+on demand. The logic and syntax of RDF schemas are described in a separate
+document; "RDF Machine Understandable Schemas" (in progress).
+
+<P>This specification does not define any schemas; all references in this
+document to specific schema URIs and associated property types are intended
+as illustration only.
+<H2>
+<A NAME="grammar"></A>4. RDF Grammar</H2>
+The RDF data model provides an abstract, conceptual framework for defining
+and using metadata. A concrete syntax is also needed for the purposes of
+authoring and exchanging this metadata. The syntax does not add to the
+model; APIs may be provided to manipulate RDF without reference to a concrete
+syntax. RDF uses the <A HREF="http://www.w3.org/TR/REC-xml">Extensible
+Markup Language</A> [XML] encoding as its syntax. However, RDF will not
+require (and conforming implementations must not require) an XML Document
+Type Declaration for the contents of Descriptions. In this respect RDF
+requires at most the XML <A HREF="http://www.w3.org/TR/REC-xml#sec-well-formed">well-formedness</A>
+constraints. Schemas used by RDF Descriptions can be XML DTDs however other
+schema languages are expected to be more common for use with RDF.
+
+<P>The syntax descriptions below use the Extended Backus-Naur Form notation
+as defined in <A HREF="http://www.w3.org/TR/REC-xml#sec-notation">section
+6, Notation</A>, of [<A HREF="http://www.w3.org/TR/REC-xml">XML</A>] to
+describe the essential RDF syntax elements. The EBNF here is condensed
+for human readability; in particular, the italicized "<I><TT>rdf</TT></I>"
+is used to represent a variable namespace name rather than the more precise
+BNF notation "<TT>'&lt;' NSname ':...'</TT>" and the requirement that the
+property and type names in end-tags exactly match the names in the corresponding
+start-tags is implied by the XML rules. As RDF is written using XML, all
+syntactic flexibilities of XML are also implicitly included; e.g. whitespace
+rules, quoting using either single quote (') or double quote ("), <A HREF="http://www.w3.org/TR/REC-xml#dt-chardata">character
+escaping</A>, case sensitivity, language tagging, etc. RDF requires the
+<A HREF="http://www.w3.org/TR/1998/NOTE-xml-names-0119">XML namespace facility</A>,
+currently under review by the XML Working Group, to associate the schema,
+by way of its URI, with the properties in the Description.
+
+<P>This specification defines two syntaxes for encoding an RDF data model
+instance. The <I>serialization syntax</I> expresses the full capabilities
+of the data model in a very regular fashion. The <I>abbreviated syntax</I>
+includes additional constructs that provide a more compact form to represent
+a subset of the data model. Conformant RDF interpreters are expected to
+implement both the full serialization syntax and the abbreviated syntax.
+<H3>
+4.1 Serialization Syntax</H3>
+RDF serialization syntax takes the form:
+<PRE>&nbsp; [1] RDF&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ::= '&lt;<I>rdf</I>:RDF>' expression* '&lt;/<I>rdf</I>:RDF>'
+&nbsp; [2] expression&nbsp;&nbsp;&nbsp;&nbsp; ::= description | collection<A NAME="Description"></A>
+&nbsp; [3] description&nbsp;&nbsp;&nbsp; ::= '&lt;<I>rdf</I>:Description' idRefAttr? bagIdAttr? '>'
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; property* '&lt;/<I>rdf</I>:Description>'
+&nbsp; [4] collection&nbsp;&nbsp;&nbsp;&nbsp; ::= sequence | bag | alternatives
+&nbsp; [5] sequence&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ::= '&lt;<I>rdf</I>:Seq' idAttr? '>' collMember* '&lt;/<I>rdf</I>:Seq>'
+&nbsp; [6] bag&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ::= '&lt;<I>rdf</I>:Bag' idAttr? '>' collMember* '&lt;/<I>rdf</I>:Bag>
+&nbsp; [7] alternatives&nbsp;&nbsp; ::= '&lt;<I>rdf</I>:Alt' idAttr? '>' collMember+ '&lt;/<I>rdf</I>:Alt>'
+&nbsp; [8] collMember&nbsp;&nbsp;&nbsp;&nbsp; ::= hrefItem | valueItem
+&nbsp; [9] hrefItem&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ::= '&lt;<I>rdf</I>:LI' hrefAttr '/>'
+&nbsp;[10] valueItem&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ::= '&lt;<I>rdf</I>:LI>' value '&lt;/<I>rdf</I>:LI>'
+&nbsp;[11] idRefAttr&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ::= idAttr | hrefAttr
+&nbsp;[12] hrefAttr&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ::= '<I>rdf</I>:HREF="' resourceURI '"'
+&nbsp;[13] idAttr&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ::= 'ID="' IDsymbol '"'
+&nbsp;[14] bagIdAttr&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ::= '<I>rdf</I>:BAGID="' IDsymbol '"'
+&nbsp;[15] resourceURI&nbsp;&nbsp;&nbsp; ::= (see RFC1738)
+&nbsp;[16] IDsymbol&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ::= (any legal <A HREF="http://www.w3.org/TR/REC-xml#NT-Nmtoken">XML name symbol</A>)</PRE>
+The RDF element is a simple wrapper that marks the boundaries in an XML
+document where the content is explicitly intended to be mappable into an
+RDF data model instance.
+
+<P>Description contains the remaining elements that cause the creation
+of properties in the model instance. Each XML element <I>E</I> contained
+by a Description results in the creation of a property (a triple that is
+an element of the formal set <I>Triples</I>), where:
+<OL>
+<LI>
+The first item (PropName) is the node that represents the resource whose
+URI is the expansion of the namespace-qualified Generic Identifier (tag
+name) of <I>E</I>.</LI>
+
+<LI>
+The second item (PropObj) is</LI>
+
+<UL>
+<LI>
+the node that represents the resource whose URI is given by the value of
+the HREF attribute of the Description or</LI>
+
+<LI>
+a new node representing a new resource whose identification is the value
+of the ID attribute of the Description, if present; else the new resource
+has no identification.</LI>
+</UL>
+
+<LI>
+If <I>E</I> is an empty element (no content), the third item (Value) is
+the node that represents the resource whose URI is given by the HREF attribute
+of <I>E</I>. If the content of <I>E</I> contains no XML markup, the Value
+is the content of <I>E</I> (a string). Otherwise, the content of <I>E</I>
+must be another Description or collection and the Value is the node named
+by the (possibly implicit) ID or HREF of that Description or collection.</LI>
+</OL>
+The Description element itself creates an instance of a Bag node. The members
+of this Bag are the nodes corresponding to the reification of each of the
+properties in the Description. If the BAGID attribute is specified its
+value is the identifier of this Bag, else the Bag is anonymous.
+
+<P>When HREF is specified with Description, the properties in the Description
+refer to the resource named in the HREF. A Description element without
+an HREF attribute creates an in-line resource. Typically such a resource
+will be a surrogate, or proxy, for some other real resource that does not
+have a recognizable URI. This in-line resource has a URI formed using the
+value of the ID attribute of the Description element, if present. When
+another Description or property value refers to the in-line resource it
+will use the value of the ID in an HREF attribute. When the other Description
+refers to the bag of nodes corresponding to the reified properties it will
+use the value of BAGID in an HREF attribute. Either ID or HREF may be specified
+on Description but not both together in the same element. The values for
+each ID and BAGID attribute must not appear more than once within a document
+nor may the same value be used in an ID and a BAGID; that is, these two
+attributes have <A HREF="http://www.w3.org/TR/REC-xml#NT-TokenizedType">XML
+AttType ID</A>.
+
+<P>Seq, Bag, and Alt create an instance of a sequence, bag, or alternatives
+collection node type respectively. This node is the PropObj of an InstanceOf
+property pointing to the corresponding collection node type. The members
+of the collection are denoted by LI. Each XML element <I>E</I> contained
+by an LI corresponds to one member of the collection and results in the
+creation of a tuple where:
+<OL>
+<LI>
+The first item (PropName) is assigned consecutively according to the (XML)
+order of lexical appearance of each member starting with "RDF:1" for each
+collection.</LI>
+
+<LI>
+The second item (PropObj) is a node <I>C</I> that represents the collection
+created by the Seq, Bag, or Alt. The ID attribute, if specified, provides
+the URI fragment identifier for <I>C</I>.</LI>
+
+<LI>
+(same as rule 3 above) If <I>E</I> is an empty element (no content), the
+third item (Value) is the node that represents the resource whose URI is
+given by the HREF attribute of <I>E</I>. If the content of <I>E</I> contains
+no XML markup, the Value is content of <I>E</I> (a string). Otherwise,
+the content of <I>E</I> must be another Description or collection and the
+Value is the node named by the(possibly implicit) ID or HREF of that Description
+or collection.</LI>
+</OL>
+The resourceURI identifies the target resource; i.e. the resource to which
+the Description applies or the resource that is included in the collection.
+The BAGID attribute on a Description element and the ID attribute on a
+collection element permit that Description or collection to be referred
+to by other Descriptions. The ID on a collection element also provides
+the name that is used in an HREF attribute on a property element to make
+the collection the value of that property.
+
+<P>An RDF property takes the form:
+<PRE>&nbsp;[17] property&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ::= '&lt;' propName idAttr? '>' value '&lt;/' propName '>'
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | '&lt;' propName idRefAttr '/>'
+&nbsp;[18] propName&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ::= '<I>rdf</I>:Value' | '<I>rdf</I>:InstanceOf' | name
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | NSname ':' name
+&nbsp;[19] value&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ::= expression | string
+&nbsp;[20] name&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ::= (any legal XML name symbol)
+&nbsp;[21] NSname&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ::= (any legal XML namespace prefix)
+&nbsp;[22] string&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ::= (any XML text, with "&lt;", ">", and "&amp;" escaped)</PRE>
+Within <I>property</I>, the resourceURI used in an HREF attribute identifies
+the resource that is the value of this property. The value of the ID attribute,
+if specified, is the identifier for the node that represents the reification
+of the property. If an expression is specified as a property value the
+value is the node given by the HREF of the Description or the (possibly
+implied) ID of the Description or collection. The propName Value may be
+used for expressing non-binary relations; see example 5.3. <I><TT>String</TT></I>s
+must be well-formed XML; the usual XML content quoting and escaping mechanisms
+may be used if the string contains character sequences (e.g. "&lt;" and
+"&amp;") that violate the well-formedness rules or that otherwise might
+look like markup. The <A HREF="http://www.w3.org/TR/REC-xml#sec-lang-tag">xml:lang</A>
+attribute may be used as defined by [<A HREF="http://www.w3.org/TR/REC-xml">XML</A>]
+to associate a language with the property value. When used, xml:lang adds
+no triples to the data model.
+
+<P>It is recommended that property names always be qualified with a namespace
+prefix to unambiguously connect the property definition with the corresponding
+RDF schema.
+<H3>
+4.2 Abbreviated Syntax</H3>
+The RDF abbreviated syntax can be employed for each property in a Description
+where:
+<OL>
+<LI>
+The given property name appears at most once in the Description and</LI>
+
+<LI>
+The property value is a string.</LI>
+</OL>
+The abbreviated syntax can also be employed for each property where:
+<OL>
+<LI>
+The property value is a node and</LI>
+
+<LI>
+The values in any properties specified for that value node are strings.</LI>
+</OL>
+In addition, the abbreviated syntax provides a shorthand for specifying
+a node with an InstanceOf property.
+
+<P>The abbreviated syntax replaces productions [3] and [17] of the grammar
+for the serialization syntax in the following manner:
+<PRE>&nbsp; [3a] description&nbsp;&nbsp;&nbsp; ::= '&lt;<I>rdf</I>:Description' idRefAttr? bagIdAttr? propAttr* '/>'
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | '&lt;<I>rdf</I>:Description' idRefAttr? bagIdAttr? propAttr* '>'
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; property* '&lt;/<I>rdf</I>:Description>'
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | typedNode
+&nbsp;[17a] property&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ::= '&lt;' propName idAttr? '>' value '&lt;/' propName '>'
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | '&lt;' propName idRefAttr? bagIDAttr? propAttr* '/>'
+&nbsp; [23] typedNode&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ::= '&lt;' typeName idRefAttr? bagIDAttr? propAttr* '/>'
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | '&lt;' typeName idRefAttr? bagIDAttr? propAttr* '>'
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; property* '&lt;/' typeName '>'
+&nbsp; [24] typeName&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ::= NSname ':' name
+&nbsp; [25] propAttr&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ::= propName '="' string '"'
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (with embedded quotes escaped)</PRE>
+Each property type and value expressed in XML attribute form by productions
+[3a] and [25] is equivalent to the same property type and value expressed
+as XML content of the corresponding Description according to production
+[17]. Specifically; each XML attribute <I>A</I> specified with a Description
+start tag other than the attributes ID, HREF, or BAGID results in the creation
+of a property (a triple), where:
+<OL>
+<LI>
+The PropName (first item) is the node that represents the resource whose
+URI is the expansion of the namespace-qualified attribute name of <I>A</I>.</LI>
+
+<LI>
+The PropObj (second item) is the node that represents the resource whose
+URI is given by the value of the HREF attribute or whose identifier is
+given by the value of the ID attribute of the Description.</LI>
+
+<LI>
+The Value (third item) is the attribute value of <I>A</I> (a string).</LI>
+</OL>
+The typedNode form may be used to create or declare instances of nodes
+of specific types and to further describe those nodes. A Description expressed
+in typedNode form by production [23] is equivalent to the same Description
+expressed by production [3a] with the same ID, BAGID, and HREF attributes
+plus an additional InstanceOf property in the Description where the value
+of the InstanceOf property is the fully expanded URI corresponding to the
+typeName of the typedNode. Specifically, when a typedNode is given, each
+XML attribute <I>A</I> other than ID, HREF, or BAGID and each property
+<I>P</I> result in the creation of a triple where:
+<OL>
+<LI>
+The first item (PropName) is the node that represents the resource whose
+URI is the expansion of the namespace-qualified attribute name of <I>A</I>
+or the property name of <I>P</I>.</LI>
+
+<LI>
+The second item (PropObj) is the node <I>n</I> that represents the resource
+whose URI is given by the value of the HREF attribute or whose identifier
+is given by the value of the ID attribute of the typedNode element.</LI>
+
+<LI>
+The third item (Value) is the attribute value of <I>A</I> (a string) or
+the value of <I>P</I>.</LI>
+</OL>
+plus an additional triple where the PropObj is the same node <I>n</I>,
+the PropName is RDF:InstanceOf, and the Value is the node represented by
+the typeName in the typedNode. If the typedNode is given as the value of
+a property, the node <I>n</I> is the Value of that property in which the
+typedNode was specified.
+
+<P>Property types and values expressed in XML attribute form by productions
+[17a] and [25] are equivalent to the same property types and values expressed
+as XML content of a single Description element <I>D</I> and the resource
+refered to by <I>D</I> is the value of the property named by the XML element
+according to productions [19], [2], and [3]. Specifically; each property
+start tag containing attribute specifications other than ID, HREF, or BAGID
+results in the creation of a node <I>R</I> where <I>R</I> is the Value
+of the property. If HREF is specified, <I>R</I> is the node corresponding
+to the resource whose URI is the value of the attribute, else if ID is
+specified <I>R</I> is a new node whose identifier is the value of the attribute,
+otherwise <I>R</I> is anonymous. Each XML attribute <I>A</I> except ID,
+HREF, and BAGID specified with that same property start tag results in
+the creation of a property (a triple), where:
+<OL>
+<LI>
+The PropObj is the node <I>R</I>.</LI>
+
+<LI>
+The PropName is the node that represents the resource whose URI is the
+expansion of the namespace-qualified attribute name of <I>A</I>.</LI>
+
+<LI>
+The Value is the attribute value of <I>A</I> (a string).</LI>
+</OL>
+The value of the BAGID attribute, if specified, is the identifier for the
+Bag corresponding to the Description <I>D</I>; else the Bag is anonymous.
+<H2>
+<A NAME="signing"></A>5. Signed RDF</H2>
+[[<I>This section to be completed</I>]]
+
+<P>Descriptions may be <I>signed</I> to facilitate decisions that require
+trust. Simple signatures include checksums or other Descriptions about
+independently verifiable characteristics of a resource. The simplest example
+of a signature is a statement that the associated Description applies only
+to the version of the resource labeled with a given creation date. Stronger
+signatures will include cryptographic measures to increase the likelihood
+of detection of falsification of or inadvertent changes to the signed Description
+or the resource(s) to which it applies.
+<H2>
+<A NAME="examples"></A>6. Examples</H2>
+
+<H3>
+6.1. Examples Using the RDF Core</H3>
+With the core defined, we can construct and exchange directed graph models
+of arbitrary complexity. We could begin by saying very simple things, such
+as "John Smith is the Author of the document whose URL is http://www.bar.com/some.doc".
+This description can be modeled with the directed graph:
+<CENTER></CENTER>
+
+<CENTER><IMG SRC="graph.gif" ALT="simple node and arc diagram" HEIGHT=75 WIDTH=480>
+<A HREF="http://www.w3.org/TR/WD-rdf-syntax/graph.html">D</A></CENTER>
+
+<CENTER></CENTER>
+
+<CENTER>Figure 1: directed graph diagram</CENTER>
+
+
+<P>(We use a notation where nodes are represented as ellipses, arcs as
+arrows, and atomic values &shy; i.e. strings &shy; are given in rectangles.)
+
+<P>This small graph can be exchanged in the serialization syntax as:
+<BLOCKQUOTE>
+<PRE>&lt;?xml:namespace name="http://docs.r.us.com/bibliography-info/" as="BIB"?>&nbsp;
+&lt;?xml:namespace name="http://www.w3.org/TR/WD-rdf-syntax#" as="RDF"?>&nbsp;
+&lt;RDF:RDF>&nbsp;
+&nbsp; &lt;RDF:Description RDF:HREF="http://www.bar.com/some.doc">&nbsp;
+&nbsp;&nbsp;&nbsp; &lt;BIB:Author>John Smith&lt;/BIB:Author>&nbsp;
+&nbsp; &lt;/RDF:Description>&nbsp;
+&lt;/RDF:RDF></PRE>
+</BLOCKQUOTE>
+In most of the example figures the Bag corresponding to the reified properties
+in each Description will be omitted from the graph to improve readability.
+To illustrate the complete graph, consider the following example:
+<UL>
+<PRE>&lt;?xml:namespace name="http://docs.r.us.com/bibliography-info/" as="BIB"?>&nbsp;
+&lt;?xml:namespace name="http://www.w3.org/TR/WD-rdf-syntax#" as="RDF"?>&nbsp;
+&lt;RDF:RDF>
+&nbsp; &lt;RDF:Description RDF:HREF="http://www.bar.com/some.doc" RDF:BAGID="D_001">
+&nbsp;&nbsp;&nbsp; &lt;BIB:Author>John Smith&lt;/BIB:Author>
+&nbsp;&nbsp;&nbsp; &lt;BIB:Title>How to install IXI 3.4&lt;/BIB:Title>
+&nbsp; &lt;/RDF:Description>
+&lt;/RDF:RDF></PRE>
+</UL>
+As shown in Figure 2, the Description itself becomes a Bag node where the
+contents of the collection list the individual properties that were part
+of that particular Description.
+<CENTER></CENTER>
+
+<CENTER><IMG SRC="bag.gif" ALT="expansion of a Description as a Bag" >
+<A HREF="http://www.w3.org/TR/WD-rdf-syntax/bag.html">D</A></CENTER>
+
+<CENTER></CENTER>
+
+<CENTER>Figure 2: Descriptions create Bag nodes</CENTER>
+
+
+<P>Note that the Description uses the HREF attribute to say that the properties
+refer to the existing node whose URI is "http://www.bar.com/some.doc".
+
+<P>We could create a more elaborate model in order to say additional things
+about John Smith, such as his contact information. We might construct the
+model:
+<CENTER></CENTER>
+
+<CENTER><IMG SRC="structure.gif" ALT="A property value that is a node" HEIGHT=247 WIDTH=432>
+<A HREF="http://www.w3.org/TR/WD-rdf-syntax/structure.html">D</A></CENTER>
+
+<CENTER></CENTER>
+
+<CENTER>Figure 3: Structured property value (Bag omitted)</CENTER>
+
+
+<P>which could be exchanged using the RDF serialization representation:
+<BLOCKQUOTE>
+<PRE>&lt;?xml:namespace name="http://docs.r.us.com/bibliography-info/" as="BIB"?>&nbsp;
+&lt;?xml:namespace name="http://www.w3.org/TR/WD-rdf-syntax#" as="RDF"?>&nbsp;
+&lt;RDF:RDF>&nbsp;
+&nbsp; &lt;RDF:Description RDF:HREF="http://www.bar.com/some.doc">&nbsp;
+&nbsp;&nbsp;&nbsp; &lt;BIB:Author>&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;RDF:Description>&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;BIB:Name>John Smith&lt;/BIB:Name>&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;BIB:Email>john@smith.com&lt;/BIB:Email>&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;BIB:Phone>+1 (555) 123-4567&lt;/BIB:Phone>&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/RDF:Description>&nbsp;
+&nbsp;&nbsp;&nbsp; &lt;/BIB:Author>&nbsp;
+&nbsp; &lt;/RDF:Description>&nbsp;
+&lt;/RDF:RDF></PRE>
+</BLOCKQUOTE>
+Note here that the Description that is the value of the Author property
+does not have an HREF attribute. Therefore, this Description creates a
+new (unnamed) node and this new node is the property value of the Author
+property.
+
+<P>The serialization above provides the same properties as this second
+serialization, with an ID specified for the anonymous resource:
+<BLOCKQUOTE>
+<PRE>&lt;?xml:namespace name="http://docs.r.us.com/bibliography-info/" as="BIB"?>&nbsp;
+&lt;?xml:namespace name="http://www.w3.org/TR/WD-rdf-syntax#" as="RDF"?>&nbsp;
+&lt;RDF:RDF>&nbsp;
+&nbsp; &lt;RDF:Description RDF:HREF="http://www.bar.com/some.doc">&nbsp;
+&nbsp;&nbsp;&nbsp; &lt;BIB:Author RDF:HREF="#John_Smith"/>&nbsp;
+&nbsp; &lt;/RDF:Description>&nbsp;
+
+&nbsp; &lt;RDF:Description ID="John_Smith">&nbsp;
+&nbsp;&nbsp;&nbsp; &lt;BIB:Name>John Smith&lt;/BIB:Name>&nbsp;
+&nbsp;&nbsp;&nbsp; &lt;BIB:Email>john@smith.com&lt;/BIB:Email>&nbsp;
+&nbsp;&nbsp;&nbsp; &lt;BIB:Phone>+1 (555) 123-4567&lt;/BIB:Phone>&nbsp;
+&nbsp; &lt;/RDF:Description>
+&lt;/RDF:RDF></PRE>
+</BLOCKQUOTE>
+As an example of making a statement about a statement, consider the case
+of wanting to indicate when a particular description was written and who
+wrote the description.
+<CENTER></CENTER>
+
+<CENTER><IMG SRC="assert.gif" ALT="A single property that itself has two properties" HEIGHT=240 WIDTH=480>
+<A HREF="http://www.w3.org/TR/WD-rdf-syntax/assert.html">D</A></CENTER>
+
+<CENTER></CENTER>
+
+<CENTER>Figure 4: Descriptions of Descriptions (Bag omitted)</CENTER>
+
+
+<P>What we want to say in the model is expressed by this pair of graphs;
+that we have an XML encoding of some description, and that there is some
+other XML content that makes further statements about that encoding. If
+we look into the details, the graph is really as shown in Figure 5.
+<CENTER></CENTER>
+
+<CENTER><IMG SRC="assert-detaila.gif" ALT="Fullyexploded graph for the base property statement" HEIGHT=403 WIDTH=480>
+<A HREF="http://www.w3.org/TR/WD-rdf-syntax/assert-detaila.html">D</A></CENTER>
+
+<CENTER></CENTER>
+
+<CENTER>Figure 5a: Details of reification for making Descriptions of Descriptions,
+part 1</CENTER>
+
+
+<P>This model would be expressed as:
+<BLOCKQUOTE>
+<PRE>&lt;?xml:namespace name="http://purl.org/metadata/dublin_core#" as="DC"?>&nbsp;
+&lt;?xml:namespace name="http://www.w3.org/TR/WD-rdf-syntax#" as="RDF"?>
+&lt;?xml:namespace name="http://www.w3.org/Schemas/DS-Schema#" as="DS"?>
+&lt;RDF:RDF>
+&nbsp; &lt;RDF:Description RDF:HREF="http://www.bar.com/some.doc"
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; RDF:BAGID="Statement_001">&nbsp;
+&nbsp;&nbsp;&nbsp; &lt;DC:Creator>John Smith&lt;/DC:Creator>&nbsp;
+&nbsp; &lt;/RDF:Description></PRE>
+
+<PRE>&nbsp; &lt;RDF:Description RDF:HREF="#Statement_001">&nbsp;
+&nbsp;&nbsp;&nbsp; &lt;DS:CreatedOn>1998-02-06T14:00Z&lt;/DS:CreatedOn>
+&nbsp;&nbsp;&nbsp; &lt;DS:CreatedBy>Jane Cooper&lt;/DS:CreatedBy>&nbsp;
+&nbsp; &lt;/RDF:Description>
+&lt;/RDF:RDF></PRE>
+</BLOCKQUOTE>
+Observe that the CreatedOn and CreatedBy properties refer not to "http://www.bar.com/some.doc"
+but rather to the statement "John Smith is the creator of http://www.bar.com/some.doc".
+That statement was, according to this graph, made by Jane Cooper.
+
+<P>Also note that node labels such as "RDF:Property" are shorthand for
+a full URI such as "http://www.w3.org/TR/WD-rdf-syntax#Property".
+
+<P>Figure 5a omits the Bag corresponding to the second Description element;
+that Bag is shown in Figure 5b
+<CENTER></CENTER>
+
+<CENTER><IMG SRC="assert-detailb.gif" ALT="Details of the second Description" >
+<A HREF="http://www.w3.org/TR/WD-rdf-syntax/assert-detailb.html">D</A></CENTER>
+
+<CENTER></CENTER>
+
+<CENTER>Figure 5b: Details of reification for making Descriptions of Descriptions,
+part 2</CENTER>
+
+<H3>
+6.2. Sequence Examples</H3>
+As an example of Sequences, we might look at some of the works written
+by John Smith. Since John is rather prolific, we could use Sequences to
+keep lists of his works sorted by publication date, or according to the
+alphabetical order of the subject of the article:
+<CENTER></CENTER>
+
+<CENTER><IMG SRC="sequence.gif" ALT="Two propertiesgiving different ordered sequences of the same set of values" HEIGHT=305 WIDTH=484>
+<A HREF="http://www.w3.org/TR/WD-rdf-syntax/sequence.html">D</A></CENTER>
+
+<CENTER></CENTER>
+
+<CENTER>Figure 6: Sequences</CENTER>
+
+
+<P>This model could be exchanged as:
+<BLOCKQUOTE>
+<PRE>&lt;?xml:namespace name="http://www.w3.org/TR/WD-rdf-syntax#" as="RDF"?>&nbsp;
+&lt;RDF:RDF>&nbsp;
+&nbsp; &lt;RDF:Seq ID="JSPapersByDate">&nbsp;
+&nbsp;&nbsp;&nbsp; &lt;RDF:LI RDF:HREF="http://www.dogworld.com/Aug96.doc"/>&nbsp;
+&nbsp;&nbsp;&nbsp; &lt;RDF:LI RDF:HREF="http://www.webnuts.net/Jan97.html"/>&nbsp;
+&nbsp;&nbsp;&nbsp; &lt;RDF:LI RDF:HREF="http://www.carchat.com/Sept97.html"/>&nbsp;
+&nbsp; &lt;/RDF:Seq>
+
+&nbsp; &lt;RDF:Seq ID="JSPapersBySubj">&nbsp;
+&nbsp;&nbsp;&nbsp; &lt;RDF:LI RDF:HREF="http://www.carchat.com/Sept97.html"/>&nbsp;
+&nbsp;&nbsp;&nbsp; &lt;RDF:LI RDF:HREF="http://www.dogworld.com/Aug96./doc"/>&nbsp;
+&nbsp;&nbsp;&nbsp; &lt;RDF:LI RDF:HREF="http://www.webnuts.net/Jan97.html"/>&nbsp;
+&nbsp; &lt;/RDF:Seq>&nbsp;
+&lt;/RDF:RDF></PRE>
+</BLOCKQUOTE>
+To further illustrate aggregates, consider an example of a document with
+two authors specified alphabetically, a title specified in two different
+languages, and having two equivalent locations on the Web:
+<UL>
+<PRE>&lt;?xml:namespace name="http://www.w3.org/TR/WD-rdf-syntax#" as="RDF"?>&nbsp;
+&lt;?xml:namespace name="http://purl.org/metadata/dublin_core#" as="DC"?>&nbsp;
+
+&lt;RDF:RDF>&nbsp;
+&nbsp;&nbsp; &lt;RDF:Description RDF:HREF="http://www.foo.com/cool.html">&nbsp;
+
+&nbsp;&nbsp;&nbsp;&nbsp; &lt;DC:Creator>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;RDF:Seq ID="CreatorsAlphabeticalBySurname">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;RDF:LI>Mary Andrew&lt;/RDF:LI>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;RDF:LI>Jacky Crystal&lt;/RDF:LI>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/RDF:Seq>
+&nbsp;&nbsp;&nbsp;&nbsp; &lt;/DC:Creator>
+
+&nbsp;&nbsp;&nbsp;&nbsp; &lt;DC:Identifier>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;RDF:Bag ID="MirroredSites">&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;RDF:LI RDF:HREF="http://www.foo.com.au/cool.html"/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;RDF:LI RDF:HREF="http://www.foo.com.it/cool.html"/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/RDF:bag>
+&nbsp;&nbsp;&nbsp;&nbsp; &lt;/DC:Identifier>
+
+&nbsp;&nbsp;&nbsp;&nbsp; &lt;DC:Title>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;RDF:Alt>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;RDF:LI xml:lang="en">The Coolest Web Page&lt;/RDF:LI>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;RDF:LI xml:lang="it">Il Pagio di Web Fuba&lt;/RDF:LI>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/RDF:Alt>
+&nbsp;&nbsp;&nbsp;&nbsp; &lt;/DC:Title>
+
+&nbsp;&nbsp; &lt;/RDF:Description>&nbsp;
+&lt;/RDF:RDF></PRE>
+</UL>
+
+<H3>
+6.3. Using Binary Relations to Represent Relations of Higher Arity</H3>
+The RDF data model intrinsically only supports binary relations. However,
+in this section we show how we can represent higher arity relations using
+just binary relations. As an example, consider the subject of one of John
+Smith's recent articles - library science. We could use the Dewey Decimal
+Code for library science to categorize that article. Dewey Decimal codes
+are far from the only subject categorization scheme. So we might want to
+define a "Subject" node that not only told us the subject of a paper but
+also indicated the categorization scheme it came from. That might look
+like:
+<CENTER></CENTER>
+
+<CENTER><IMG SRC="dewey.gif" ALT="qualifying values" HEIGHT=176 WIDTH=449>
+<A HREF="http://www.w3.org/TR/WD-rdf-syntax/dewey.html">D</A></CENTER>
+
+<CENTER></CENTER>
+
+<CENTER>Figure 7: A ternary relation (Bag omitted)</CENTER>
+
+
+<P>which could be exchanged as:
+<BLOCKQUOTE>
+<PRE>&lt;?xml:namespace name="http://purl.org/metadata/dublin_core#" as="DC"?>&nbsp;
+&lt;?xml:namespace name="http://www.w3.org/TR/WD-rdf-syntax#" as="RDF"?>&nbsp;
+&lt;?xml:namespace name="http://mycorp.com/schemas/my-schema#"&nbsp; as="LOCAL"?>&nbsp;
+&lt;RDF:RDF>&nbsp;
+&nbsp; &lt;RDF:Description RDF:HREF="http://www.webnuts.net/Jan97.html">&nbsp;
+&nbsp;&nbsp;&nbsp; &lt;DC:Subject>&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;RDF:Description ID="subject_001">&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;LOCAL:Classification>Dewey Decimal Code&lt;/LOCAL:Classification>&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;RDF:Value>020 - Library Science&lt;/RDF:Value>&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/RDF:Description>&nbsp;
+&nbsp;&nbsp;&nbsp; &lt;/DC:Subject>&nbsp;
+&nbsp; &lt;/RDF:Description>&nbsp;
+&lt;/RDF:RDF></PRE>
+</BLOCKQUOTE>
+A common use of this higher-arity capability is when dealing with units
+of measure. A person's weight is not just a number like 94, it also requires
+us to specify the unit of measure used. In this case we might be using
+either pounds or kilograms. We could use a relationship with an additional
+arc to record the fact that John Smith is a rather strapping gentleman:
+<CENTER></CENTER>
+
+<CENTER><IMG SRC="weight.gif" ALT="unit-qualified value" HEIGHT=124 WIDTH=420>
+<A HREF="http://www.w3.org/TR/WD-rdf-syntax/weight.html">D</A></CENTER>
+
+<CENTER></CENTER>
+
+<CENTER>Figure 8: Unit of measure as a ternary relation (Bag omitted)</CENTER>
+
+
+<P>&nbsp;which can be exchanged as:
+<BLOCKQUOTE>
+<PRE>&lt;?xml:namespace name="http://www.nist.gov/RDFschema/" as="NIST"?>&nbsp;
+&lt;?xml:namespace name="http://www.w3.org/TR/WD-rdf-syntax#" as="RDF"?>&nbsp;
+&lt;RDF:RDF>&nbsp;
+&nbsp; &lt;RDF:Description RDF:HREF="John_Smith">&nbsp;
+&nbsp;&nbsp;&nbsp; &lt;NIST:Weight>&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;RDF:Description ID="weight_001">&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;NIST:Units RDF:HREF="http://www.nist.gov/units/pounds"/>&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;RDF:Value>200&lt;/RDF:Value>&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/RDF:Description>&nbsp;
+&nbsp;&nbsp;&nbsp; &lt;/NIST:Weight>&nbsp;
+&nbsp; &lt;/RDF:Description>&nbsp;
+&lt;/RDF:RDF></PRE>
+</BLOCKQUOTE>
+assuming the node "pounds" was defined in a NIST schema with the URI http://www.nist.gov/units/pounds.
+<H3>
+6.4 Abbreviation Examples</H3>
+The expression
+<BLOCKQUOTE>
+<PRE>&lt;?xml:namespace name="http://docs.r.us.com/bibliography-info/" as="BIB"?>&nbsp;
+&lt;?xml:namespace name="http://www.w3.org/TR/WD-rdf-syntax#" as="RDF"?>&nbsp;
+&lt;RDF:RDF>&nbsp;
+&nbsp; &lt;RDF:Description RDF:HREF="http://www.bar.com/some.doc">&nbsp;
+&nbsp;&nbsp;&nbsp; &lt;BIB:Author>John Smith&lt;/BIB:Author>&nbsp;
+&nbsp; &lt;/RDF:Description>&nbsp;
+&lt;/RDF:RDF></PRE>
+</BLOCKQUOTE>
+may be abbreviated as
+<BLOCKQUOTE>
+<PRE>&lt;?xml:namespace name="http://docs.r.us.com/bibliography-info/" as="BIB"?>&nbsp;
+&lt;?xml:namespace name="http://www.w3.org/TR/WD-rdf-syntax#" as="RDF"?>&nbsp;
+&lt;RDF:RDF>&nbsp;
+&nbsp; &lt;RDF:Description RDF:HREF="http://www.bar.com/some.doc"&nbsp;
+&nbsp;&nbsp;&nbsp; BIB:Author="John Smith"
+&nbsp;&nbsp; />
+&lt;/RDF:RDF></PRE>
+</BLOCKQUOTE>
+This abbreviation is especially useful when embedding RDF in HTML documents;
+the text "John Smith" in the unabbreviated form will be rendered by conforming
+HTML 4.0 and earlier formatters while nothing would be rendered in the
+abbreviated form.
+
+<P>The expression
+<UL>
+<PRE>&lt;?xml:namespace name="http://docs.r.us.com/bibliography-info/" as="BIB"?>&nbsp;
+&lt;?xml:namespace name="http://www.w3.org/TR/WD-rdf-syntax#" as="RDF"?>&nbsp;
+&lt;RDF:RDF>&nbsp;
+&nbsp; &lt;RDF:Description RDF:HREF="http://www.bar.com/some.doc">&nbsp;
+&nbsp;&nbsp;&nbsp; &lt;BIB:Author>&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;RDF:Description>&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;BIB:Name>John Smith&lt;/BIB:Name>&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;BIB:Email>john@smith.com&lt;/BIB:Email>&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;BIB:Phone>+1 (555) 123-4567&lt;/BIB:Phone>&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/RDF:Description>&nbsp;
+&nbsp;&nbsp;&nbsp; &lt;/BIB:Author>&nbsp;
+&nbsp; &lt;/RDF:Description>&nbsp;
+&lt;/RDF:RDF></PRE>
+</UL>
+may be abbreviated as
+<UL>
+<PRE>&lt;?xml:namespace name="http://docs.r.us.com/bibliography-info/" as="BIB"?>&nbsp;
+&lt;?xml:namespace name="http://www.w3.org/TR/WD-rdf-syntax#" as="RDF"?>&nbsp;
+&lt;RDF:RDF>&nbsp;
+&nbsp; &lt;RDF:Description RDF:HREF="http://www.bar.com/some.doc">&nbsp;
+&nbsp;&nbsp;&nbsp; &lt;BIB:Author
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; BIB:Name="John Smith"
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; BIB:Email="john@smith.com"&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; BIB:Phone="+1 (555) 123-4567"
+&nbsp;&nbsp;&nbsp;&nbsp; />&nbsp;
+&nbsp; &lt;/RDF:Description>&nbsp;
+&lt;/RDF:RDF></PRE>
+</UL>
+The expression
+<UL>
+<PRE>&lt;?xml:namespace name="http://purl.org/metadata/dublin_core#" as="DC"?>&nbsp;
+&lt;?xml:namespace name="http://www.w3.org/TR/WD-rdf-syntax#" as="RDF"?>&nbsp;
+&lt;?xml:namespace name="http://mycorp.com/schemas/my-schema#"&nbsp; as="LOCAL"?>&nbsp;
+&lt;RDF:RDF>&nbsp;
+&nbsp; &lt;RDF:Description RDF:HREF="http://www.webnuts.net/Jan97.html">&nbsp;
+&nbsp;&nbsp;&nbsp; &lt;DC:Subject>&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;RDF:Description ID="subject_001">&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;LOCAL:Classification>Dewey Decimal Code&lt;/LOCAL:Classification>&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;RDF:Value>020 - Library Science&lt;/RDF:Value>&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/RDF:Description>&nbsp;
+&nbsp;&nbsp;&nbsp; &lt;/DC:Subject>&nbsp;
+&nbsp; &lt;/RDF:Description>&nbsp;
+&lt;/RDF:RDF></PRE>
+</UL>
+may be abbreviated as
+<UL>
+<PRE>&lt;?xml:namespace name="http://purl.org/metadata/dublin_core#" as="DC"?>&nbsp;
+&lt;?xml:namespace name="http://www.w3.org/TR/WD-rdf-syntax#" as="RDF"?>&nbsp;
+&lt;?xml:namespace name="http://mycorp.com/schemas/my-schema#"&nbsp; as="LOCAL"?>&nbsp;
+&lt;RDF:RDF>&nbsp;
+&nbsp; &lt;RDF:Description RDF:HREF="http://www.webnuts.net/Jan97.html">&nbsp;
+&nbsp;&nbsp;&nbsp; &lt;DC:Subject ID="subject_001"
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; LOCAL:Classification="Dewey Decimal Code"
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; RDF:Value="020 - Library Science"
+&nbsp;&nbsp;&nbsp;&nbsp; />&nbsp;
+&nbsp; &lt;/RDF:Description>&nbsp;
+&lt;/RDF:RDF></PRE>
+</UL>
+The expression
+<UL>
+<PRE>&lt;?xml:namespace name="http://www.w3.org/TR/WD-rdf-syntax#" as="RDF"?>&nbsp;
+&lt;?xml:namespace name="http://mycorp.com/my-schema#" as="LOCAL"?>&nbsp;
+&lt;RDF:RDF>&nbsp;
+&nbsp; &lt;RDF:Description RDF:HREF="http://www.webnuts.net/">&nbsp;
+&nbsp;&nbsp;&nbsp; &lt;LOCAL:Abstract>&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;RDF:Description>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;RDF:InstanceOf href="http://mycorp.com/my-schema#Sitemap"/>&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;LOCAL:Title>Map of our Site&lt;/LOCAL:Title>&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;LOCAL:ValidUntil>1999-02-01T00:00Z&lt;/LOCAL:ValidUntil>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/RDF:Description>&nbsp;
+&nbsp;&nbsp;&nbsp; &lt;/LOCAL:Abstract>&nbsp;
+&nbsp; &lt;/RDF:Description>&nbsp;
+&lt;/RDF:RDF></PRE>
+</UL>
+may be abbreviated as
+<UL>
+<PRE>&lt;?xml:namespace name="http://www.w3.org/TR/WD-rdf-syntax#" as="RDF"?>&nbsp;
+&lt;?xml:namespace name="http://mycorp.com/my-schema#" as="LOCAL"?>&nbsp;
+&lt;RDF:RDF>&nbsp;
+&nbsp; &lt;RDF:Description RDF:HREF="http://www.webnuts.net/">&nbsp;
+&nbsp;&nbsp;&nbsp; &lt;LOCAL:Abstract>&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;LOCAL:Sitemap
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; LOCAL:Title="Map of our Site"
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; LOCAL:ValidUntil="1999-02-01T00:00Z"
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; />&nbsp;
+&nbsp;&nbsp;&nbsp; &lt;/LOCAL:Abstract>
+&nbsp; &lt;/RDF:Description>&nbsp;
+&lt;/RDF:RDF></PRE>
+</UL>
+
+<H2>
+<A NAME="acknowledgements"></A>7. Acknowledgements</H2>
+This specification is the work of the W3C RDF Model and Syntax Working
+Group. This Working Group has been most ably chaired by Eric Miller of
+the Online Computer Library Center and Bob Schloss of IBM. We thank Eric
+and Bob for their tireless efforts in keeping the group on track and we
+especially thank OCLC and IBM for supporting them and us in this endeavor.
+
+<P>The members of the Working Group who helped design this specfication,
+debate proposals, provide words, proofread numerous drafts and ultimately
+reach consensus are: Renato Iannella (DSTC), Tsuyoshi SAKATA (DVL), Murray
+Maloney (Grif), Bob Schloss (IBM), Naohiko URAMOTO (IBM), Bill Roberts
+(KnowledgeCite), Ron Daniel (LANL), Arthur van Hoff (Marimba), Andrew Layman
+(Microsoft), Chris McConnell (Microsoft), Jean Paoli (Microsoft), R.V.
+Guha (Netscape), Ora Lassila (Nokia), Ralph LeVan (OCLC), Eric Miller (OCLC),
+Charles Wicksteed (Reuters), Misha Wolf (Reuters), Wei Song (SISU), Lauren
+Wood (SoftQuad), Tim Bray (Textuality), Paul Resnick (University of Michigan),
+Tim Berners-Lee (W3C), Dan Connolly (W3C), Jim Miller (W3C), Ralph Swick
+(W3C).
+
+<P>This document is the collective work of all of the above. The editors
+are indebted to each of them for helping to create this document.
+<H2>
+<A NAME="namespaces"></A>Appendix A: Brief Explanation of XML Namespaces</H2>
+This material is non-normative, but believed necessary for an understanding
+of the RDF serialization syntax. It will be replaced by references to the
+appropriate sections of [<A HREF="http://www.w3.org/TR/REC-xml">XML</A>]
+once they have been published. The material here is our best understanding
+of the <A HREF="http://www.w3.org/TR/1998/NOTE-xml-names-0119">namespace
+proposal</A>, but may differ from what the final outcome will be.
+
+<P>The XML Working Group is currently developing a facility that will allow
+(at least) Generic Identifiers (tag names) to have a prefix which will
+make them unique and will prevent name clashes when developing documents
+that mix elements from different schemas. This facility allows a document's
+prolog to contain a set of Processing Instructions (PIs) of the form:
+<UL>
+<PRE>&lt;?xml:namespace name="some-uri" as="some-abbreviation"?></PRE>
+</UL>
+for example
+<UL>
+<PRE>&lt;?xml:namespace name="http://www.w3.org/TR/WD-rdf-syntax#" as="RDF"?>
+&lt;?xml:namespace name="http://www.purl.org/metadata/dublin_core#" as="DC"?></PRE>
+</UL>
+Elements in the document may then use generic identifiers of the form &lt;RDF:Description>
+or &lt;DC:Title>. Those element names would expand to URIs such as http://www.w3.org/TR/WD-rdf-syntax#Description.
+<H2>
+<A NAME="usage"></A>Appendix B: Notes about Usage</H2>
+
+<H3>
+B.1. Property Names</H3>
+The RDF serialization and abbreviated syntaxes use XML as their encoding.
+XML elements and attributes are case sensitive, so RDF property names are
+therefore also case sensitive. This specification does not require any
+specific format for property names other than that they be legal XML <I><A HREF="http://www.w3.org/TR/REC-xml#dt-name">names</A></I>.
+For its own identifiers, RDF has adopted the convention that all property
+names use "InterCap style"; that is, the first letter of the property name
+is capitalized and the remainder is lowercase; e.g. <I>Value</I>. When
+the property name is a composition of words or fragments of words, the
+words are concatenated with the first letter of each word capitalized and
+no additional punctutation; e.g. <I>PropName</I>.
+<H3>
+B.2. Namespace URIs</H3>
+RDF uses the proposed XML namespace mechanism to implement globally unique
+identifiers for all properties. In addition, the namespace URI serves as
+the URI of the corresponding RDF schema. An RDF processor can expect to
+use the schema URI to access the schema content. This specification places
+no further requirements on the content that might be supplied at that URI,
+nor how (if at all) the URI might be modified to obtain alternate forms
+or a fragment of the schema.
+<H3>
+<A NAME="embedHTML"></A>B.3. Embedding in HTML</H3>
+The recommended technique for embedding RDF expressions in an HTML document
+is simply to insert the RDF in-line. This will make the resulting document
+non-conformant to HTML specifications up to and including HTML 4.0 but
+the RDF Working Group hopes that the HTML specification will evolve to
+support this. Two practical issues will arise when this technique is employed
+with respect to browsers conforming to specifications of HTML up to and
+including HTML 4.0. Alternatives are available to authors in these cases;
+it is up to the author to choose the appropriate alternative in each circumstance.
+<OL>
+<LI>
+Some HTML 2.0 browsers will assume a &lt;/HEAD> tag immediately before
+the first RDF element that appears within &lt;HEAD>.</LI>
+
+
+<P>Authors concerned about very old browsers may place all RDF expressions
+at the end of the document head.
+<LI>
+All HTML browsers conforming to specifications up to and including HTML
+4.0 will render any content appearing in RDF property values expressed
+as XML element types (i.e. production [17]).</LI>
+
+
+<P>Authors concerned about preventing their RDF content from rendering
+in old browsers may use the abbreviated syntax to move the property value
+into an attribute. Not all properties can be expressed this way.</OL>
+In the event that none of the alternatives above provides the capabilities
+desired by the author, the RDF expressions may be left external to the
+HTML document and linked with an HTML &lt;LINK> element. The recommended
+relation type for this purpose is REL="meta"; e.g.
+<UL>
+<PRE>&lt;link rel="meta" href="mydocMetadata"></PRE>
+</UL>
+
+<H3>
+<A NAME="viaHTTP"></A>B.4 Transporting in HTTP Headers</H3>
+We specify a simple extension to HTTP that allows a client to request that
+RDF metadata be included in a header along with the document. We deal here
+only with the HTTP protocol; we hope that other protocols will be similarly
+extended.
+
+<P>[[<I>This section to be completed.</I>]]
+<H3>
+<A NAME="serviceBureau"></A>B.5 Requesting Metadata via HTTP</H3>
+RDF metadata can also be retrieved separately from the resource(s) to which
+it refers. To request metadata in this way, a client contacts a metadata
+service bureau. A service bureau is an HTTP server that understands a particular
+query syntax. It can provide metadata for documents that reside on other
+servers as well as for documents available through protocols other than
+HTTP.
+
+<P>[[<I>This section to be completed.</I>]]
+<H2>
+<A NAME="openIssues"></A>Appendix C: Open Issues</H2>
+
+<H3>
+C.1. Resource Scope</H3>
+Should RDF introduce a way for an HREF to refer to a collection of resources
+which cannot be enumerated in any simple way (for example, by providing
+a URI "prefix" and indicating that the target is the collection of URIs
+with that prefix). The mechanism could also provide ways of restricting
+the set of URIs selected (e.g., only certain media types would qualify).
+<H3>
+C.2. Mandatory Extensions</H3>
+In PICS, there is a need for specifying that if a processing agent does
+not understand the semantics of a certain property the entire "label" should
+be discarded. The question for the RDF specification is whether it is sufficient
+to say that this is a problem which needs to be addressed by those designing
+a PICS schema for RDF, or whether a mechanism like this should be part
+of the core RDF.
+<H3>
+C.6. Canonicalization of Models</H3>
+Section 2 makes reference to testing the equivalence of RDF expressions.
+We need a definition of a canonical form for an instance of an RDF data
+model to permit comparison of two such instances. This canonical form will
+likely be produced by eliminating triples that represent reified properties
+but that are not used elsewhere in the model.
+<H3>
+C.7. Support for schemes (ala Dublin Core)</H3>
+This issue is deferred pending input from Dublin Core community and further
+experience with the use of namespaces
+
+<P><I>Scheme</I> is a term used in the Dublin Core community to denote
+the specific controlled vocabulary from which a Value has been chosen.
+Examples of vocabularies covered by schemes include units of measure, library
+subject heading codes, and Dewey Decimal numbers. This same facility might
+also be used to denote a particular encoding format; e.g. date in ISO 8601
+form, or name in "family, given" form. We recognize that this mechanism
+will be common to many RDF applications and it seems appropriate to indicate
+a recommended practice in the core specification.
+<H3>
+C.10. Interactions between XML Markup Declarations and RDF</H3>
+We have noticed in the description discussion that there are features of
+XML -- such as XLL (XML-link) -- that may have unanticipated side- effects
+on the intended RDF semantics. In particular, markup declarations in the
+document prolog may cause the XML parser to alter the interpretation of
+an RDF element. We need to evaluate the impact of such processing, especially
+in the context of digitally signed RDF descriptions.
+<H3>
+C.20. Namespace defaulting</H3>
+This issue is deferred pending a decision on XML namespaces by the XML
+Working Group
+
+<P>Should RDF specify the method for determining a namespace when a namespace
+qualifier is omitted?
+<H3>
+C.21. Distributive referents</H3>
+A concise mechanism is desired to state properties that apply to each element
+of a collection rather than to the collection as a whole.
+<H3>
+C.22. How to compute the property type URI</H3>
+This issue is deferred pending a decision on XML namespaces by the XML
+Working Group
+
+<P>The XML namespace proposal does not specify how the namespace URI is
+to be combined with a qualified element name to produce a URI for the element
+description. RDF would like to be able to compute a URI to access the RDF
+Schema definition of a particular property type.
+
+<P>&nbsp;
+<H3>
+C.23. Language tagging of substrings</H3>
+This issue will be deferred until after the 1.0 specification.
+
+<P>A property value may need to be a string tagged in multiple languages;
+how do we accomplish this?
+<H3>
+C.24. Requesting Metadata via HTTP</H3>
+We need to specify how a client can request RDF metadata separately from
+the resource to which the metadata refers. This protocol is necessary to
+enable metadata service bureaus.
+<H3>
+C.25. Transporting in HTTP Headers</H3>
+We need to specify how RDF metadata will be transported in an HTTP header
+so that a client can request metadata along with the resource when it is
+infeasible or inappropriate to embed the metadata inside the resource.
+<H2>
+<A NAME="references"></A>Appendix D: References</H2>
+
+<DL>
+<DT>
+[ISO10646]</DT>
+
+<DD>
+ISO/IEC 10646. The applicable version of this standard is defined in the
+XML specification [<A HREF="http://www.w3.org/TR/REC-xml">XML</A>].</DD>
+
+<DT>
+[NAMESPACES]</DT>
+
+<DD>
+Proposal for Namespaces in XML; <A HREF="http://www.w3.org/TR/1998/NOTE-xml-names-0119">http://www.w3.org/TR/1998/NOTE-xml-names-0119</A>.</DD>
+
+<DT>
+[Unicode]</DT>
+
+<DD>
+The Unicode Standard. The applicable version of this standard is defined
+in the XML specification [<A HREF="http://www.w3.org/TR/REC-xml">XML</A>].</DD>
+
+<DT>
+[XML]</DT>
+
+<DD>
+Extensible Markup Language (XML); defined in <A HREF="http://www.w3.org/TR/REC-xml">http://www.w3.org/TR/REC-xml</A>.</DD>
+</DL>
+
+<HR WIDTH="100%">
+<ADDRESS>
+<FONT SIZE=-1>Ora Lassila &lt;<A HREF="mailto:ora.lassila@research.nokia.com">ora.lassila@research.nokia.com</A>></FONT></ADDRESS>
+
+<BR><FONT SIZE=-1>Ralph R. Swick &lt;<A HREF="mailto:swick@w3.org">swick@w3.org</A>></FONT>
+
+<P><FONT SIZE=-1>Revision History:</FONT>
+<BR><FONT SIZE=-1>16-February-1998: Editorial cleanup, prep for second
+public distribution</FONT>
+<BR><FONT SIZE=-1>6-February-1998: Editorial cleanup, add and revise some
+examples</FONT>
+<BR><FONT SIZE=-1>11-January-1998: Renaming and collapsing of several elements</FONT>
+<BR><FONT SIZE=-1>14-November-1997: Further refinement, especially regarding
+assertions</FONT>
+<BR><FONT SIZE=-1>3-November-1997: Edits in preparation for second public
+distribution</FONT>
+<BR><FONT SIZE=-1>2-October-1997: First public draft</FONT>
+<BR><FONT SIZE=-1>1-October-1997: Edits in preparation for first public
+distribution</FONT>
+<BR><FONT SIZE=-1>1-August-1997: First draft to Working Group</FONT>
+
+<P><!-- hhmts start --><FONT SIZE=-1>Last updated: 1998-02-19T02:49:22Z&nbsp;</FONT><!-- hhmts end -->
+<BR><FONT SIZE=-1>Last saved: $Date: 1998/02/19 02:50:18 $</FONT>
+</BODY>
+</HTML>

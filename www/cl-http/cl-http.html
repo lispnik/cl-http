@@ -1,0 +1,482 @@
+<! -*- Mode: Text -*- --> 
+<html>
+<head>
+<title>Welcome to CL-HTTP</title>
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000"> <h1>
+
+<a href="http://www.ai.mit.edu/projects/iiip/doc/cl-http/home-page.html"><img
+src="/cl-http/icons/power.gif" height=59 width=134 align="left"
+alt="CL-HTTP"></a> <a
+href="/projects/iiip/doc/cl-http/server-abstract.html">Welcome to The Common
+Lisp Hypermedia Server</a></h1> 
+
+<font size=3><i>
+<ol>
+<multicol cols=2>
+<li><a href="/cl-http/cl-http.html#configuration">Quick Start</a>
+<li><a href="#features">Server Features</a>
+<li><a href="#documentation">Documentation</a>
+<li><a href="#acquisition">Current Release</a>
+<li><a href="#discussion">Discussion Group</a>
+<li><a href="#bugs">Bug Reports</a>
+<li><a href="#credits">Acknowledgments</a>
+</multicol>
+</ol>
+</i></font>
+
+<p><img src="/cl-http/icons/line-rain.gif"></p>
+
+<h2><a
+href="http://www.parc.xerox.com/spl/projects/mops/"><img
+src="/cl-http/icons/mop-inside.gif" width=77 height=68 align="left"
+alt="Meta-Object Protocol"></a><a name="features">Major Features</a></h2>
+
+Some important things about this server:
+
+<br clear="left">
+
+<blockquote>
+<dl>
+<multicol cols=2>
+<dt><img src="/cl-http/icons/check-yes.gif"> <b><a
+href="/cl-http/response-functions.html">Computed
+URLs written in Lisp</a> supersede conventional CGI scripts.</b>
+<dt><img src="/cl-http/icons/check-yes.gif"> <b>HTML Synthesis for HTML 3.2 &amp; Netscape 4.0 with generation tools.</b>
+<dt><img src="/cl-http/icons/check-yes.gif"> <b>Presentation-based Interfaces with <a href="/cl-http/w3p/w3p.html">W3P</a>.</b>
+<dt><img src="/cl-http/icons/check-yes.gif"> <b>Site Indexing &amp; Information Retrieval 
+with <a href="/cl-http/lir/lir.html">LambdaVista</a></b>
+<dt><img src="/cl-http/icons/check-yes.gif"> <b>Implements GET, HEAD, POST, PUT, DELETE, OPTIONS, TRACE methods.</b>
+<dt><img src="/cl-http/icons/check-yes.gif"> <b>HTTP 1.1 compliant server, programmatic client, Web walker, &amp; Proxy.</b>
+<dt><img src="/cl-http/icons/check-yes.gif"> <b>Persistent Connections for the server &amp; the basic client.</b>
+<dt><img src="/cl-http/icons/check-yes.gif"> <b>Access Control via subnets, passwords (Basic &amp; Digest Authentication).</b>
+<dt><img src="/cl-http/icons/check-yes.gif"> <b>Mobile code emission for client-side JavaScript, Java, or plug-ins.</b>
+<dt><img src="/cl-http/icons/check-yes.gif"> <b>VRML 1.0 Synthesis tools.</b>
+<dt><img src="/cl-http/icons/check-yes.gif"> <a href="/cl-http/features.html#hyperarchive"><b>Email HyperArchive.</b></a>
+<dt><img src="/cl-http/icons/check-yes.gif"> <b>Modular &amp; extensible logging.</b>
+<dt><img src="/cl-http/icons/check-yes.gif"> <b><a href="/cl-http/features.html">Full featured</a>.</b>
+<dt><img src="/cl-http/icons/check-yes.gif"> <b>Web-based configuration of the server &amp; user access control.</b>
+<dt><img src="/cl-http/icons/check-yes.gif"> <b>Multi-threaded and dynamically linked.</b>
+<dt><img src="/cl-http/icons/check-yes.gif"> <b>Multiple Virtual Hosts on the same IP address.</b>
+<dt><img src="/cl-http/icons/check-yes.gif"> <b>Extensible, modular, <a href="/cl-http/server-structure/class-structure.html">object-oriented architecture</a> based on CLOS meta-object protocol.</b>
+<dt><img src="/cl-http/icons/check-yes.gif"> <b>Source compatible over major hardware, operating-system and Lisp platforms.</b>
+<dt><img src="/cl-http/icons/check-yes.gif"> <b>Advanced condition handling architecture.</b>
+<dt><img src="/cl-http/icons/check-yes.gif"> <b>Self-documenting.</b>
+<dt><img src="/cl-http/icons/check-yes.gif"> <b> <a
+href="/cl-http/sources/examples/exports.lisp">Working examples</a> to get you started.</b>
+<dt><img src="/cl-http/icons/check-yes.gif"> <b>Toolkit of Web abstractions.</b>
+<dt><img src="/cl-http/icons/check-yes.gif"> <b>Clean abstractions facilitate security audits.</b>
+<dt><img src="/cl-http/icons/check-yes.gif"> <b>Rapid prototyping for research, product or protocol development.</b>
+<dt><img src="/cl-http/icons/check-yes.gif"> <b>Used in top research laboratories around the world.</b>
+<dt><img src="/cl-http/icons/check-yes.gif"> <b>Disconnected operation on Apple PowerBooks.</b>
+<dt><img src="/cl-http/icons/check-yes.gif"> <b>Proven in major production systems.</b>
+<dt><img src="/cl-http/icons/check-yes.gif"> <b>Complete source code.</b>
+<dt><img src="/cl-http/icons/check-yes.gif"> <b>Free.</b>
+</multicol>
+</dl>
+</blockquote>
+<hr>
+<p>This is the <a href="/projects/iiip/doc/cl-http/server-abstract.html"> Common
+Lisp Hypermedia Server</a> for the <a href="http://www.w3.org/">World Wide
+Web</a> developed by <a
+href="http://www.ai.mit.edu/people/jcma/jcma.html">John C. Mallery</a> (<a
+href="mailto:jcma@ai.mit.edu">jcma@ai.mit.edu</a>) of the <a
+href="http://web.mit.edu/">M.I.T.</a> <a
+href="http://www.ai.mit.edu/">Artificial Intelligence Laboratory</a>.</p>
+<hr>
+<dl>
+<multicol cols=2>
+<p><dt><img src="/cl-http/icons/construction3.gif" align=left> <b><a
+href="http://www.ai.mit.edu/projects/iiip/doc/cl-http/home-page.html">Obtaining
+The Current Version</a>:</b> The <a
+href="http://www.ai.mit.edu/projects/iiip/doc/cl-http/home-page.html">CL-HTTP
+Home Page</a> centralizes information about this Web server and related Common
+Lisp WWW tools. If you obtained this distribution from somewhere other than <a
+href="ftp://ftp.ai.mit.edu/pub/users/jcma/cl-http/">
+ftp://ftp.ai.mit.edu/pub/users/jcma/cl-http/</a>, you should FTP the latest
+version for best results. </p>
+
+<p><dt><img src="/cl-http/icons/blueball.gif"> <b><a
+href="/cl-http/platforms.html" name="platforms">Common Lisp Platforms</a>:</b>
+The server has been ported to a number of Common Lisp implementations running
+on a variety of computer hardware.
+
+<p><ul>
+
+<li> <a href="/cl-http/platforms.html#mcl">Macintosh Common Lisp</a>
+
+<li> <a href="/cl-http/platforms.html#acl">Allegro Common Lisp for UNIX or Windows</a>
+
+<li> <a href="/cl-http/platforms.html#lw">LispWorks Common Lisp for UNIX or Windows</a>
+
+<li> <a href="/cl-http/platforms.html#lispm">Symbolics Lisp Machines</a>
+
+<li> <a href="/cl-http/platforms.html#lcl">Lucid Common Lisp for UNIX</a>
+
+<li> <a href="/cl-http/platforms.html#cmucl">CMU Common Lisp for UNIX</a>
+
+</ul> </p></p>
+
+
+<p><dt><img src="/cl-http/icons/blueball.gif"> <b>Browsing the Documentation:</b>
+Watch out for URLs on the local host that compute their output in some interesting
+way.When operating in standalone mode or over a network not connected to the internet,
+you can still follow all the documentation and source code that comes with the server.
+In both cases, you may wish to set your browser so that you can see the URL under the
+mouse, and especially, the host that serves it.
+
+<p><dt><img src="/cl-http/icons/blueball.gif"> <b>Questions:</b> If you have any
+questions, send mail to <a href="mailto:www-cl@ai.mit.edu">WWW-CL@AI.MIT.EDU</a>.
+
+</multicol>
+</dl>
+
+<p><img src="/cl-http/icons/line-rain.gif"></p>
+
+<h2><a name="documentation"><img src="/cl-http/icons/button-info.gif" align=middle> CL-HTTP
+Documentation</a></h2>
+
+<p> The <a href="/projects/iiip/doc/cl-http/server-abstract.html">Common
+Lisp Hypermedia Server</a> (CL-HTTP) is here for you to rapidly
+prototype and smoothly evolve novel or complex applications for the <a
+href="/cl-http/reference.html#www">World Wide Web</a>.  After reading
+the <a href="/projects/iiip/doc/cl-http/server-abstract.html"> WWW-94
+conference paper</a> , the first documentation items below should be
+enough to get you up and running.</p>
+
+<hr>
+
+<dl>
+<multicol cols=2>
+<p><dt><img src="/cl-http/icons/pinkball.gif"> <b><a name="configuration">Configuration Instructions</b>
+explain how to start up World Wide Web service on specific Lisp platforms.
+
+<p><ul>
+
+<li><a href="/cl-http/configure.html">Macintosh Common Lisp</a></b>
+
+<li><a href="/cl-http/configure-acl.html">Allegro Common Lisp (ACL) for UNIX or Windows</a></b>
+
+<li><a href="/cl-http/configure-acl501.html">Allegro Common Lisp 5.0.1 (ACL 5.0.1) for UNIX or Windows</a></b>
+
+<li><a href="/cl-http/configure-lw.html">LispWorks Common Lisp (LW) for UNIX or Windows</a></b>
+
+<li><a href="/cl-http/configure-lcl.html">Lucid Common Lisp (LCL) for UNIX</a></b>
+
+<li><a href="/cl-http/sources/cmucl/read-me.text">CMU Common Lisp (CMU CL) for UNIX</a></b>
+
+</ul></p>
+
+<a href="/cl-http/maintenance/configure-server.html">Web-based server
+configuration</a> is available after loading and starting the server
+successfully.
+
+</p>
+
+<p><dt><img src="/cl-http/icons/pinkball.gif"> <b><a name="platform-release-notes">Release Notes</a></b>
+describe new features and issues for specific platforms
+
+<p>
+<ul>
+
+<li> <a href="/cl-http/release-notes.html">Macintosh Common Lisp</a>.
+
+<li> <a href="/cl-http/sources/acl/-read-me-.text">Allegro Common Lisp (ACL) for UNIX or Windows</a></b>
+
+<li> <a href="/cl-http/sources/acl501/-read-me-.text">Allegro Common Lisp 5.0.1 (ACL 5.0.1) for UNIX or Windows</a></b>
+
+<li> <a href="/cl-http/sources/lw/-read-me-.text">LispWorks Common Lisp (LW) for UNIX or Windows</a></b>
+
+<li> <a href="/cl-http/sources/lcl/-read-me-.text">Lucid Common Lisp (LCL) for UNIX</a></b>
+
+<li> <a href="/cl-http/sources/cmucl/read-me.text">CMU Common Lisp (CMU CL) for UNIX</a></b>
+
+</ul></p></p>
+
+<p><dt><img src="/cl-http/icons/pinkball.gif"> <b><a href="/cl-http/features.html">Server
+Features</a></b> illustrates various things you can do with CL-HTTP using <a
+href="/cl-http/sources/examples/exports.lisp">live examples</a> which you can copy and edit for
+your own applications. You can brighten up your pages with some <a
+href="/cl-http/icons/index.html">basic icons</a>.</p>
+
+<p><dt><img src="/cl-http/icons/pinkball.gif"> <b><a
+href="/cl-http/find-documentation.html">Documentation</a></b> for <a
+href="/cl-http/show-documentation?HTTP:EXPORT-URL">exporting documents</a> and
+for using <a href="/cl-http/image-maps/image-maps.html">image maps</a>.
+
+<p><dt><img src="/cl-http/icons/pinkball.gif"> <b><a
+href="/cl-http/response-functions.html">Computing Responses</a></b> explains
+the how to write response functions and accept user input with <a
+href="/cl-http/show-documentation?HTML:ACCEPT-INPUT">fill-out forms</a>.
+
+<p><dt><img src="/cl-http/icons/pinkball.gif"> <b><a
+href="/cl-http/w3p/w3p.html">W3P Presentation System</a></b> explains
+how to use presentation types with HTML forms.
+
+<p><dt><img src="/cl-http/icons/pinkball.gif"> <b><a
+href="/cl-http/authentication/authentication.html">Authentication</a></b> explains the how to control access to
+resources with user names and passwords as well as secure subnets.
+
+<p><dt><img src="/cl-http/icons/pinkball.gif"> <b><a href="/cl-http/proxy/proxy.html">Proxy Service</a></b>
+explains how to configure the server for HTTP proxy service.
+
+<p><dt><img src="/cl-http/icons/pinkball.gif"> <b><a href="/cl-http/vrml/vrml.html">VRML Generation</a></b>
+explains the how to generate 3D scenes under program control with the <a href="http://www.vag.org/">Virtual Reality
+Modeling Language</a>. 
+
+<p><dt><img src="/cl-http/icons/pinkball.gif"> <b><a href="/cl-http/sources/html-parser/html-parser.html"> HTML Parser</a></b>
+explains how to parse HTML using tools distributed with CL-HTTP.
+
+<p><dt><img src="/cl-http/icons/pinkball.gif"> <b><a
+href="/cl-http/lir/lir.html">Site Indexing &amp; Information Retrieval</a></b>
+explains the how to use LambdaVista -- a hybrid classification and retrieval
+system that indexes your Web site, including email HyperArchives, and supports
+full-text retrieval.
+
+</ul></p>
+</multicol>
+</dl>
+<hr>
+
+<dl>
+
+<p><dt><img src="/cl-http/icons/light-blueball.gif"> <b><a
+href="/cl-http/find-documentation.html">Documentation</a> for major
+modules</b>. CL-HTTP provides a <a
+href="/cl-http/find-documentation.html">powerful self-documentation tools</a>
+describing practically every class, method, function, macro, and variable in
+the systems.
+
+<ol>
+
+<li><a href="/cl-http/find-documentation?HTML3.2:">HTML 3.2 Synthesis
+Tools</a> are used to generate HTML for dynamic or static uses.
+
+<li><a href="/cl-http/find-documentation?NS4.0:">Netscape 4.0 HTML
+Synthesis Tools</a> are available for extensions to HTML and mobile code
+emission.
+
+<li><a href="/cl-http/find-documentation?HTTP:">HTTP Operators and Variables</a> govern the
+operation of the server.
+
+<li><a href="/cl-http/find-documentation?URL:">URL Operators and Variables</a> control parsing
+and representation of uniform resource locators.
+
+<li><a href="/cl-http/find-documentation?VRML1.0:">VRML 1.0 Synthesis
+Tools</a> generate 3D VRML scenes.
+
+<li><a href="/cl-http/find-documentation?w3p:">W3P Presentation
+Operators</a> present data and accept input from users.
+
+<li><a href="/cl-http/find-documentation?WWW-UTILS:">Utilities</a> support the other modules.
+
+</ol></p>
+
+<p><dt><img src="/cl-http/icons/light-blueball.gif"><b><a
+href="/cl-http/reference.html#common-lisp" name="sources">Common Lisp</a> Source Code</b><dd>
+In the table below, each logical pathname is hyperlinked to the directory for
+each component.
+
+<p>
+<center>
+<dt>
+<table border bgcolor="#B4CCF6">
+
+<tr bgcolor="#8EA6D0"><th>Portable</th><th>Location</th></tr>
+
+<tr><td align="center">Examples</td><td><a href="/cl-http/sources/examples/">http:examples;</a></td></tr>
+<tr><td align="center">Server</td><td><a href="/cl-http/sources/common-lisp/">http:server;</a></td></tr>
+<tr><td align="center">W3P Presentation System</td><td><a href="/cl-http/sources/w3p/">http:w3p;</a></td></tr>
+<tr><td align="center">Proxy Service</td><td><a href="/cl-http/sources/proxy/">http:proxy;</a></td></tr>
+<tr><td align="center">Basic Client</td><td><a href="/cl-http/sources/client/">http:client;</a></td></tr>
+<tr><td align="center">LambdaVista Search Tool</td><td><a href="/cl-http/sources/lambda-ir/">http:lambda-ir;</a></td></tr>
+<tr><td align="center">W4 Web Walker</td><td><a href="/cl-http/sources/w4/">http:w4;</a></td></tr>
+<tr><td align="center">HTML Parser</td><td><a href="/cl-http/sources/html-parser/">http:html-parser;</a></td></tr>
+<tr><td align="center">Email HyperArchive</td><td><a href="/cl-http/sources/examples/mail-archive.lisp">http:examples;mail-archive.lisp</a></td></tr>
+<tr><td align="center">CLIM Interfaces</td><td><a href="/cl-http/sources/clim/">http:clim;</a></td></tr>
+<tr><td align="center">SMTP Mail </td><td><a href="/cl-http/sources/smtp/">http:smtp;</a></td></tr>
+
+<tr bgcolor="#8EA6D0"><th>Platform-Specific</th><th>Location</th></tr>
+
+
+<tr><td align="center">Allegro</td><td><a href="/cl-http/sources/acl/">http:acl;</a></td></tr>
+<tr><td align="center">Allegro 5.0.1</td><td><a href="/cl-http/sources/acl501/">http:acl501;</a></td></tr>
+<tr><td align="center">CMU CL</td><td><a href="/cl-http/sources/cmucl/">http:cmucl;</a></td></tr>
+<tr><td align="center">LispWorks</td><td><a href="/cl-http/sources/lw/">http:lw;</a</td></tr>
+<tr><td align="center">Lucid</td><td><a href="/cl-http/sources/lcl/">http:lcl;</a</td></tr>
+<tr><td align="center">Macintosh</td><td><a href="/cl-http/sources/mcl/">http;mcl;</a></td></tr>
+<tr><td align="center">Symbolics</td><td><a href="/cl-http/sources/lispm/">http:lispm;</a</td></tr>
+
+<tr bgcolor="#8EA6D0"><th>User-Contributed</th><th>Location</th></tr>
+
+<tr><td align="center">Portable</td><td><a href="/cl-http/contributions/">http:contrib</a></td></tr>
+<tr><td align="center">Macintosh</td><td><a href="/cl-http/contributions/mcl/">http;mcl;contrib;</a></td></tr>
+<tr><td align="center">Allegro</td><td><a href="/cl-http/contributions/acl/">http:acl;contrib;</a></td></tr>
+</table>
+</center>
+</p>
+
+<p><dt><img src="/cl-http/icons/light-blueball.gif"> <b><a href="/cl-http/distribution/">Full
+Distribution</a></b> provides web access to the distribution file structure below the logical
+pathname, http:http; or <a href="/cl-http/find-url.html">Search</a> for URLS (or files)
+containing a substring.</p>
+
+<p><dt><img src="/cl-http/icons/light-blueball.gif"> <b><a
+href="/cl-http/projects.html">Development Projects</a></b> describe useful
+additions to CL-HTTP that volunteers might want to work on.</p>
+
+<p><dt><img src="/cl-http/icons/light-blueball.gif"> <b><a href="/cl-http/guidelines.html">Guidelines
+and Hints</a></b> on writing well-abstracted yet efficient code for CL-HTTP.</p>
+
+<p><dt><img src="/cl-http/icons/light-blueball.gif"> <b><a href="/cl-http/standards/">Internet
+Standards</a></b> for the World Wide Web.</p>
+
+<p><dt><img src="/cl-http/icons/light-blueball.gif"> <b><a
+href="/cl-http/developer-tools.html">Developer Tools</a></b> enumerates some
+tools that may be useful to cl-http developers.</p>
+
+<p><dt><img src="/cl-http/icons/light-blueball.gif"> <b><a
+href="/cl-http/extensions.html">Extending the Server</a></b> explains some ways to
+customize the server for new behaviors.</p>
+
+<p><dt><img src="/cl-http/icons/light-blueball.gif"> <b><a href="/cl-http/history.html">Brief
+History</a></b> recounts the origins of this server and some early applications.</p>
+
+<p><dt><img src="/cl-http/icons/star.gif" align=left> <b><a
+href="/cl-http/reference.html">Reference Materials</a></b> indexes a
+valuable range of technical documentation and software repositories
+relevant for WWW and Lisp development.</p>
+
+<p><dt><img src="/cl-http/icons/smiley.gif"> <b><a
+href="/cl-http/acknowledgments.html" name="credits">Acknowledgments</a></b>
+credits the people who helped out.
+
+
+</dl>
+<hr>
+<dl>
+
+<p><dt><img src="/cl-http/icons/purpleball.gif"> <b><a name="acquisition">The
+Current Version</a></b> can be retrieved from the <a
+href="http://www.ai.mit.edu/projects/iiip/doc/cl-http/home-page.html">CL-HTTP
+Home Page</a>, which centralizes information about this Web server and related
+Common Lisp WWW tools. Alternatively, one can access the FTP directory
+directly at <a href="ftp://ftp.ai.mit.edu/pub/users/jcma/cl-http/">
+ftp://ftp.ai.mit.edu/pub/users/jcma/cl-http/</a>.</p>
+
+<p><dt><img src="/cl-http/icons/purpleball.gif"> <b><a name="discussion">Learn
+about new releases, usage, and applications </a></b> of CL-HTTP as well as
+general WWW programming with Common Lisp on <a
+href="mailto:www-cl@ai.mit.edu">www-cl@ai.mit.edu</a>. <em> Note that you must
+join the discussion group before sending mail to it, or the listserve will
+ignore your mail.</em> Although a little inconvenient, this listserve
+configuration prevents rampant spam mail from reaching your inbox and the
+archives.</p>
+
+<p><ul>
+
+<li> <b>Browse the HyperArchives</b>
+
+	<p><ul>
+	<li>Latest: <a name="www-cl" href="http://wilson.ai.mit.edu/cl-http/archives/www-cl.html"> 
+	http://wilson.ai.mit.edu/cl-http/archives/www-cl.html</a>.
+
+	<li>June-December, 1996: <a href="http://wilson.ai.mit.edu/cl-http/archives/www-cl-1996-12-30.html">
+	http://wilson.ai.mit.edu/cl-http/archives/www-cl-1996-12-30.html</a>
+
+	<li>January-June, 1996: <a
+	href="http://wilson.ai.mit.edu/cl-http/archives/www-cl-1996-06-01.html">
+	http://wilson.ai.mit.edu/cl-http/archives/www-cl-1996-06-01.html</a>
+	</ul></p>
+
+<li><b>Join the Discussion</b>
+
+<p><ul>
+<li><b>Subscribe</b> by sending email to the listserve:
+	<blockquote>
+		<i>To:</i> <a href="mailto:www-cl-request@ai.mit.edu?subject=subscribe">
+		<b>www-cl-request@ai.mit.edu</b></a><br>
+		<i>Subject:</i> <b>subscribe</b>
+	</blockquote>
+
+<li><b>Unsubscribe</b> by sending email to the listserve:
+	<blockquote>
+		<i>To:</i> <a href="mailto:www-cl-request@ai.mit.edu?subject=unsubscribe">
+		<b>www-cl-request@ai.mit.edu</b></a><br>
+		<i>Subject:</i> <b>unsubscribe</b>
+	</blockquote>
+</ul>
+You may need to put commands in the body of your message for the listserver to recognize them
+sucessfully.
+</p>
+
+<li><b>Technology:</b> Email Archives dynamically generated by the CL-HTTP <a
+href="/cl-http/features.html#hyperarchive">HyperArchive</a>.
+
+</ul></p>
+
+<p><dt><img src="/cl-http/icons/purpleball.gif"> <b><a name="bugs">Bug Reports
+</a></b><dd> 
+
+<p><b>When reporting bugs, it is essential that you explain how to reproduce
+the problem, provide a backtrace when relevant, and include the server
+version, the Common Lisp version, operating system version, and hardware
+configuration.</b> </p>
+
+<p>If possible, use the sources to fix the problem and
+send the fix along with the report. </p>
+
+<p>Report bugs associated with specific ports should go to one of the specialized
+mailing lists:</p>
+
+<blockquote>
+
+<table>
+
+<tr><td align="center" valign="middle"><img src="/cl-http/icons/redball.gif"></td><td
+align="right"><b>Allegro Common Lisp:</b></td><td><a
+href="mailto:bug-acl-cl-http@ai.mit.edu">Bug-ACL-CL-HTTP@ai.mit.edu</a></td></tr>
+
+<tr><td align="center" valign="middle"><img src="/cl-http/icons/redball.gif"></td><td
+align="right"><b>LispWorks Common Lisp:</b></td><td><a
+href="mailto:bug-lw-cl-http@ai.mit.edu">Bug-LW-CL-HTTP@ai.mit.edu</a></td></tr>
+
+<tr><td align="center" valign="middle"><img src="/cl-http/icons/redball.gif"></td><td
+align="right"><b>Lucid Common Lisp:</b></td><td><a
+href="mailto:bug-lcl-cl-http@ai.mit.edu">Bug-LCL-CL-HTTP@ai.mit.edu</a></td></tr>
+
+<tr><td align="center" valign="middle"><img src="/cl-http/icons/redball.gif"></td><td
+align="right"><b>Macintosh Common Lisp:</b></td><td><a
+href="mailto:bug-mcl-cl-http@ai.mit.edu">Bug-MCL-CL-HTTP@ai.mit.edu</a></td></tr>
+
+<tr><td align="center" valign="middle"><img src="/cl-http/icons/redball.gif"></td><td
+align="right"><b>Symbolics Common Lisp:</b></td><td><a
+href="mailto:bug-cl-http@ai.mit.edu">Bug-CL-HTTP@ai.mit.edu</a></td></tr>
+
+<tr><td align="center" valign="middle"><img
+src="/cl-http/icons/redball.gif"></td><td align="right"><b>CMU Common
+Lisp:</b></td><td><a
+href="mailto:bug-cmucl-cl-http@ai.mit.edu">Bug-CMUCL-CL-HTTP@ai.mit.edu</a></td></tr>
+
+</table>
+
+</blockquote>
+
+<p>Common source or platform independent bugs or issues should be reported to
+<a href="mailto:bug-cl-http@ai.mit.edu">Bug-CL-HTTP@ai.mit.edu</a>.</p>
+
+<p>Bugs or questions concerning the Constraint Guided Web Walker should be
+sent to <a href="mailto:bug-w4@ai.mit.edu">bug-w4@ai.mit.edu</a>.</p>
+
+</dl> 
+
+<p><img src="/cl-http/icons/line-rain.gif"></p>
+
+<address><a href="http://www.ai.mit.edu/people/jcma/jcma.html">John C. Mallery</a> -- <a
+href="mailto:jcma@ai.mit.edu">jcma@ai.mit.edu</a><br><a
+href="http://web.mit.edu/">M.I.T.</a> <a href="http://www.ai.mit.edu/">Artificial
+Intelligence Laboratory</a> </address>
+</body>
+
+</html> 

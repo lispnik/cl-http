@@ -1,0 +1,309 @@
+
+Network Working Group                                     James Casey 
+INTERNET-DRAFT                                          Harlequin Inc
+<draft-casey-url-ftp-00.txt>                            
+expires six months from                               08 January 1997
+
+                        A FTP URL Format
+
+Status of this Memo
+
+   This document is an Internet-Draft.  Internet-Drafts are working
+   documents of the Internet Engineering Task Force (IETF), its
+   areas, and its working groups.  Note that other groups may also
+   distribute working documents as Internet-Drafts.
+
+   Internet-Drafts are draft documents valid for a maximum of six
+   months and may be updated, replaced, or obsoleted by other
+   documents at any time.  It is inappropriate to use Internet-Drafts
+   as reference material or to cite them other than as
+   ``work in progress.''
+
+   To learn the current status of any Internet-Draft, please check
+   the ``1id-abstracts.txt'' listing contained in the Internet-Drafts
+   Shadow Directories on ftp.is.co.za (Africa), nic.nordu.net (Europe),
+   munnari.oz.au (Pacific Rim), ds.internic.net (US East Coast),
+   or ftp.isi.edu (US West Coast).
+
+   This draft expires in six months.
+
+Abstract
+
+   This document defines the format of Uniform Resource Locators (URL)
+   for the File Transfer Protocol (FTP) using the general URL syntax
+   defined in RFC xxxx, "Uniform Resource Locators (URL)".
+
+   It is a one of a suite of documents which replace RFC 1738,
+   "Uniform Resource Locators", and RFC 1808, "Relative Uniform Resource
+   Locators".
+
+1. Introduction
+
+   This specification defines a URL format for the FTP protocol, RFC 959
+   [1] that allows internet clients to have direct access to resources
+   accessible by the protocol.  It is part of the suite of documents
+   which replace RFC 1738, "Uniform Resource Locators" [2] and RFC 1808,
+   "Relative Uniform Resource Locators" [3].  It uses the BNF and basic
+   rules as laid out in section 4.3 of [RFC-URL-SYNTAX].
+
+2. Syntax of a FTP URL
+
+   A FTP URL follows the common internet scheme syntax as defined in
+   section 4.3 of [RFC-URL-SYNTAX]:
+
+      ftp://<user>:<password>@<host>:<port>/<url-path>;type=<typecode>
+
+2.1. FTP User and Password
+
+   A user name and password may be supplied; they are used in the ftp
+   "USER" and "PASS" commands after first making the connection to the
+   FTP server.  If no user name or password is supplied and one is
+   requested by the FTP server, the conventions for "anonymous" FTP
+   are to be used, as follows:
+
+        The user name "anonymous" is supplied.
+
+        The password is supplied as the Internet e-mail address
+        of the end user accessing the resource.
+
+   If the URL supplies a user name but no password, and the remote
+   server requests a password, the program interpreting the FTP URL
+   should request one from the user.
+
+2.2. FTP port
+
+   If a port is omitted, the port defaults to 21.
+
+2.3. FTP transfer type
+
+   A <typecode> can be one of the characters "i" or "a", representing
+   binary or ascii data respectively.  
+
+   Since the entire ;type=<typecode> part of a FTP URL is optional, if
+   it is omitted the client program interpreting the URL must guess the
+   appropriate mode to use. In general, the data content type of a file
+   can only be guessed from the name, e.g., from the suffix of the name;
+   the appropriate type code to be used for transfer of the file can then
+   be deduced from the data content of the file.
+
+2.4. FTP url-path
+
+   The url-path of a FTP URL has the following syntax:
+
+        <cwd1>/<cwd2>/.../<cwdN>/<name>
+
+   Where <cwd1> through <cwdN> and <name> are (possibly encoded)
+   strings.  The <cwdx> and <name> parts may be empty. The whole url-path
+   may be omitted, including the "/" delimiting it from the prefix
+   containing user, password, host, and port.
+
+   Within a <name> or <cwd> component, the characters "/" and ";" are
+   reserved and must be encoded. The components are decoded prior to
+   their use in the FTP protocol.  In particular, if the appropriate FTP
+   sequence to access a particular file requires supplying a string
+   containing a "/" as an argument to a CWD or RETR command, it is
+   necessary to encode each "/".
+
+2.5. Interpreting a FTP URL
+
+   The url-path is interpreted as a series of FTP commands as follows:
+
+      Each of the <cwd> elements in the <url-path> is supplied,
+      sequentially, as the argument to a CWD (change working directory)
+      command.
+
+      If a type parameter has been supplied, perform a TYPE command
+      with <typecode> as the argument.
+  
+      Access the file whose name is <name> (for example, using the
+      RETR command.)
+
+   For example, the URL <URL:ftp://myname@host.dom/%2Fetc/motd> is
+   interpreted by FTP-ing to "host.dom", logging in as "myname"
+   (prompting for a password if it is asked for), and then executing
+   "CWD /etc" and then "RETR motd". This has a different meaning from
+   <URL:ftp://myname@host.dom/etc/motd> which would "CWD etc" and then
+   "RETR motd"; the initial "CWD" might be executed relative to the
+   default directory for "myname". On the other hand,
+   <URL:ftp://myname@host.dom//etc/motd>, would "CWD " with a null
+   argument, then "CWD etc", and then "RETR motd".
+
+   Implementors should note that doing a "RETR
+   <cwd1>/.../<cwdN>/<name>" may work on some systems, but clients
+   MUST NOT rely upon it.  In some situations, this may be the only
+   way to access a resource.  This is the case if one or more of the
+   directories <cwd1>...<cwdN-1> is access controlled, but the final
+   one is not.
+
+   FTP URLs may also be used for other operations; for example, it is
+   possible to update a file on a remote file server, or infer
+   information about it from the directory listings. The mechanism for
+   doing so is not spelled out here.
+
+2.6. Hierarchy
+
+   For some file systems, the "/" used to denote the hierarchical
+   structure of the URL corresponds to the delimiter used to construct a
+   file name hierarchy, and thus, the filename will look similar to the
+   URL path. This does NOT mean that the URL is a Unix filename.
+
+2.7. Optimization
+
+   Clients accessing resources via FTP may employ additional heuristics
+   to optimize the interaction. For some FTP servers, for example, it
+   may be reasonable to keep the control connection open while accessing
+   multiple URLs from the same server. However, there is no common
+   hierarchical model to the FTP protocol, so if a directory change
+   command has been given, it is impossible in general to deduce what
+   sequence should be given to navigate to another directory for a
+   second retrieval, if the paths are different.  There are two
+   possible algorithms; firstly send a "REIN" command, followed by
+   "USER", "PASS", etc. as required. If this is not supported one can
+   disconnect and re-establish the control connection.
+
+2.8. Relative FTP URLs
+
+   Since the FTP URL syntax matches the generic-URL syntax, it supports
+   all forms of relative URLs defined in [RFC-URL-SYNTAX].
+
+2.9. Effect of username on URL path
+
+   FTP Server implementations may specify the default directory for
+   different users to be at different points in the server file-system.
+   This means that the same file could have different <url-path>
+   components in their URLs for different user names. e.g. Suppose a
+   file on disk has absolute path
+      
+      /home/jamesc/foo.html
+
+   and that the URL to access this as user jamesc (with default
+   directory '/home/jamesc') is
+
+      ftp://jamesc@ftp.harlequin.com/foo.html
+
+   Then for a user paulh, who has default FTP directory '/', the URL
+   for the same file would be
+	
+      ftp://paulh@ftp.harlequin.com/home/jamesc/foo.html
+
+3. Issues
+
+3.1. Inconsistency of current implementations of applying the <url-path>
+
+   Current implementations, when supplied with ftp://host/foo/bar.html
+   will perform the following operations
+
+      CWD /foo
+      RETR bar.html
+
+   instead of what RFC 1738 [2] (and currently this draft) specified
+   should be performed
+
+      CWD foo
+      RETR bar.html
+
+   If the default ftp directory was different from the root directory of
+   the file system, this would point to a different resource. Many URLs now
+   depend upon this feature, and this draft, it it wants to reflect
+   current practice, must change to encompass this.
+
+   Unfortunately, if we assume an implicit "CWD /", as most browsers
+   currently do, then there is no way currently to specify a resource
+   relative to the default ftp directory for a given user.  One
+   solution to this problem would be to define the meaning of a URL of the
+   form 
+
+      ftp://host/~/foo/bar.html 
+
+   This would instruct the obtain the resource "foo/bar.html" relative
+   to the default directory of the anonymous user. It also gives an
+   intuitive meaning to
+
+      ftp://user:pass@host/~/
+
+   i.e. the default directory of the current user.
+
+4. Security Considerations
+
+   The same security considerations apply as those in [RFC-GEN-SYNTAX],
+   especially:
+
+      "The use of URLs containing passwords that should be secret is
+       clearly unwise."
+
+5. Acknowledgements
+
+   This document was derived from RFC 1738 [2] and RFC 1808 [3]; the
+   acknowledgements from those specifications still applies.
+
+   Also, thanks to Roy Fielding, Larry Masinter, Murali Krishnan, Alun
+   Jones and Frederick Roeber for comments on early versions of this
+   draft.  
+
+6. References
+
+   [1] Postel, J. and J. Reynolds, "File Transfer Protocol (FTP)",
+       STD 9, RFC 959, USC/Information Sciences Institute,
+       October 1985.
+
+   [2] Berners-Lee, T., Masinter, L., and M. McCahill, Editors, "Uniform
+       Resource Locators (URL)", RFC 1738, CERN, Xerox Corporation,
+       University of Minnesota, December 1994.
+
+
+   [3] Fielding, R., "Relative Uniform Resource Locators", RFC 1808,
+       UC Irvine, June 1995.
+
+   [RFC-URL-SYNTAX] Berners-Lee, T., Fielding, R., Masinter L.,
+       "Uniform Resource Locators (URL)", Work in Progress
+       <draft-uri-url-syntax-00>, MIT/LCS, U.C. Irvine, Xerox 
+       Corporation, October 1996.
+
+Note to RFC Editor -- This reference should change when status of
+   generic syntax draft changes.
+
+Appendix
+
+A. Changes from RFC 1738
+
+   Section 3.2 of RFC 1738, and parts of section 2.3 of RFC 1808, were
+   used as the basis for this draft.
+
+   Section 2.3 on transfer types now does not have type='d' parameters,
+   due to lack of consistent implementation.
+   
+   Added use of FTP "REIN" command to restart a connection in Section
+   2.6.
+
+   Added section 2.5 which gives a standard algorithm for retrieving a
+   FTP URL (based upon the one in Section 3.2.2 of RFC 1738 [2], and
+   alternative means to retrieve it which are used by current
+   implementations, but not supported by all FTP servers.
+
+   Section 2.8 has been created to address the use of relative URLs in
+   the FTP scheme.
+
+   Section 2.9 has been added, noting that url paths are relative to
+   the default ftp directory of the user, and this can lead to different
+   url-paths to access the same resource on the server.
+
+   Added Section 3.1 to discuss the issue of leading-slashes in FTP Urls
+   and their interpretation by most user-agents.
+
+   [RFC-URL-SYNTAX] rationalizes the two BNFs provided in the RFC 1738
+   and RFC 1808, which means the set of allowable characters in any
+   <cwdx> or <name> section is slightly different from that allowed by
+   RFC 1738. This is documented fully in appendix E 'Summary of
+   non-editorial changes' of [RFC-URL-SYNTAX].
+
+Authors Address
+
+   James Casey
+   Harlequin Inc
+   301 Ravenswood Avenue
+   Suite 100
+   Menlo Park, CA 94025
+
+   Phone: +1 (415) 833 0400
+   EMail: jamesc@harlequin.com
+

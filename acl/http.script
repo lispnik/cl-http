@@ -1,0 +1,277 @@
+#! /bin/sh
+# Usage: http -?
+
+export DOMAINNAME
+
+####
+# Note: You may setup symbolic links for ~/acl/bin and ~/cl-http
+# so you don't have to edit this file each time you get a new CL-HTTP version.
+#
+# Edit the path of Allegro Common Lisp (Franz ACL) main directory at your site:
+# (Name the ACL UNIX base image used to build acl/http_image.$OSV)
+#
+ACL5=t; FRANZ="/usr/local/acl5/lisp"	# Typical ACL5 installation
+ACL5=;  FRANZ="$HOME/acl/bin/cl"	# Symbolic ACL 4.* image location
+#
+# Edit the path of the present version of CL-HTTP:
+#
+HTTP="$HOME/cl-http"
+HTTP80="$HTTP/acl/bind80"	# required path to bind80.c for -build option
+BIND80=/local/bin/bind80	# local path to bind80 with root privileges
+#BIND80=			# to disable local root version of bind80
+#
+# If "domainname" does not return a true IP domain name (e.g. NIS)
+# Then edit DOMAINNAME to be the site domain where the server will run,
+# Else leave this unchanged (DNS):
+#
+DOMAINNAME="www.ai.mit.edu"     # hardcode a name for NIS domain (not for DNS)
+DOMAINNAME=`domainname`         # comment out this line for NIS domain server.
+#DOMAINNAME=			# unknown for this OS
+####
+
+#### ACL Tips:
+# To turn CL-HTTP notifications on and off:
+# (http:log-notifications-on (http:current-access-logs) t)
+# (http:log-notifications-on (http:current-access-logs) nil)
+# To cleanly exit CL-HTTP (closing sockets):
+# (http:exit)
+# To stop and restart:
+# (http:exit nil)
+# (http:start)
+####
+
+UNIXv="`uname -s`"
+case $UNIXv in
+  Linux)
+	 OSV=$UNIXv."`uname -m`"
+	 ;;
+  SunOS)
+	 SunOSv="`uname -r`"
+	 case $SunOSv in
+	   4.*)
+		OSV=4
+		;;
+	   5.*)
+		OSV=5
+		;;
+	   *)
+	      OSV=$UNIXv.$SunOSv;
+	      echo "This OS version $OSV may not be supported"
+	      ;;
+	 esac
+	 ;;
+  *)
+     echo "This OS version $UNIXv may not be supported"
+     OPTION="-help"
+     ;;
+esac
+
+case "$1" in
+  -build*)
+	   # Build bind80
+	   if ( test ! -x "${BIND80}" ) && ( test ! -z "${BIND80}" )
+	   then
+	     echo "*********"
+	     echo "Warning: ${BIND80} not found."
+	     if test -r ${HTTP80}.c
+	     then
+	       echo "You need to build ${HTTP80} to enable"
+	       echo "the port=80 option of CL-HTTP, as follows:"
+		 echo "1. $ cc ${HTTP80}.c -o ${HTTP80} -lsocket -lnsl	# Sample SunOS compilation"
+		 echo "2. $ su root		# Login as root locally"
+		 echo "3. # cp ${HTTP80} ${BIND80}"
+		 echo "4. # chmod 4755 ${BIND80}"
+		 echo "5. # exit"
+	     else
+	       echo "Error: ${HTTP80}.c not found."
+	     fi
+	     echo "*********"
+	   fi
+
+	   # install cgi-bin from tar backup example
+	   CGI=$HTTP/acl/cgi-bin
+	   if test ! -x $CGI
+	   then
+	     echo "Unpacking $CGI."
+	     if test -r $CGI.tar
+	     then
+	       cd $HTTP/acl
+	       tar xvf $CGI.tar
+	     else
+	       echo "Error: $HTTP/acl/cgi-bin not found."
+	     fi
+	   fi
+
+	   # make custom directory for user custom exports
+	   if test ! -x $HTTP/custom
+	   then
+	     echo "Creating $HTTP/custom."
+	     mkdir $HTTP/custom
+	     chmod 775 $HTTP/custom
+	     cp $HTTP/acl/server/user-exports.lisp $HTTP/custom/
+	     chmod 664 $HTTP/custom/user-exports.lisp
+	   fi
+
+	   # ACL configuration file
+	   cd $HTTP
+	   CONFHTML="configure-acl.html"
+	   if test ! -h "www/cl-http/$CONFHTML"
+	   then
+	     echo "Updating $CONFHTML"
+	     mv "www/cl-http/$CONFHTML" "www/cl-http/${CONFHTML}~"
+	     ln -s "$HTTP/acl/$CONFHTML" "www/cl-http/$CONFHTML"
+	   fi
+	   ;;
+esac
+
+HOST="`uname -n`"
+
+IMAGE="acl/http_image.${OSV}"
+IMAGEHOST="${IMAGE}.$HOST"
+
+case "$1" in
+  -compile*|-load*|-build*)
+		     FRANZversion="${FRANZ}${OSV}"
+		     if test -x "${FRANZversion}"
+		     then FRANZ="${FRANZversion}";
+		       echo "Using ACL version $FRANZ."
+		     fi
+		     ;;
+  *)
+     		     if test -x "$HTTP/$IMAGEHOST"
+		     then
+		       echo "Really $IMAGEHOST."
+		       IMAGE=$IMAGEHOST
+		     fi
+		     ;;
+esac
+
+ECOMPILE="(progn(chdir\"$HTTP/\")(load\"acl/start\")(excl:exit))"
+ELOAD="(progn(chdir\"$HTTP/\")(load\"acl/start\"))"
+EBUILD="(progn(chdir\"$HTTP/\")(load\"acl/start\")(tpl:setq-default *readtable* *readtable*)(save-lisp-image \"$IMAGEHOST\" :exit t))"
+EEXEC="(http:start)"
+BEXEC="(progn(http:start)(clim-sys:disable-process(clim-sys:current-process)))"
+
+case "$1" in
+  -compile*)
+	     shift
+	     $FRANZ -qq -e "$ECOMPILE" -- compile=t host= port=nil start=nil
+	     exit
+	     ;;
+  -build*)
+	   cd $HTTP
+	   if test -x "$IMAGEHOST"
+	   then mv "$IMAGEHOST" "$IMAGEHOST~"
+	   fi
+	   shift
+	   $FRANZ -qq -e "$EBUILD" -- compile=nil $* host= port=nil start=nil
+	   
+	   # Clean images
+	   if test -h "$IMAGE"
+	   then rm "$IMAGE"
+	   else
+	     if test -x "$IMAGE"
+	     then mv "$IMAGE" "$IMAGE~"
+	     fi
+	   fi
+	   ln -s "$HTTP/$IMAGEHOST" "$IMAGE"
+	   exit
+	   ;;
+  -help*|-\?)
+	      HELP=y
+	      ;;
+  -back)
+	  shift	# For $* args passing to eexec
+	  BATCH=nohup
+	  BACK=yes
+	  EEXEC=$BEXEC
+	  DOIT=yes
+	  ;;
+  -b*)
+       shift	# For $* args passing to eexec
+       BATCH=nohup
+       EEXEC=$BEXEC
+       DOIT=yes
+       ;;
+  # This must be last
+  *)
+     DOIT=yes
+     ;;
+esac
+
+case "$1" in
+  -load*)
+	     shift 	# For $* args passing to eexec
+	     RUNNER=$FRANZ
+	     EEXEC=$ELOAD
+	     # Allow user args to override options for w3p w4 for example
+	     RESTARGS="$* compile=nil configure=t host= port=nil start=t"
+	     ;;
+  *)
+     RUNNER=$HTTP/$IMAGE
+     if test "$ACL5"
+     then RUNNER="$FRANZ -I $RUNNER"
+     fi
+     RESTARGS=$*
+     ;;
+esac
+
+# Seek port= argument
+for arg in $*
+do
+  case $arg in
+    port=*)
+	    PORT=`expr //$arg : '.*=\(.*\)'`
+	    ;;
+  esac
+done
+
+if test "$DOIT"
+then
+  if test -x $RUNNER
+  then
+    if test "$BATCH"
+    then
+	rm nohup.out 2>/dev/null
+	RUNNER="$RUNNER -qq"
+    fi
+    if test "$PORT" = "80"
+      # You need to insure ${BIND80} has root privileges and sticky bit set
+    then
+      if test $BACK
+      then	$BATCH ${BIND80} $RUNNER -e "$EEXEC" -- home="$HTTP/" $RESTARGS&
+      else	$BATCH ${BIND80} $RUNNER -e "$EEXEC" -- home="$HTTP/" $RESTARGS
+      fi
+    else
+      if test $BACK
+      then	$BATCH $RUNNER -e "$EEXEC" -- home="$HTTP/" $RESTARGS&
+      else	$BATCH $RUNNER -e "$EEXEC" -- home="$HTTP/" $RESTARGS
+      fi
+    fi
+  else
+    HELP=yes
+  fi
+fi
+
+case "$HELP" in
+  y*)
+      case "$HELP" in
+	yes*)
+	      echo "The CL-HTTP image: $RUNNER
+is not found or not executable.
+You may need to compile and then build this image.";
+  ;;
+      esac
+      echo "Usage:
+        $0              ; start CL-HTTP service without Log (default)
+        $0 -b           ; start CL-HTTP service using nohup (daemon)
+	$0 -back	; start CL-HTTP service using nohup in background
+        $0 -build       ; build the CL-HTTP image
+        $0 -compile     ; compile and load the sources
+        $0 -help        ; print this message
+	$0 {-b|-back} -load
+			; load and run without an existing image
+	[port= eval=]	; additional options where applicable
+	"
+	;;
+esac

@@ -1,0 +1,32 @@
+Mac CGI Support for CL-HTTP
+
+by Terje Norderhaug <terje@in-progress.com>, October 20, 1998.  
+Media Design inProgress <http://www.in-progress.com>.
+
+The cgi-application module implements CGI support for Mac CL-HTTP. It
+allows CL-HTTP to benefit from the hundreds of CGI applications
+available for Mac web servers.
+
+After executing the cgi-sysdcl.lisp, CGI applications can be exported in
+CL-HTTP as follows:
+
+(http:export-url #u"/echo/" :cgi
+  :pathname "ccl:cgi-bin;echo.acgi")
+
+This makes the specified CGI application handle all requests that start
+with <http://www.server.com/echo/>. echo.acgi is a compiled AppleScript
+that is found in this folder. It simply reports the CGI variables
+associated with a request. The echo.acgi application has to be started
+before you can request the exported URL.
+
+Interaction is an example of a advanced CGI application that can be used
+with CL-HTTP. Its even written in MCL. You can find it in the Goodies
+from MCL Friends folder of the MCL CD-ROM or from
+<http://interaction.in-progress.com>. Interaction can be activated by
+starting the application and export the following:
+
+(http:export-url #u"/interaction/" :cgi
+  :pathname "ccl:cgi-bin;Interaction")
+
+See the cgi-application.lisp file for additional details.
+

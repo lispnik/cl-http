@@ -1,0 +1,118 @@
+<TITLE>Common Lisp Overview</TITLE>
+
+<h1><A name=common-lisp>Common LISP</A></h1>
+
+	The HTTP server is written in Common LISP (see <A
+HREF="references.html#Winston-Horn-1989"> Winston and Horn (1989)</A>, <A
+HREF="references.html#steele-1990"> Steele (1990)</A>, <A
+HREF="http://www.cis.ohio-state.edu/hypertext/faq/usenet/lisp-faq/top.html">the
+FAQs</A>, <A
+HREF="http://www.cs.rochester.edu/users/staff/miller/alu.html">the Association
+of Lisp Users</A> and <A HREF="ftp://parcftp.xerox.com/pub/cl/dpANS2/">the
+Draft ANSI specification</A>) to provide a user-extensible environment for
+interactive multimedia over WWW.  Because the goal is to develop a
+fine-grained vocabulary of operators that programs and software developers
+share, Common LISP is one of the best choices available today.  Once operators
+are abstracted, programs and users call them, instead of (re-)writing them
+again.  This fine-grained abstraction yields high productivity because:
+
+<P>
+
+<UL>
+
+<li><B> No Code Duplication:</B> No effort is wasted writing again code that
+already exists because programs are shared at a very fine level of abstraction
+(<I>e.g.</I>, individual functions, variables).
+
+<P>
+<li> <B>Code Evolution:</B> Well abstracted code is easily evolved as
+protocols or requirements change.
+
+<P><LI><B>Dynamic Linking</B>: Incremental compilation speeds development of
+large programs and facilitates evolutionary programming.
+
+<P> <li> <B>Powerful Abstractions:</B> Function-compositional languages, such
+as Common LISP, allow, and even encourage, programmers to build up a
+vocabulary of high-level operators that are recycled to solve similar domain
+problems.  Indeed, writing an application becomes a process of developing a
+vocabulary of operators to specify the desired functional
+process.<footnote>[See <A HREF="references.html#Abelson-Sussman-1985"> Abelson
+and Sussman (1985)</A> for a detailed introduction to abstraction in a
+functional language.]</footnote>
+
+</UL>
+<P>
+
+	A high productivity environment reduces the work required to develop
+new packages and makes most efficient use of the scarce time of scientists.
+Generalizing the individual case to a community of researchers, sharing this
+kind of environment and each other's extensions maximizes the rate at which
+the community searches mechanism space for problem solutions.  Moreover,
+well-abstracted code joins with self-documenting capabilities in the HTTP
+server to make it an effective pedagogical environment; everything is readily
+available for inspection, modification, and experimentation.
+
+<p>
+<h2><A name=CLOS>The Common LISP Object System</A></h2>
+
+<P>Common LISP embeds a native object-oriented programming language, the
+Common LISP Object System (CLOS).  All significant datastructures in the HTTP
+server are implemented as CLOS objects (<A
+href="references.html#Bobrow-1988">Bobrow <I>et al.</I>, 1988</A>; <A
+HREF="references.html#Keene-1989">Keene, 1989</A>).  CLOS distinguishes
+classes and instance objects. The behavior of instance objects is defined by
+associated classes, which can inherit functionality and state variables from
+multiple superior classes.  Instances can have local state, held by instance
+variables, and they can have methods, or operations, which they support.
+Generic operations constitute a protocol that instances of different classes
+all support with their own, possibly different methods.  CLOS supports
+<I>multimethods</I> that can dispatch based on the types of multiple
+arguments. A pervasive object-oriented implementation helps enforce
+abstraction and modularity as it enhances flexibility and code sharing.
+
+<p><h2>The Common LISP Interface Manager</h2>
+
+<p>Modern Common LISP provides a high-level window system tool, the Common
+LISP Interface Manager (CLIM) (see <A name=CLIM
+HREF="FTP://cambridge.apple.com/pub/clim/papers/clim.ps">the
+specification</A>, (<A HREF="references.html#Rao-York-Doughty-1991">Rao, <I>et
+al</I>, 1991</A>).  Written in Common LISP, CLIM runs on a variety of
+workstations, implementing its machine-independent abstractions with native
+window systems and mimicking their look and feel.</footnote> By introducing
+high-level abstractions for specifying window interfaces, CLIM makes it easier
+and quicker to define window interfaces.  Instead of requiring many months,
+sophisticated user interfaces can be written in several days.
+
+<P>Beyond general window system abstractions, the automatic form processing in
+<A HREF="server.html#COMLINK">COMLINK</A> forms relies heavily on an important
+CLIM abstraction: <I>the presentation system</I> controls how the user
+specifies or perceives arbitrary LISP objects. Each <I>presentation type</I>
+has a method to <I>present</I> (display) an object on the computer screen, and
+a method to <I>accept</I> (receive input) an object from the user, whether via
+the keyboard, the mouse, or other input device.
+
+<P>In general, presentation types specialize built-in or constructed LISP
+types.  <I>Presentation translators</I> can be defined to convert from the
+LISP object associated with one presentation type to another.  The combination
+of type subsumption and presentation translation allows CLIM to resolve
+equivalences, and thus, accept input more intelligently.
+
+<P> The present and accept methods are like little generators and parsers
+specialized to a presentation type.  They can perform a simple operation, such
+as accepting an integer between 1 and 10, or they can execute a very complex
+computation.  For example, in one research system (<A
+HREF="references.html#mallery-1991">Mallery, 1991</A>), nodes in semantic
+network representing natural language text can be presented through a sentence
+generator so that the user sees them as generated sentences or sentence
+fragments.  Similarly, sentences or paragraphs can be accepted via a
+presentation type that calls a full natural language system to parse and
+represent the text.  Thus, present and accept methods execute LISP code that
+can perform an arbitrary translation between what the user sees or what the
+user inputs and the internal datastructures manipulated by programs.
+
+<P>Once defined, these presentation types mediate all data entry and display,
+and thus, users perceive only the external, user-friendly representation, and
+never with the internal representation. Yet, such dynamic, bidirectional
+translation allows users to <I>directly</I> manipulate program data (viewing
+it in translated form) and actually simplifies the program model presented to
+the user.

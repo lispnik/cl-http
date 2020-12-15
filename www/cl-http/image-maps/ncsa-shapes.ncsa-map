@@ -1,0 +1,11 @@
+#6/27/95  cvince@ai.mit.edu
+#Format:  NCSA
+
+# doesn't need default if there are points defined
+point   /cl-http/image-maps/ncsa-pnt1.html     30,160
+point   /cl-http/image-maps/ncsa-pnt2.html     180,160
+point   /cl-http/image-maps/ncsa-pnt3.html     324,160
+circle  /cl-http/image-maps/ncsa-circle.html   50,55 87,55
+rect    /cl-http/image-maps/ncsa-rect.html     112,28 202,92
+poly    /cl-http/image-maps/ncsa-poly.html     270,52 259,14 319,22 304,95 233,90 224,47
+oval    /cl-http/image-maps/ncsa-oval.html     337,17 389,97

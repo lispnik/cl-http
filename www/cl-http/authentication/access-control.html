@@ -1,0 +1,92 @@
+<html>
+<head>
+<title> URL Access Control</title>
+</head>
+<body bgcolor="#FFFFFF" text="#000000">
+
+<h1> URL Access Control</h1>
+
+<p><img src="/cl-http/icons/line-rain.gif"></p>
+
+<p> Access control groups provide a way to specify what users and groups 
+of users may apply which HTTP methods to URLs. Access control groups 
+have names and coexist in a realm with groups and users.</p>
+
+<p><a href="/cl-http/show-documentation?HTTP:EXPORT-URL">HTTP:EXPORT-URL</a>
+accepts two keyword arguments useful for controlling access to URLs
+to authenticated users only.
+
+<ul>
+
+<li><b>AUTHENTICATION-REALM:</b> is a keyword denoting a realm (or a realm
+object) within which users should be authenticated. A realm must be specified
+explicitly or implicitly via an access control group.
+
+<li><b>CAPABILITIES:</b> are either a keyword denoting an access control
+group, such an object, or a capability alist relating server methods to groups
+and users. When no capabilities are provided, all users in the realm have
+access.  When an access control group is provided, its realm must be the same
+as the one specified in as AUTHENTICATION-REALM.
+
+</ul>
+
+
+<p>Here is an example of a definition that gives the group :users permission
+for the :HEAD and :GET methods.  It also allows the user "frank" to use the
+:POST method.  Capabilities should be defined using <a
+href="/cl-http/show-documentation?HTTP:ADD-ACCESS-CONTROL-GROUP">
+http:add-access-control-group</a>.</p>
+
+<code><pre>
+(add-access-control-group :sample-capabilities
+                          :sample-realm
+                          :capabilities '((:head :users)
+                                          (:get :users)
+                                          (:post "frank")))
+</pre></code>
+
+<p>
+
+The :DEFAULT method is used to specify access to all HTTP methods not
+otherwise specified in the capabilities alist.  This example gives the :users
+group access to all server methods.
+
+<code><pre>
+(add-access-control-group :sample-permissions
+                          :sample-realm
+                          :capabilities '((:default :users)))
+</pre></code>
+
+<p>
+
+The :DEFAULT method can be used in conjunction with null values for other
+methods to prevent all access to those methods.  The following example gives
+"frank" access to all methods except :delete.
+
+<code><pre>
+(add-access-control-group :sample-permissions
+                          :sample-realm
+                          :capabilities '((:delete)
+                                          (:default "frank")))
+</pre></code>
+
+<p>
+<a href= "/cl-http/authentication/authentication.html">Back to CL-HTTP Authentication</a>
+</p>
+
+
+<p><img src="/cl-http/icons/line-rain.gif"></p>
+
+<address>
+
+<a href= "http://web.mit.edu/cvince/www/home.html"> Christopher R. Vincent </a> --
+<a href= "mailto:cvince@ai.mit.edu"> cvince@ai.mit.edu </a> <br>
+<a href= "http://web.mit.edu/"> M.I.T. </a> 
+<a href= "http://www.ai.mit.edu/"> Artificial Intelligence Laboratory </a> 
+
+</address>
+
+
+</body>
+
+</html>

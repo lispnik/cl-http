@@ -1,0 +1,152 @@
+1999-10-04    <kaelin@everest.com>			*** Rev 10.0-alpha
+
+	* lsp-1-0.lisp: Dropped the symlink and branched a copy of the LSP
+	DTD back into this directory. [The symlink was causing way too
+	much trouble on Win32.]
+
+1999-09-23    <kaelin@sherpa.everest.com>
+
+	* html-parser.lisp (close-tag): Fixed bug in the assigment of html
+	fragments to implicitly closed tags. The fragment erroneously
+	included the opening tag that caused the implicit close (ie. the
+	next tag in the input). The fix introduces a new optional
+	'implicit-p argument which is T whenever the tag is being
+	implicitly closed.
+
+	* packages.lisp: Exported several additional symbols from the
+	:html-parser package (all used by LSP).
+
+1999-09-20    <kaelin@sherpa.everest.com>
+
+	* html-reader.lisp (parse-html-attr-name-or-val): Fixed bug in
+	parsing of attributes. A "value-attribute" which appeared just
+	before the closing bracket of a tag was being silently discarded.
+
+	* html-parser.lisp (define-html-parser): Renamed the symbol bound
+	to the return value of the last context from
+	'html-parser::return-value to 'it. This is more consistant (IMO)
+	with the handling of similar values elsewhere in the package.
+
+1999-09-19    <kaelin@SUMMIT>
+
+	* html-tags.lisp: Introduced '*dtd-toplevel-tags* in place of
+	'*html-root* to handle DTDs with more than one toplevel tag
+	definition.
+
+	Previously it was assumed that a DTD would contain only one
+	"toplevel" tag (eg. element with no containers). When the DTD was
+	initialized, this tag was cached in '*html-root*. Other code
+	(notably #'open-tag and friends in html-parser.lisp) depended on
+	'*html-root* for various housekeeping chores (like cleaning up
+	after improperly nested or unclosed tags).
+
+	* defs.lisp: Added 'toplevel-tag slot to 'parser defstruct. This
+	tracks the toplevel tag currently being parsed (see above).
+
+	* html-parser.lisp: Updated to handle DTDs with more than one
+	toplevel tag definition (see above).
+
+1999-09-19    <kaelin@sherpa.everest.com>
+
+	* defs.lisp: Renamed LSP DTD to "-//KLC//DTD LSP 1.0//EN" and
+	moved the source into the lsp directory. For now, there's a
+	symlink from lsp-1-0.lisp to ../lsp/lsp-1-0.lisp so that
+	#'initialize-parser can find it.
+
+	TODO: Find a way to eliminate the symlink and the corresponding
+	entry in *html-dtd-list*.
+
+1999-09-17    <kaelin@sherpa.everest.com>
+
+	* html-reader.lisp (read-cdata-text): Added function for handling
+	CDATA (unparsed character data) element contents. This gets called
+	by #'next-html-token when the previous token was the opening tag
+	of an element defined by the DTD to have CDATA content.
+
+	* html-parser.lisp: Added :on-cdata functionality to the macro
+	#'define-html-parser-context. This fixes the bug described below
+	(1999-09-16). The parser now properly distinguishes CDATA from
+	PCDATA.
+
+	* html-4-0-*.lisp: Restored definitions of %Script and %StyleSheet
+	entities to cdata.
+	
+	* system.lisp: Updated system definition to reflect :definitions
+	dependancies on defs.lisp.
+
+1999-09-16    <kaelin@sherpa.everest.com>
+
+	* html-4-0-lsp-1-0.lisp: Lisp Server Page (LSP) DTD transcription,
+	based on html-4-0-transitional.lisp.
+	
+	* defs.lisp: Added html-4-0-lsp-1-0.lisp to *html-dtd-list*.
+
+	* html-4-0-*.lisp: Changed definitions of %Script and %StyleSheet
+	entities to (:or cdata pcdata). [Previously they were just cdata.]
+	Sunil confirmed that the parser does not correctly distinguish
+	CDATA vs. PCDATA in the body of a document -- it always reports it
+	as PCDATA.
+
+	---8<---
+	From smishra@cc.gatech.edu  Thu Sep 16 13:17:30 1999
+	To: "Kaelin Colclasure" <kaelin@everest.com>
+	Subject: Re: Fw: 
+
+	I looked at the DTD after your first report, and I noted the 
+	cdata. This will work for now, but is not correct. The fault
+	is ultimately mine, in not understanding the intention and
+	the uses of CDATA and PCDATA.
+	
+	I had assumed that the body of an SGML document is always
+	composed of PCDATA, and looking back I now realize it is not
+	so. Simply introducing PCDATA in the tag is a temporary fix,
+	in that the rules for interpreting PCDATA and CDATA are not
+	the same. The differences can cause subtle errors in parsing
+	scripts. My parser does not make enough of an allowance to
+	handle CDATA correctly, and doing The Right Thing is going
+	to be impossible right now. I have a lot on my hands.
+	
+	In short, substituting PCDATA for CDATA should be a fine fix
+	for now. You may not even notice the difference, since I have
+	made the PCDATA parsing in the parser more flexible than is
+	strictly correct.
+	
+	Thanks for pointing this out. I'll let you know if I get to
+	fixing the bug.
+	
+	Sunil
+	---8<---
+
+	TODO: Explore what "subtle errors" might be...
+	
+1999-09-15    <kaelin@sherpa.everest.com>
+
+	* html-parser.lisp (sort-forms-by-separators): This function is
+	used by #'define-html-parser and #'define-html-parser-context to
+	order the keyword-delimited form lists. Originally it expected
+	definitions to look like this:
+
+	(define-html-parser simple-parser ()
+	  :transitions (:start (simple-parse-context))
+	               (simple-parse-context t :end))
+
+	My problem with this form was that it is not auto-indentation
+	friendly. I changed it to instead expect:
+
+	(define-html-parser simple-parser ()
+	  (:transitions (:start (simple-parse-context))
+			(simple-parse-context t :end)))
+
+	This also simplified the code considerably [although possibly at
+	the expense of some error checking].
+
+	* html-utilities.lisp (simple-parse-context, simple-parser):
+	Updated to new macro syntax as described above.
+
+;; $Id: //depot/rev/lisp/html-parser-10.0-alpha/ChangeLog#1 $
+
+;; Local Variables:
+;; mode: Change-Log
+;; End:
+
+;;; EOF

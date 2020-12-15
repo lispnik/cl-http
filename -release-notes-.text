@@ -1,0 +1,450 @@
+;;-*- Mode: text; Package: cl-user; -*-
+
+CL-HTTP 70.23 (MCL 3.6.9, ACL 3.11.6, ACL501 1.5.4, LW 1.5.3, CMUCL 0.3.2, LCL, 4.2.4)
+
+CL-HTTP version 70.23 is now available from the home page and FTP site.
+
+        http://www.ai.mit.edu/projects/iiip/doc/cl-http/home-page.html
+
+        ftp://ftp.ai.mit.edu/pub/users/jcma/cl-http/
+
+The current release is available for:
+
+        * MAC running under MCL 4.2 (PowerPC), MCL 3.3 (68k), MCL 4.1
+        (PowerPC), MCL 3.2 (68k), MCL 4.0 (PowerPC), MCL 3.1 (68k), MCL 3.9
+        (PowerPC), MCL 3.0 (and MCL 2.0.1 with the usual caveats).  Please
+        report bugs, problems, or suggestions to bug-mcl-cl-http@ai.mit.edu
+
+        * Lisp Machine under Symbolics Genera 8.3 (also Open Genera 1.0, 2.0)
+
+        * UNIX  
+                o Allegro Common Lisp 4.2, 4.3,  5.0.1
+                  OS: SunOS 4.1.3x; Solaris 2.4, 2.5, 4.1.3; SGI IRIX 5.3; LINUX;
+                John Fodarero has a beta-test ACL 5.0.1 port.
+                Please report bugs, problems, or suggestions to
+                bug-acl-cl-http@ai.mit.edu
+
+                o LispWorks Common Lisp 3.2.2, 4.0.1
+                Please report bugs, problems, or suggestions to
+                bug-lw-cl-http@ai.mit.edu
+
+                o Lucid Common Lisp: This port has not been updated for
+                the present release.  -:( Any volunteers who wish to
+                help out should contact bug-lcl-cl-http@ai.mit.edu
+                However, Lucid users can run CL-HTTP 58.12 until
+                someone updates the port.
+
+                o CMU Common Lisp: This is a new port which is
+		considered beta-test when running multi-threaded on
+		Intel X86 hardware, and alpha-test on other ports of CMUCL.
+                Please report bugs, problems, or suggestions
+		to bug-cmucl-cl-http@ai.mit.edu
+
+        * Windows 95 & NT
+
+                o LispWorks Common Lisp 4.1 and 4.0.1
+                Please report bugs, problems, or suggestions to
+                bug-lw-cl-http@ai.mit.edu 
+
+                o Allegro Common Lisp 5.0. 
+                There are two ports for ACL. All ACL versions prior to
+                5.0.1 are handled by Olivier Clarisse's port. John Fodarero
+                has a beta-test ACL 5.0.1 port. Please report any bugs to
+                bug-acl-cl-http@ai.mit.edu
+
+This release includes several new facilities and many bug fixes and myriad
+small enhancements. HTTP 1.1 performance on the server should interoperate
+without problems.
+
+We want to hear what people are doing or would like to do with CL-HTTP
+so that we can better understand the needs of the user community.
+
+Discussion on www-cl@ai.mit.edu is encouraged to help steer server development
+according to the wishes of the user community.
+
+70.23
+
+	* Efficiency Enhacements: Header parsing, form processing, and other
+	efficiency improvements reduce server latency and consing, which are
+	particularly relevant for high-volume sites. Resourced header buffers
+	and fast header parsing eliminated 800-900 bytes of consing down to
+	near 0.  More efficient post method processing uses a
+        fast low-level specialization to slurp all posted data into
+        a buffer sized precisely to the request. Data is still parsed
+        into an alist, but form values are destructive unescaping, and
+	finally, indirect arrays may be obtained to further reduce consing.
+	See dcumentation on HTTP:*DURABLE-FORM-VALUES* and HTTP:EXPORT-URL.
+
+	* Web Flogger: A Lisp-based web flogger is now available to support
+	metering web operations during development. http:client;flogger.lisp
+
+	* HTTP Proxy: Updated to use HTTP 1.1 headers when appropriate.
+	Reduced latency by conforming to the new header regime.
+
+	* Bug Fixes: A considerable number of bugs have been fixed.
+
+67.100
+
+	* Caching Proxy Service: HTTP proxy service is available on most
+	platforms as betatest software.
+
+	* Server-Parsed HTML: Computed HTML can be inserted in static HTML
+	documents. See the :shtml-file export type for http:export-url.
+
+	* File Data Caching: Static file data can be cached in dynamic memory
+	to increase performance for URL accessed with high frequency. See
+	http:define-cached-data
+
+        * Meta-Content Format Generation: A loadable facility generates
+        Meta-Content Format (MCF) to drive  the HotSauce browser plugin
+        available from Apple Research for both Macintosh and Windows
+        platforms.   An example illustrates how to create fly-through
+        displays by coding a URL directory writer suitable for use with
+        http:export-url.
+
+        * HTML Parser: Version 9 of Sunil Mishra's parser is now
+        available. It includes faster performance,  revised
+        documentation, and examples of usage.
+
+        * Directory Index Caching: Indexes for directories computed from
+        the filesystem can now be cached in dynamic memory to reduce
+        latency in production servers. The variable
+        http:*cache-directory-indexes* controls whether directory
+        indexes are cached in dynamic memory or recomputed from disk on
+        demand.
+
+        * Standards Updated: The latest Web standards are available in
+        http:standards; and that directory has been reorganized for
+        easier navigation.
+
+63.58
+
+        * HTML 3.2: W3C standard HTML 3.2 is now emitted by the
+        generation facilities in the HTML package. Applications using
+        Netscape extension packages may now move within standards
+        coverage for most major capabilities.
+
+        * Examples: The examples have been updated to conform with HTML 3.2.
+        Some examples now use the W3P Presentation System for emitting forms
+        and processing input. (Color Mixer & Log Window) A Netscape 4.0 layer
+        examples illustrates mobile code emission.  A Web Lisp listener
+        provides a UI for Linux users and other Lisps with a command line
+        interface.  A new example emits Java and Java parameters to generate
+        client-side twistdown trees similar to the Machintosh Finder
+
+        * Log Window: A log window for monitoring server activity
+        remotely is available. It uses HTTP, frames and server push to
+        provide continuous updates. http:examples;log-window.lisp
+
+        * HyperArchive: The mail archive facility has been upgraded into
+        one of the best email archive managers anywhere. The facility
+        acts as a simple collaboration system and is easily extended.
+        http:examples;mail-archive.lisp
+
+        * LambdaVista: A hybrid classification & retrieval system provides
+        full-text search for CL-HTTP web sites and mail HyperArchives.  See
+        the documentation in /cl-http/lir/lir.html or the sources in
+        http:lambda-ir; Andrew Blumberg
+
+        * HTTP 1.1: The server now shows HTTP 1.1 as the version per the
+        decision by the HTTP Working Group. Digest authentication now
+        supports SHA as well. Dynamic PUTs are handled by ports
+        performing chunked reads, which include Symblics and Macintosh.
+
+        * HTML Generation: IMAGE automatically emits the dimensions for
+        JPEG images. Bugs were fixed for GIF images.
+        URL:LOAD-BALANCED-URL-STRING produces URLs hosted by different
+        servers. This can be used by HTML generation code to randomly
+        distribute HTTP traffic over cooperating server.  In the
+        Netscape authoring tools, the target argument is available more
+        widely. Mobile code can be emitted through more macros.
+        REDIRECT-REQUEST now accepts a TARGET argument so that display
+        will appear in a new window. Netscape 4.0 extensions, such as
+        layers, are available. HTML:WITH-STANDARD-DOCUMENT-BODY and
+        HTML:*STANDARD-COLOR-SCHEME* facilitate uniform look through a
+        Web site.
+
+        * Incompatible W3P Change: Previously, when a W3P:ACCEPT
+        encountered invalid input, it returned (values nil nil). This
+        behavior has been changed to always signal
+        w3p:input-not-of-required-type as teh default.  Calls to
+        W3P:ACCEPT or related functions will now need to handle the
+        condition, for example by:
+
+                (handler-case 
+                  (w3p:accept-from-string presentation-type raw-value)
+                  (w3p:input-not-of-required-type () (values nil nil)))
+
+        Replacing the previous handler is not recommended because it has
+        the consequence of forcing a separation between the return value
+        and signalling styles of handling input exceptions.
+
+        * URL Metering: HTTP:ENABLE-URL-METERING and HTTP:DISABLE-URL-METERING
+        allow reponse times for URLs to be measured. Useful for tuning code
+        and understanding loading. Response functions can control the amount
+        of computation allocated to a request.
+
+        * Bug Fixes: Numerous bugs have been fixed in the portable code
+        as well as the various ports.  Server stability has been
+        dramatically improved on the MCL platform, especially when
+        running OpenTransport and the native OT interface from Digitool.
+
+60.63
+
+        * Client: The client substrate has been remodularized with a client
+        object analogous to the server instances.
+
+        * Bug Fixes: A number of bugs have been fixed in all ports. These
+        include bugs related to HTTP 1.1 compliance and HTML generation
+        bugs related to frames and events. 
+
+60.17
+
+        * HTTP 1.1 Compliance: The server complies with the HTTP 1.1 IETF
+        draft standard dated August 12, 1996 for all platforms (except Lucid).
+        Connections are persistent for static and dynamic resources for all
+        content types.  Static files with content type text are transferred
+        using a CRLF (binary format on several architectures), which is cached
+        automatically. Virtual hosts are available for HTTP 1.1 clients,
+        as well as some late HTTP 1.0 clients (e.g., Netscape 2.0).
+
+        * W3P Presentation System: A light-weight and fast presentation
+        system has been integrated with the server for use in generating
+        form queries and parsing form returns. W3p implements a subset
+        of the Common Lisp Interface Manager, version 2.1. In a later
+        release, a Dynamic Form Processing layer will be added above
+        W3p. Chris Vincent Beta-Test
+
+        * Web Server Configuration: The server can be configured over
+        the Web using W3P and a preference facility.  This paves the way
+        for booting binary images containing only the server and
+        configured them from a Web interface rather than from Lisp.
+
+        * VRML Generation: A set of generation macros for the Virtual
+        Reality Modeling Language support VRML 1.0.  A brief tutorial
+        introduces Lisp programmers to generating 3 dimensional graphics
+        on the fly under program control. Rainer Joswig
+
+        * W4 Constraint-Guided Web Walker: A web walker is included in
+        the distribution, but must be loaded separately.  It provides a
+        constraint posting architecture control and action.  The basic
+        HTTP client has been ported to all platforms. Persistent
+        connections, performance tuning, and general hardening have
+        enhanced usability. W4 runs on all platforms except Lucid, most
+        robustly on the Lisp Machine. Beta-Test. An HTML parser
+        has been integrated as a url generator. Alpha-Test. 
+
+        * Distributed AI Applications: A MIME type,
+        Application/Lisp-SExp, has been defined to allow Lisp programs
+        to Post values from the basic client to the server. A response
+        function on the server may execute and return Lisp values to the
+        client. This clean facility for remote procedure call provides a
+        foundation for building distributed AI applications. See the
+        example in http:examples;client.lisp
+
+        * Put Method:  Netscape Gold 3.0 clients and the basic HTTP
+        client can use the PUT method to publish Web documents to the
+        server.
+
+        * Client-Side Cookies: Facilities for setting and using cookies
+        are now available. See computing response functions.
+
+        * Netscape 3.0 HTML Generation: HTML generation has been
+        extended to support Netscape 3.0 extensions, which include HTML
+        3.2 tables.
+
+        * Contributions Directory: A directory for general-purpose
+        contributions by users has be added at HTTP:CONTRIB; See also
+        HTTP:MAC;CONTRIB;
+
+        * Fast Access Logging: A dedicated process now handles writing
+        access logs for each port served. This allows threads to be
+        reused faster because they do not wait for their log entry to be
+        written.  Disk contention is reduced because multiple logs are
+        written in sequence while keeping the log file open.
+
+        * Automatic GIF Image Sizing: Netscape 1.1 & 2.0 image macros
+        automatically default the size of GIF images when
+        http:*image-sizes-default-automatically* is non-null. This
+        speeds the display of images on major clients. Shannon Spires
+
+        * Mail Archive Facility: Archives of email discussions can be
+        exported using the :MAIL-ARCHIVE export type, found in
+        http:examples;mail-archive.lisp.  This facility provides several
+        views on the archive, is always current, and can be extended via
+        subclassing. New mail formats beyond the current Lisp Machine,
+        Eudora, UNIX Rmail formats are easily added.
+
+        * Charsets: Character sets other than the HTTP default of
+        :ISO-8859-1 may be specified for all text content types at
+        export time, including directories. Similarly, dynamically
+        computed pages may specify alternate character sets.
+
+        * Languages: ISO language abbreviations can be associated with
+        all resources, whether static or dynamic.
+
+        * Computed Directory Listings: The standard url-oriented listing
+        of directory paths may be over-ridden by a computed response.  A
+        built-in function is available to serve index.html files instead
+        of standard listings.
+
+58.12
+
+        * JavaScript Emission: HTML generation macros incorporate
+        client-side events.  Events are handled by client-side code.
+        ns2.0:define-script provides a facility for encapsulating mobile
+        code and emitting it from lisp during HTML generation with
+        html:with-event-handlers, html:accept-input, and the simplified
+        html:fast-format.
+
+        * Databased Users & Groups: The modularization of the
+        authentication classes and methods was adjusted so that users
+        and groups in specific realms could be stored in an object
+        database. The API is available on request from the implementors.
+
+        * Persistent Connections: HTTP 1.1 persistent connections are
+        available for exports where the content length is known in
+        advance.  This produces more efficient HTTP service by reducing
+        the overhead of tearing down and reestablishing TCP connections
+        for each request.
+
+        * HTTP 1.1 Methods: The POST, PUT, and DELETE have been updated
+        to the HTTP 1.1 specification.
+
+        * Lower Server Latency: Server latency should be noticeably less
+        due to the following improvements:
+
+                o More efficient header parsing.
+                o Significantly less consing parsing headers.
+                o Faster URL parsing.
+
+        * Faster HTML Generation: Consing during HTML generation is
+        virtually eliminated, and i stack consed where unavoidable.
+
+        * Access Control Management: An example file implements an
+        access control manger over the Web and prevents unauthorized
+        access with digest authentication.
+
+        * Netscape 2.0: HTML generation is now available for the range of
+        2.0 extensions, including frames and client-side image maps.  Java
+        and JavaScript can be exported and invoked from synthesized HTML.
+
+        * Digest Authentication: The MD5 Digest authentication scheme is
+        implemented.  It provides substantially better passwords than the
+        Basic Authentication scheme.
+
+        * Modular Logging: Logging is now extensible. The variable
+        http:*log-access-log-class* controls the class of log used.  A variety
+        of log formats are predefined.
+
+        * Server Push: The netscape generation package now allows
+        the connection to the client to be kept open by the server and
+        the displays refreshed under server control using MIME multipart
+        generation.
+
+        * Access Control on URLs via passwords is now available.
+        Interfaces can now correctly supply the authenticated user and
+        the authentication method. see: /cl-http/authentication/
+
+        * *AUTO-EXPORT* is now set to :ON-DEMAND by default.  This
+        defers export of pathnames under directory URLs until they are
+        requested, and makes the server start up faster even in an
+        environment of slow or non-caching DNS resolvers.
+
+        * Custom logging is possible using multiple log objects are
+        possible and form values are cached on the server object.
+
+        * Server Interface 1.0 provides a defined interface for writing
+        response functions. This is an interface specification inspired
+        by CGI but more attuned to the needs of Lisp.
+
+        * Common Gateway Interface 1.1 provides the information needed
+        for scripting interfaces on the MAC (e.g., AppleScript, Perl)
+        and UNIX, but this standard is not very useful for the Lisp
+        programmer.
+
+        * Documentation on writing response functions explains all the
+        interfaces needed to write response functions for computed URLS,
+        form processing and search urls. See:
+        /cl-http/response-functions.html
+
+        * Documentation enumerating a number of heuristics for how to
+        make your lisp code for CL-HTTP response functions run fast.
+        Suggestions, refinements, and prioritizations are a relevant
+        topic for discussion on www-cl. See: /cl-http/efficiency.html
+
+        * A bug that could produce a 304 loop with Netscape has been
+        fixed.  But, Netscape 1.1 has further bugs with daylight savings
+        time. Clearing the cache and quitting Netscape can help in many
+        cases.
+
+        * Bugs related to operation on ports other than 80 or multiple
+        ports have been fixed. The function http:set-standard-http-port
+        can now be used to set the standard port on which the server
+        will listen. This must be invoked after
+        http:reset-server-local-host-variables in your server
+        configuration file (see the examples in
+        http:examples;configuration.lisp).
+
+        * The #U reader macro now uses the standard port when completing
+        relative URLs. The #U reader macro now accepts an alternate
+        syntax of the form:  #U("/cl-http/response-functions.html" :host
+        "Host.Domain":port 8000), where host and port would default to
+        the values of local-host and the standard port.
+
+        * The Mailto and File URLs are now parsed by the URL package.
+
+        * The Web related standards have been updated in http:standards;
+
+        * Portability enhancements will make additional ports smoother.
+
+        * Lazy header parsing improves the response time for the server.
+
+        * Several classes of AppleTalk errors are now detected on the
+        MAC and more meaningful error reports provided.
+
+        * A number of network conditions have been exported for use in
+        the http package (not yet available in the ACL port). These
+        include:
+
+                 BAD-CONNECTION-STATE
+                 CONNECTION-CLOSED
+                 CONNECTION-ERROR
+                 CONNECTION-LOST
+                 CONNECTION-REFUSED
+                 DOMAIN-RESOLVER-ERROR
+                 HOST-NOT-RESPONDING
+                 HOST-STOPPED-RESPONDING
+                 LOCAL-NETWORK-ERROR
+                 NETWORK-ERROR
+                 NETWORK-PARSE-ERROR
+                 NETWORK-RESOURCES-EXHAUSTED
+                 PROTOCOL-TIMEOUT
+                 REMOTE-NETWORK-ERROR
+                 UNKNOWN-ADDRESS
+                 UNKNOWN-HOST-NAME
+
+
+Caveats:
+
+Netscape 1.1 304 Loop: Netscape 1.1 can get into a loop attempting to refresh
+its cache with any server and this includes CL-HTTP. A work around is to clear
+the cache using from the preferences dialog, quit Netscape and restart. This
+works in most cases but not all. In other cases, make sure that your time and
+time zone are correctly configured, and if all else fails, set the caching to
+never check documents.
+
+
+Buggy HTTP Servers: A number of HTTP servers on the net implement
+unreliable TCP closes, which adversely effects the Lisp Machine and MAC
+versions of the basic client as well as proxy servers. The symptom is
+that URL data is incompletely transfered to the client because a number
+of HTTP servers close the connection in abort mode and thus issue a TCP
+reset to the client. Conforming TCP implementation assume a more
+graceful end to a transaction, and so, both the Lisp Machine and the MAC
+TCP mplementations flush the input buffer when they receive the tcp
+reset. If the client has not already completed reading the input buffer,
+a tcp-connection-reset error is signalled when the client next tries to
+read from the TCP input buffer. The next version of the HTTP
+specification contains a note advising implementors of these buggy
+servers to correct their problem.

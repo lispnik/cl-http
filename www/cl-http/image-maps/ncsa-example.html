@@ -1,0 +1,97 @@
+<html>
+
+<head>
+
+<title>
+     Example of NCSA Format Image-Map
+</title>
+
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+
+<h1>
+     The NCSA Format
+</h1>
+
+<p>
+
+<img src="/cl-http/icons/line-rain.gif">
+
+<p>
+
+     Map files written using the NCSA format contain six keywords: default, point, circle, oval, rect, and poly.
+     When a user makes a selection, shapes are checked in the order they appear in the file.  Lines beginning with # 
+     are comment lines, ignored by the server.  The beginning of each line is checked for a keyword along with 
+     its appropriate syntax:
+
+<dl>
+
+<dt> <code><b>default</b> URL </code><dd>
+     The default <code>URL</code> should be in the first line and must be set unless there are points defined.
+
+<dt> <code><b>point</b> URL x,y </code><dd>
+     If no shape is selected, points override the default. The closest point, defined by its coordinates, is selected.
+
+<dt> <code><b>circle</b> URL x1,y1 x2,y2 </code><dd>
+     Circle is defined by its center point <code>x1,y1</code> and a point <code>x2,y2</code> on its edge.
+
+<dt> <code><b>rect</b> URL x1,y1 x2,y2 </code><dd>
+     Rectangle is defined by the coordinates of its top-left <code>x1,y1</code> and bottom-right <code>x2,y2</code> corners.
+
+<dt> <code><b>poly</b> URL x1,y1 ... xn,yn </code><dd>
+     Polygon is defined by a list of at most 100 vertices, with its first and last connected.
+
+</dl>
+     
+     Coordinates use the upper-left corner as the origin, increasing down and to the right.
+<p>
+ 
+     A URL can be either a full URL (access method, host name, and path) or a partial URL.  A partial 
+     URL must always begin with a slash, and refers to a URL on the local host.
+
+<p>
+
+<h2>
+     Example
+</h2>
+
+     This clickable image is an example of an image-map that uses the NCSA format.
+
+<p>
+
+<a href= "/cl-http/image-maps/ncsa-shapes.gif"> <img src="/cl-http/image-maps/ncsa-shapes.gif" ismap> </a>
+
+<p>
+
+     The file 
+<a href= "/cl-http/image-maps/ncsa-shapes.ncsa-map"> ncsa-shapes.ncsa-map </a> 
+     specifies the configuration information for this image-map.
+
+<p>
+
+<a href= "/cl-http/image-maps/formats.html"> Back to Formats </a>
+
+<p>
+
+<a href= "/cl-http/image-maps/image-maps.html"> Back to Image-Maps on CL-HTTP </a>
+
+<p>
+
+
+<img src="/cl-http/icons/line-rain.gif">
+
+<p>
+
+<address>
+
+<a href= "http://web.mit.edu/cvince/"> Christopher R. Vincent </a> --
+<a href= "mailto:cvince@ai.mit.edu"> cvince@ai.mit.edu </a> <br>
+<a href= "http://web.mit.edu/"> M.I.T. </a> 
+<a href= "http://www.ai.mit.edu/"> Artificial Intelligence Laboratory </a> 
+
+</address>
+
+</body>
+
+</html>

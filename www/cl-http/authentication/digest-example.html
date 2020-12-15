@@ -1,0 +1,104 @@
+<html>
+
+<head>
+
+<title> Digest Authentication Example </title>
+
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+
+<h1> Digest Authentication Example </h1>
+
+<p><img src="/cl-http/icons/line-rain.gif"></p>
+
+<p>
+
+This example defines users, groups, and realms within the digest authentication
+scheme for HTTP.  Read the code below before trying this examples so that you
+will know the necessary users, passwords, and groups.
+
+<ul>
+<li><a href= "/cl-http/authentication/members.html">members.html</a>
+    is available to the :members group in the :digest-realm realm.
+
+<li><a href= "/cl-http/authentication/elite-members.html">elite-members.html</a>
+    is available to the :elite-members group in the :digest-realm realm.
+</ul>
+
+</p>
+
+<hr>
+
+<p>
+
+<b> The above example is defined in <a
+href="/cl-http/sources/examples/exports.lisp">
+http:examples;exports.lisp</a> by the following LISP code: </b>
+
+<code><pre>(in-package :http-user)
+;; ADD-REALM a new authentication realm using the digest authentication scheme.
+(add-realm :digest-realm :digest)
+
+;; The realm must contain groups before user objects refer to them.
+(add-groups :digest-realm :members :elite-members)
+
+;; Set up two users, assigning realms and groups.
+(add-user "mike" :digest-realm
+          :password "mike-foo"
+          :groups '(:members)
+          :personal-name "Mike Smith"
+          :email-address "mike@foo.com")
+
+(add-user "joe" :digest-realm
+          :password "joe-foo"
+          :groups '(:members :elite-members)
+          :personal-name "Joe Doe"
+          :email-address "joe@foo.com")
+
+;; Define a set of capabilities giving the :elite-members group basic access
+(add-access-control-group :elite-members-access
+                          :digest-realm
+                          :capabilities '((:get :elite-members)
+                                          (:head :elite-members)))
+
+;; Export some access-controlled urls
+(export-url #u"/cl-http/authentication/members.html"
+            :html-computed
+            :response-function #'display-url-authentication-status
+            :authentication-realm :digest-realm
+            :capabilities nil ;;no capabilities means anyone in the realm has access
+            :expiration '(:no-expiration-header)
+            :keywords '(:cl-http :authentication :demo))
+
+(export-url #u"/cl-http/authentication/elite-members.html"
+            :html-computed
+            :response-function #'display-url-authentication-status
+            :authentication-realm :digest-realm
+            :capabilities :elite-members-access
+            :expiration '(:no-expiration-header)
+            :keywords '(:cl-http :authentication :demo))
+</pre></code>
+
+</p>
+
+<p>
+<a href= "/cl-http/authentication/authentication.html">Back to CL-HTTP
+Authentication</a>
+</p>
+
+
+<p><img src="/cl-http/icons/line-rain.gif"></p>
+
+<address>
+
+<a href= "http://web.mit.edu/cvince/"> Christopher R. Vincent
+</a> --
+<a href= "mailto:cvince@ai.mit.edu"> cvince@ai.mit.edu </a> <br>
+<a href= "http://web.mit.edu/"> M.I.T. </a>
+<a href= "http://www.ai.mit.edu/"> Artificial Intelligence Laboratory </a>
+
+</address>
+
+</body>
+</html>

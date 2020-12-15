@@ -1,0 +1,93 @@
+<html>
+
+<head>
+
+<title>
+CL-HTTP Image Maps 
+</title>
+
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+
+<h1>
+     CL-HTTP Image Maps
+</h1>
+
+<p>
+
+<img src= "/cl-http/image-maps/small-shapes.gif">
+
+<p>
+
+<img src="/cl-http/icons/line-rain.gif">
+
+<p>
+
+<b>The IMAGE-MAP export-type</b> exists to allow well abstracted use of
+clickable image formats currently supported on CERN and NCSA servers.  An
+image-map is both an image and a searchable object.  Using a configuration
+file called a map file, areas of an image are specified to point to different
+URLS, either on the local host or at a remote site.  When the client returns
+the coordinates of a user's mouse click, the server compares that data to the
+information supplied in the map file.  The server then returns either the
+contents of a local URL or a redirect to a URL on a remote host.  CL-HTTP
+parses the map file into a data structure at export time, so the information
+is already in memory when a user responds to an image-map.  To allow
+compatability with existing files and graphics tools, either the CERN or the
+NCSA format for map files can be specified.
+
+<p>
+
+Image-maps are usually made up of basic shapes (eg. toolbars) but can contain
+concave polygons and layered shapes.  They are often used as directories or
+indexes, providing a clear, graphical way to organize a group of links.  While
+CL-HTTP supports GIF, JPEG, X-BITMAP, PICT, and TIFF searchable image types,
+only GIF is supported by most browsers.  While some browsers will inline JPEG
+files, many launch an external application and cannot use the file for
+image-map purposes.
+
+<p>
+
+<dl>
+
+<p> <dt> <a href= "/cl-http/image-maps/formats.html"><b>Formats and Examples</b></a> <dd>
+     View explanations and simple examples of either the 
+<a href= "/cl-http/image-maps/cern-example.html"> CERN format </a>
+     or the 
+<a href= "/cl-http/image-maps/ncsa-example.html"> NCSA format</a>.
+
+<p> <dt> <a href= "/cl-http/image-maps/tutorial.html"><b>Exporting Image-Maps</b></a> <dd>
+      A brief tutorial outlining how to
+<a href= "/cl-http/image-maps/tutorial.html"> export image-maps</a>
+      on this server.
+
+<p> <dt> <a href= "/cl-http/image-maps/tools.html"><b>Image-Map Tools</b></a> <dd>
+      There are a number of useful 
+<a href= "/cl-http/image-maps/tools.html"> image-map tools </a>
+     available for creating map files and manipulating images.
+
+</dl>
+
+<p>
+
+<a href= "/cl-http/cl-http.html">Back to CL-HTTP</a>
+
+<p>
+
+<img src="/cl-http/icons/line-rain.gif">
+
+<p>
+
+<address>
+
+<a href= "http://web.mit.edu/cvince/"> Christopher R. Vincent </a> --
+<a href= "mailto:cvince@ai.mit.edu"> cvince@ai.mit.edu </a> <br>
+<a href= "http://web.mit.edu/"> M.I.T. </a> 
+<a href= "http://www.ai.mit.edu/"> Artificial Intelligence Laboratory </a> 
+
+</address>
+
+</body>
+
+</html>

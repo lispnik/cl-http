@@ -1,0 +1,158 @@
+<html>
+<head>
+<title>Guidelines for Contributors</title>
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+<h1>Guidelines for Contributors</h1>
+
+<img src="/cl-http/icons/line-rain.gif">
+
+<p> For now, the M.I.T. AI Lab group reserves the right to decide which contributions
+merit inclusion in the core system and the distribution. This page describes how to
+write good code that can be easily incorporated into the production CL-HTTP. This
+document will evolve as people make suggestions about how to make it better.
+
+<ol> 
+
+<h2><li> Code Submission</h2>
+
+<dl>
+
+<dt><img src="/cl-http/icons/greenball.gif"> <b>Submit Atomic Patches:</b> Submit a file with
+just the relevant changes required to add the functionality to the system and with
+comments indicating the system version used and the source file containing any modified
+definition. When changing existing source code, put all the changed code in a different
+type face (e.g., <b>bold</b> and leave the old code commented out, and in this way,
+make it much easier for people to identify exactly what you have changed.
+
+<dt><img src="/cl-http/icons/greenball.gif"> <b>Export Interfaces:</b> Export
+only those symbols that constitute the defined interface for the
+functionality. 
+
+<dt><img src="/cl-http/icons/greenball.gif"> <b>Documentation:</b> Write documentation
+strings for all exported symbols and consider documenting important interface definitions so that
+the documentation tools can find your definitions and describe their usage.
+
+<dt><img src="/cl-http/icons/greenball.gif"> <b>Release Notes and Instructions:</b> Provide a
+one paragraph abstract and an extended summary for use in the release notes and server
+documentation where applicable. The summary should be in HTML and contain the following
+information:
+
+<ol>
+
+<li> Concise description of the functionality.
+
+<li> Steps for installing or starting up the facility.
+
+<li> Current status and future plans.
+
+<li> Author and point of contact for further information.
+
+</ol>
+
+</dl>
+
+<h2><li> Efficiency</h2>
+
+CL-HTTP makes an effort to maximize efficiency (it should do more) so that the speed of
+the server does not become a reason for people not to use it. At the same time, we want
+a clean set of abstractions that can be easily customized to meet user needs. So, there
+is a trade-off between efficiency and abstraction. In general, one should start by
+developing good abstractions and then optimize as necessary to achieve acceptable
+performance. Typically, you want to optimize only the critical path. 
+
+<p>
+
+Here are some ways to write efficient code:
+
+<dl>
+
+<dt><img src="/cl-http/icons/redball.gif"> <b>Minimize consing</b> at all times by using
+destructive operations.
+
+<dt><img src="/cl-http/icons/redball.gif"> <b>Use the dynamic extent declaration</b> for
+consing that can be done on the stack.
+
+<dt><img src="/cl-http/icons/redball.gif"> <b>Use generic functions sparingly</b> at those
+points where the abstraction is needed, and otherwise, use functions and fast
+accessors.
+
+<dt><img src="/cl-http/icons/redball.gif"> <b>Inline critical-path functions.</b> This is a way
+to conserve abstraction while gaining efficiency. You need to beware of over inlining
+and thus bloating the working set.
+
+<dt><img src="/cl-http/icons/redball.gif"> <b>Declare numerical computations</b> to avoid doing
+bignum arithmetic when possible.
+
+</dl>
+
+<p>A more extended set of suggestions is available in <a
+href="/cl-http/efficiency.html">efficiency heuristics</a>.</p>
+
+<h2><li> Abstraction</h2>
+
+<p> CL-HTTP is intended to be a toolkit for Web hacking. Although the ability to write
+response functions in Common Lisp will increase productivity, it is helpful to have a
+set of extensible abstractions to minimize code duplication and provide well-crafted
+operators. Thus, the way Cl-HTTP can distinguish itself from other server offerings
+will be by providing a rational set of abstractions or toolkit and making it easy to
+extend or customize the behavior of the server.
+
+<p>Here are some hints about how to write well-abstracted code:
+
+<dl>
+
+<dt><img src="/cl-http/icons/greenball.gif">  <b>Use the existing operator.</b>
+
+<dt><img src="/cl-http/icons/greenball.gif">  <b>Propose an extension to the existing operator.</b>
+
+<dt><img src="/cl-http/icons/greenball.gif"> <b>Make a function or method do only one
+well-defined task.</b> The goal is to avoid repeating code fragments with close
+functionality. Whenever a piece of code is used more than once, <i>or is likely</i> to
+be used more than once, make it a first-class operator.
+
+<dt><img src="/cl-http/icons/greenball.gif"> <b>Give each operator, variable or class a
+spelled-out mnemonic name so that others will find the abstraction and use it.</b>
+Recycle the vocabulary found in existing operators when naming new ones. Operators
+should contain verb forms describing the action or function they do while arguments
+should have names that describe the datatype which a caller should pass to them. 
+
+<dt><img src="/cl-http/icons/greenball.gif"> <b> All external symbol and any major internal
+operators should have document strings.</b> These should explain what the operator does and
+what its arguments are. As becomes obvious from the <a
+href="/cl-http/find-documentation.html">Online Help Facility</a> the combination of the
+documentation string with the function and argument names are the documentation.
+
+<dt><img src="/cl-http/icons/greenball.gif"> <b>When an operator gets too many parameterizing
+arguments, consider breaking it up into subfunctions.</b>
+
+<dt><img src="/cl-http/icons/greenball.gif"> <b>Whenever an operator's source definition
+exceeds a screenful, break it down into a combination of suboperators.</b>
+
+<dt><img src="/cl-http/icons/greenball.gif"> <b>Always use CLOS objects as
+your datastructure.</b> Forget about defstruct, except when speed is
+essential!
+
+<dt><img src="/cl-http/icons/greenball.gif"> <b>Provide a generic function for each toplevel
+operation on a class, while using functions or inline functions within according to
+speed requirements.</b>
+
+<dt><img src="/cl-http/icons/greenball.gif"> <b>Use local functions</b> (e.g.,
+FLET, LABELS, MACROLET) to capture abstractions within a definition and
+to avoid repeated code.</b>
+
+</dl>
+
+</ol>
+
+<p><img src="/cl-http/icons/line-rain.gif"></p>
+
+<address><a href="http://www.ai.mit.edu/people/jcma/jcma.html">John C. Mallery</a> -- <a
+href="mailto:jcma@ai.mit.edu">jcma@ai.mit.edu</a><br><a
+href="http://web.mit.edu/">M.I.T.</a> <a href="http://www.ai.mit.edu/">Artificial
+Intelligence Laboratory</a> </address>
+
+</body>
+</html>
+

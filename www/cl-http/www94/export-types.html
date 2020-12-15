@@ -1,0 +1,228 @@
+<title>Exporting URLs in CL-HTTP</title>
+
+<h1> Exporting URLs in CL-HTTP</h1>
+
+<hr>
+
+<p>HTTP:EXPORT-URL is the primary method that exports URLs, and thereby, makes
+them accessible via the HTTP server.  HTTP:EXPORT-URL takes arguments URL,
+EXPORT-TYPE. The URL argument is either a string or an interned URL.
+EXPORT-TYPE is the method to use in exporting URL.  EXPORT-TYPE also
+determines a set of additional arguments which are explained below.
+HTTP:DEFINE-URL-EXPORTS allows many URLs to be exported at once.
+HTTP:UNEXPORT-URL makes an exported URL inaccessible via the HTTP server.</p>
+
+<OL>
+
+<p><b><li>Basic Export Types:</b> These involve making the contents of a file
+accessible via a URL. These types require URLs that are objects (i.e., have a
+name and extension).
+
+<p><UL>
+
+	<li><b>Text</b>
+	<ul>
+	<li>:HTML-FILE (&key pathname)
+        <li>:TEXT-FILE (&key pathname)
+	<li>:RTF-FILE (&key pathname) 
+	</ul>
+
+	<li><b>Images</b>
+	<ul>
+	<li>:GIF-IMAGE (&key pathname)
+	<li>:JPEG-IMAGE (&key pathname)
+	<li>:X-BITMAP-IMAGE (&key pathname)
+	<li>:PICT-IMAGE (&key pathname)
+	<li>:TIFF-IMAGE (&key pathname)
+	</ul>
+
+	<li><b>Audio</b>
+	<ul>
+	<li>:BASIC-AUDIO (&key pathname)
+	<li>:AIFF-AUDIO (&key pathname)
+	<li>:WAV-AUDIO (&key pathname)
+	</ul>
+
+	<li><b>Video</b>
+	<ul>
+	<li>:MPEG-VIDEO (&key pathname)
+	<li>:QUICKTIME-VIDEO (&key pathname)
+	</ul>
+
+	<li><b>Other</b>
+	<ul>
+	<li>:PDF-FILE  (&key pathname)
+	<li>:POSTSCRIPT-FILE (&key pathname)
+
+	<li>:BINHEX-FILE (&key pathname)
+	<li>:STUFFIT-FILE  (&key pathname)
+	<li>:COMPRESSED-FILE (&key pathname)
+	<li>:MAC-BINARY-FILE (&key pathname)
+
+	<li>:WORD-FILE (&key pathname) <li>:POWER-POINT-FILE (&key pathname)
+	<li>:EXCEL-FILE (&key pathname) </ul></p>
+	
+</UL>
+
+<p><b><li>Directory Export Types:</b> These export all the files in a directory
+or a directory hierarchy when RECURSIVE-P is non-null. The most general export
+type, :DIRECTORY, exports all files whose resource type is known.  Others
+export a specific content type, and ignore other file types.  
+
+<p>When HTTP:*AUTO-EXPORT* is non-null, new files are automatically exported when
+they are scoped by one of these directory export types. Auto-export occurs on
+demand for the GET and HEAD methods of HTTP.
+
+<p>Note that the presence in file or directory names of escaped characters
+(see HTTP:*ESCAPED-CHARACTERS*) will lead to inconsistent results, and possibly
+errors. Space and question mark are examples.
+
+<p><UL>
+	<li>:DIRECTORY (&key pathname recursive-p)
+	<li>:HTML-DIRECTORY (&key pathname recursive-p)
+	<li>:TEXT-DIRECTORY (&key pathname recursive-p)
+	<li>:LISP-DIRECTORY (&key pathname recursive-p)
+	<li>:IMAGE-DIRECTORY (&key pathname recursive-p)
+	<li>:AUDIO-DIRECTORY (&key pathname recursive-p)
+	<li>:VIDEO-DIRECTORY (&key pathname recursive-p)
+	<li>:APPLICATION-DIRECTORY (&key pathname recursive-p)
+
+</UL></p>
+
+<p><b><li>Redirect Export Types:</b> These inform the client to look elsewhere
+for a URL.  They work for the GET and HEAD operations.  The exported URL can
+be either an HTTP object or an HTTP path.
+
+<p><UL>
+	<li>:REDIRECT (&key alternate-urls pathname)
+	<li>:TEMPORARY-REDIRECT (&key alternate-urls pathname)
+</UL></p>
+
+<p><b><li>Search Export Types:</b> These involve performing searches using the search
+index or map search facilities in HTTP. Search URLs must end with ? so that
+the system can composed the right combination of classes. In all cases, the
+response function must compute the answer and return HTML over the http stream
+to the client.
+
+<UL>
+
+<p><b><li>General Purpose Searches</b>
+
+<p>
+<UL>
+
+	<li>:SEARCH (&key response-function search-database)
+	This exports a URL that performs searches by calling RESPONSE-FUNCTION with
+	the arguments URL and STREAM. The search database and search parameters are
+	cached on the URL and accessible via URL:SEARCH-DATABASE and URL:SEARCH-KEYS.
+
+</UL></p>
+
+<p><b><li>Image Searches:</b> These allow the client's user to click on images
+and invoke a response from the server.  These URL are both objects and
+searchable.  When they are requested without the ? suffix, the contents of
+their associate image file is returned.  When the ? suffix appears, their
+RESPONSE-FUNCTION is called on the arguments URL and STREAM.  See the macro
+HTTP:WITH-IMAGE-COORDINATES automatically binds the X and Y coordinates.
+
+<p>
+<UL>
+	<li>:GIF-IMAGE (&key pathname response-function search-database)
+	<li>:JPEG-IMAGE (&key pathname response-function search-database)
+	<li>:X-BITMAP-IMAGE (&key pathname response-function search-database)
+</UL></p>
+
+</UL>
+
+<p><b><li>Computed URLs:</B> These compute responses returned to clients.
+
+<p><UL>
+
+	<p><li>:HTML-COMPUTED (&key response-function pathname)
+	RESPONSE-FUNCTION is called with the arguments URL and STREAM and is
+	responsible for returning HTML to the client. :html-computed has an
+	optional pathname so that the computation may reference a file, if
+	necessary.</p>
+	
+	<p><li>:HTML-FORM (&key response-function pathname server) :html-form
+	returns the contents of PATHNAME when it is requested via GET.  When
+	there is a POST, its RESPONSE-FUNCTION is called with URL, STREAM, and
+	FORM-ALIST.  FORM-ALIST is an alist of (QUERY RAW-VALUE) for all the
+	queries in the form that the client returns. QUERY is a keyword.  When
+	a client returns multiple raw-values for a QUERY, these are aggregated
+	into a list of the values associated with the query in a single,
+	order-preserving entry.</p>
+
+	<p><li> :HTML-COMPUTED-FORM (&key form-function response-function
+	server) :HTML-COMPUTED-FORM is a cross between :HTML-COMPUTED and
+	:HTML-FORM
+        that provides FORM-FUNCTION to generate html just like :HTML-COMPUTED
+        and RESPONSE-FUNCTION to handle the post method when form values
+        are returned. FORM-FUNCTION is called with the arguments URL and STREAM
+        and is responsible for returning HTML to the client. response-function
+        takes the same arguments as :HTML-FORM.</p>
+
+</UL></p>
+
+<p><b><li>Expiration:</b> The expiration time for a url is issued as an
+EXPIRES header so that proxy servers can determine when they need to
+refresh their cache.
+
+Expiration is controlled by providing the :EXPIRATION keyword argument
+when exporting any URL.  If expiration is not provided, the default is
+no expiration date.
+
+The :EXPIRATION keyword takes one argument, which is either keyword or
+a list of (keyword &rest arguments). The following expiration arguments
+are handled:
+
+<p><ul>
+
+ <li>:NO-EXPIRATION-HEADER --  No EXPIREs header is issued.
+
+ <li>:NEVER --  EXPIRES header indicates one year from now.
+
+ <li>(:TIME <i>universal-time</i>) --  EXPIRES header indicates an <i>universal-time</i>.
+
+ <li>(:INTERVAL <i>universal-time</i>) --  EXPIRES header indicates an now + <i>universal-time</i>.
+
+ <li>(:FUNCTION <function-spec>) -- EXPIRES header indicates universal
+  time computed by applying <function-spec> to URL.  <function-spec>
+  should return a universal for use in the EXPIRES header or NIL, in which
+  case no EXPIRES header is issued.
+
+</UL></p>
+
+<p><b><li>Subnet Security:</b> Global and local mechanisms are available for
+controlling subnet access based on IP address.
+
+<p><UL>
+
+     <p><li>HTTP:DEFINE-SECURE-SUBNETS restricts access globally to the server.</p>
+
+     <p><li>The :SECURE-SUBNETS keyword is supported by every URL export type. It
+	takes an optional list of IP addresses, which  when specified, allows only
+	hosts at these address to access the URLS denoted by the export operation.
+	Secure subnets are specified as a list of IP addresses, where zero is a wild
+	card.  So, for example '("128.52.0.0") matches all the AI lab subnets.</p>
+
+
+</UL></p>
+
+<p><b><li>Documentation:</b> Keywords and a descriptive string can be attached
+to URLs at export time.  For directory exports, note that these arguments
+apply to ALL URLs exported during the directory walk.
+
+<p><UL>
+	<li>:KEYWORDS -- A list of keywords characterizing the URL.
+	<li>:DOCUMENTATION -- A string describing the URL.
+</UL></p>
+
+<p><b><li>Portable Exports:</b> The #U reader macro merges a partial URL
+specification against the default for the local host. Use this when you be
+able to load the same exports file on different hosts.
+
+<p><b><li>Defining Static Export Types:</b> New static export types for data
+stored in files can be defined with DEFINE-URL-EXPORT-TYPE.
+
+</UL>

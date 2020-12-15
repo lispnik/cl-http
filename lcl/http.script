@@ -1,0 +1,95 @@
+#! /bin/sh
+
+####
+# Note: You may setup symbolic links for ~/cl-http and ~/lcl
+# so you don't have to edit this file each time you get a new CL-HTTP version.
+#
+# Edit the path of the lucid image at your site
+## ansilisp-clos is a dump  of a lisp image with the packages `clos' and
+## `ansi-packages' loaded
+LISPIMAGE="/usr/lisp_dumps/ansilisp-clos"
+#
+# Edit the path of the present version of CL-HTTP
+HTTP="/usr/lisp/applications/cl-http"
+#
+# Edit the path for installing or running the image lucid+CL-HTTP image
+HTTPIMAGE="/usr/lisp_dumps/lisp-http"
+####
+
+
+OPTION="$1"
+
+case $OPTION in
+
+        -compile*)
+        if [ $OPTION = -compile-debug ]; then DEBUG="T"; else DEBUG="NIL"; fi
+        echo "Compiling CL-HTTP from $HTTP using image $LISPIMAGE with debug = $DEBUG"
+        $LISPIMAGE -n -e "\
+	 (progn\
+	 (setq *cl-http-options* '(:compile))\
+	 (load \"$HTTP/lcl/start\")\
+	 (lcl:quit))"
+        ;;
+
+        -build*)
+        echo "Building CL-HTTP from $HTTP using image $LISPIMAGE to $HTTPIMAGE"
+        $LISPIMAGE -n -e "\
+	 (progn\
+	 (setq *cl-http-options* '())\
+	 (load \"$HTTP/lcl/start\")\
+	 (lcl::disksave \"$HTTPIMAGE\" :full-gc t :verbose t))\
+	 (lcl:quit))"
+        ;;
+
+        -run*)
+        echo "Running CL-HTTP from $HTTP using image $LISPIMAGE"
+        $LISPIMAGE -n -e "\
+	 (progn\
+	 (setq *cl-http-options* '(:enable))\
+	 (load \"$HTTP/lcl/start\")\
+	 )"
+        ;;
+
+        -help*)
+        echo "Usage:
+        $0                   ; start CL-HTTP service without Log (default)
+        $0 -build            ; build the CL-HTTP from a Lucid image
+        $0 -compile          ; compile and load the sources into Lucid
+        $0 -compile-debug    ; compile and load the sources with debugging information into Lucid
+        $0 -run              ; load the sources into Lucid and start http
+        $0 -log              ; start CL-HTTP service with Log file
+        $0 -help             ; print this message
+"
+        ;;
+        -log*)
+        if test -x $HTTPIMAGE
+        then    $HTTPIMAGE -n -e "\
+	 (progn\
+	 (http:enable-http-service)\
+	 (format t \"~&CL-HTTP serving at ~a - With log.~%\" http::*http-ports*)\
+	 (values))"
+        else
+        HELP=yes
+        fi
+
+        ;;
+        # This must be last
+        *)
+        if test -x $HTTPIMAGE
+        then    $HTTPIMAGE -n -e "\
+	 (progn\
+	 (http:enable-http-service)\
+	 (http:log-notifications-on (first http::*all-logs*) nil)\
+	 (format t \"~&CL-HTTP serving at ~a - NO log.~%\" http::*http-ports*)\
+	 (values))"
+        else
+        HELP=yes
+        fi
+        ;;
+esac
+
+test $HELP && (echo "The CL-HTTP image: $HTTPIMAGE
+is not found or not executable.
+You may need to compile and then build this image.";
+$0 -help;)
+

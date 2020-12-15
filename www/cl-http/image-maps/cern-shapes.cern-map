@@ -1,0 +1,7 @@
+#6/27/95  cvince@ai.mit.edu
+#Format:  CERN
+
+default                    /cl-http/image-maps/cern-default.html
+circle  (50,55) 37         /cl-http/image-maps/cern-circle.html
+rect    (112,28) (202,92)  /cl-http/image-maps/cern-rect.html
+poly    (263,14) (321,22) (307,95) (236,90) (228,47) (273,52) /cl-http/image-maps/cern-poly.html

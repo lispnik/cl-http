@@ -1,0 +1,934 @@
+diff -rc server/headers.lisp server/headers.lisp
+*** server/headers.lisp	Tue Nov 23 02:24:03 1999
+--- server/headers.lisp	Tue Nov 23 02:25:29 1999
+***************
+*** 3327,3333 ****
+         (www-utils:chunk-transfer-decoding-mode-end ,stream))
+       (values-list values)))
+  
+! #-(or Genera MCL LispWorks)
+  (define-macro with-chunked-transfer-decoding ((stream &key (headers '*headers*)) &body body)
+    "Chunked transfer decoding not available for this implementation.
+  Automatically decodes chunked content transfer encodings.
+--- 3327,3362 ----
+         (www-utils:chunk-transfer-decoding-mode-end ,stream))
+       (values-list values)))
+  
+! #+(and CMU mp)
+! (defun update-chunk-transfer-decoded-headers (header-set stream content-length)
+!   ;; add a content length header now that we know it
+!   (push-header header-set :content-length content-length)
+!   ;; suppress the transfer encoding
+!   (suppress-header header-set :transfer-encoding t t)
+!   ;; read any trailers on the chunk
+!   (with-text-stream (stream :input)		;make sure stream in in text mode
+!     (resourced-read-headers *headers* stream))
+!   header-set)
+! 
+! #+(and CMU mp)
+! (define-macro with-chunked-transfer-decoding ((stream &key (headers '*headers*)) &body body)
+!   "Automatically decodes chunked content transfer encodings.
+!   On exit from BODY, HEADERS is extended to include content-length and
+!   any footers transmitted with the chunked transfer. HEADERS must be
+!   amenable to generalized value setting with SETF. When the end of the
+!   chunk is reached an EOF is signalled upon which the BODY should return." 
+!   `(unwind-protect
+!     (handler-case
+!      (progn
+!        (www-utils:chunk-transfer-decoding-mode ,stream)
+!        ,@body)
+!      (www-utils:end-of-chunk-transfer-decoding ()))
+!     (let ((content-length (www-utils:chunk-transfer-decoding-mode-end ,stream)))
+!       ,@(when headers
+! 	      `((setf ,headers (update-chunk-transfer-decoded-headers
+! 				,headers ,stream content-length)))))))
+! 
+! #-(or Genera MCL LispWorks (and CMU mp))
+  (define-macro with-chunked-transfer-decoding ((stream &key (headers '*headers*)) &body body)
+    "Chunked transfer decoding not available for this implementation.
+  Automatically decodes chunked content transfer encodings.
+diff -rc server/vrml-1-0.lisp server/vrml-1-0.lisp
+*** server/vrml-1-0.lisp	Sat Oct 24 00:03:24 1998
+--- server/vrml-1-0.lisp	Sat Jan 10 15:40:35 1998
+***************
+*** 154,162 ****
+  ;;;
+  
+  (defstruct color
+!   (red 0.0 :type (single-float 0.0 1.0))
+!   (green 0.0 :type (single-float 0.0 1.0))
+!   (blue 0.0 :type (single-float 0.0 1.0)))
+  
+  (setf (documentation 'color 'structure)
+        "Fields containing one (SFColor) or zero or more (MFColor) RGB colors.
+--- 154,162 ----
+  ;;;
+  
+  (defstruct color
+!   (red 0f0 :type (single-float 0f0 1f0))
+!   (green 0f0 :type (single-float 0f0 1f0))
+!   (blue 0f0 :type (single-float 0f0 1f0)))
+  
+  (setf (documentation 'color 'structure)
+        "Fields containing one (SFColor) or zero or more (MFColor) RGB colors.
+***************
+*** 168,177 ****
+  is an MFColor field containing the three colors red, green, and blue.")
+  
+  (defstruct rotation
+!   (x 0.0 :type float-or-integer)
+!   (y 0.0 :type float-or-integer)
+!   (z 0.0 :type float-or-integer)
+!   (amount 0.0 :type float-or-integer))
+  
+  (setf (documentation 'rotation 'structure)
+        "A field containing an arbitrary rotation. SFRotations are written to
+--- 168,177 ----
+  is an MFColor field containing the three colors red, green, and blue.")
+  
+  (defstruct rotation
+!   (x 0f0 :type float-or-integer)
+!   (y 0f0 :type float-or-integer)
+!   (z 0f0 :type float-or-integer)
+!   (amount 0f0 :type float-or-integer))
+  
+  (setf (documentation 'rotation 'structure)
+        "A field containing an arbitrary rotation. SFRotations are written to
+***************
+*** 183,199 ****
+  0 1 0  3.14159265")
+  
+  (defstruct 2d-float-vector
+!   (x 0.0 :type float-or-integer)
+!   (y 0.0 :type float-or-integer))
+  
+  (setf (documentation '2d-float-vector 'structure)
+        "Field containing a two-dimensional vector. SF2d-float-vectors are written to file
+  as a pair of floating point values separated by whitespace.")
+  
+  (defstruct 3d-float-vector
+!   (x 0.0 :type float-or-integer)
+!   (y 0.0 :type float-or-integer)
+!   (z 0.0 :type float-or-integer))
+  
+  (setf (documentation '3d-float-vector 'structure)
+        "Field containing a three-dimensional vector. SF3d-float-vectors are written to
+--- 183,199 ----
+  0 1 0  3.14159265")
+  
+  (defstruct 2d-float-vector
+!   (x 0f0 :type float-or-integer)
+!   (y 0f0 :type float-or-integer))
+  
+  (setf (documentation '2d-float-vector 'structure)
+        "Field containing a two-dimensional vector. SF2d-float-vectors are written to file
+  as a pair of floating point values separated by whitespace.")
+  
+  (defstruct 3d-float-vector
+!   (x 0f0 :type float-or-integer)
+!   (y 0f0 :type float-or-integer)
+!   (z 0f0 :type float-or-integer))
+  
+  (setf (documentation '3d-float-vector 'structure)
+        "Field containing a three-dimensional vector. SF3d-float-vectors are written to
+
+diff -rc client/flogger.lisp client/flogger.lisp
+*** client/flogger.lisp	Thu Dec 16 08:00:03 1999
+--- client/flogger.lisp	Thu Nov 25 05:35:36 1999
+***************
+*** 229,234 ****
+--- 229,235 ----
+  logged on STREAM."))
+  
+  (defmethod access-url (transaction-control (http-method (eql :get)) http-version persistent-connections-p report-stream)
++   #+cmu (declare (optimize (speed 0)))
+    (declare (ignore http-version persistent-connections-p report-stream))
+    (let ((url (transaction-control-url transaction-control))
+  	(headers (transaction-control-headers transaction-control)))
+***************
+*** 244,249 ****
+--- 245,251 ----
+  	      (advance-input-buffer remote-stream))))))))
+  
+  (defmethod access-url (transaction-control (http-method (eql :head)) http-version persistent-connections-p report-stream)
++   #+cmu (declare (optimize (speed 0)))
+    (declare (ignore http-version persistent-connections-p report-stream))
+    (let ((url (transaction-control-url transaction-control))
+  	(headers (transaction-control-headers transaction-control)))
+***************
+*** 257,262 ****
+--- 259,265 ----
+  					      :exceptions-flush-entities nil :http-version http-version)))))))
+  
+  (defmethod access-url ((transaction-control post-transaction-control) (http-method (eql :post)) http-version persistent-connections-p stream)
++   #+cmu (declare (optimize (speed 0)))
+    (declare (ignore http-version persistent-connections-p))
+    (flet ((send-data (remote-stream vector content-length)
+             (with-binary-stream (remote-stream :output)
+diff -rc client/sexp-browser.lisp client/sexp-browser.lisp
+*** client/sexp-browser.lisp	Thu Jun 10 00:14:45 1999
+--- client/sexp-browser.lisp	Thu Jun 10 00:39:08 1999
+***************
+*** 421,426 ****
+--- 421,427 ----
+  ;;;
+  
+  (defun %show-url-headers (url headers stream)
++   #+cmu (declare (optimize (speed 0)))
+    (handler-case
+      (handling-redirects (url)
+        (handling-authentication (authorization)
+***************
+*** 449,454 ****
+--- 450,456 ----
+  ;;; 
+  
+  (defun %show-url (url headers stream &key raw-output-p start end)
++   #+cmu (declare (optimize (speed 0)))
+    (let ((range (when (and start end)
+  		 `(,start ,end))))
+      (declare (dynamic-extent range))
+***************
+*** 494,513 ****
+    (declare (ignore headers))
+    (multiple-value-bind (user-id pw)
+        (url:user-id-and-password url)
+!     (www-utils:ftp-copy-file (url::ftp-url-pathname url)
+! 			     stream :element-type 'character
+! 			     :user-id (or user-id "anonymous")
+! 			     :user-pw (or pw (www-utils::user-mail-address)))))
+  
+  (defmethod show-url ((url url:ftp-directory) &key headers (stream *standard-output*))
+    (declare (ignore headers))
+    (flet ((directory-info (url)
+! 			 (multiple-value-bind (user-id pw)
+! 			     (url:user-id-and-password url)
+! 			   (www-utils::ftp-directory-info
+! 			     (url::ftp-url-pathname url)
+! 			     (or user-id "anonymous")
+! 			     (or pw (www-utils::user-mail-address))))))
+      (declare (inline directory-info))
+      ;; get down to business
+      (loop for (path . plist) in (directory-info url)
+--- 496,523 ----
+    (declare (ignore headers))
+    (multiple-value-bind (user-id pw)
+        (url:user-id-and-password url)
+!       (let ((path-string (with-output-to-string (stream)
+! 			   (url::write-path url stream)
+! 			   (url::write-object-name-string url stream))))
+! 	(with-slots (host-string port) url
+! 	  (www-utils:ftp-copy-file
+! 	   host-string (or port 21) path-string
+! 	   stream :element-type 'character
+! 	   :user-id (or user-id "anonymous")
+! 	   :user-pw (or pw (www-utils::user-mail-address)))))))
+  
+  (defmethod show-url ((url url:ftp-directory) &key headers (stream *standard-output*))
+    (declare (ignore headers))
+    (flet ((directory-info (url)
+! 	   (let ((path-string (with-output-to-string (stream)
+! 				(url::write-path url stream))))
+! 	     (with-slots (host-string port) url
+! 	       (multiple-value-bind (user-id pw)
+! 		   (url:user-id-and-password url)
+! 		 (www-utils::ftp-directory-info
+! 		  host-string (or port 21) path-string
+! 		  (or user-id "anonymous")
+! 		  (or pw (www-utils::user-mail-address))))))))
+      (declare (inline directory-info))
+      ;; get down to business
+      (loop for (path . plist) in (directory-info url)
+***************
+*** 533,538 ****
+--- 543,549 ----
+  ;;;
+  
+  (defun %show-url-trace (url headers stream &key (max-forwards 5.))
++   #+cmu (declare (optimize (speed 0)))
+    (handler-case
+      (handling-redirects (url)
+        (handling-authentication (authorization)
+***************
+*** 564,569 ****
+--- 575,581 ----
+  ;;;
+  
+  (defun %show-url-options (url headers stream)
++   #+cmu (declare (optimize (speed 0)))
+    (handler-case
+      (handling-redirects (url)
+        (handling-authentication (authorization)
+***************
+*** 593,598 ****
+--- 605,611 ----
+  ;;;
+  
+  (defun %delete-url (url headers stream)
++   #+cmu (declare (optimize (speed 0)))
+    (handler-case
+      (handling-redirects (url)
+        (handling-authentication (authorization)
+***************
+*** 691,696 ****
+--- 704,710 ----
+  Application/Lisp-SExp can return lisp values."))
+  
+  (defun %post-url (url vector headers stream)
++   #+cmu (declare (optimize (speed 0)))
+    (flet ((send-data (remote-stream vector content-length)
+             (with-binary-stream (remote-stream :output)
+  	     (write-vector remote-stream vector 0 content-length)
+***************
+*** 758,763 ****
+--- 772,778 ----
+  
+  ;; Handles the 1.1 PUT and the 1.0 cretenous PUT
+  (defun %put-url (url resource-writer content-length content-type headers stream version)
++   #+cmu (declare (optimize (speed 0)))
+    (flet ((send-data (writer remote-stream url content-length)
+             (with-transfer-encoding (remote-stream (if content-length
+  						      :fixed-length :chunked))
+***************
+*** 915,920 ****
+--- 930,936 ----
+  HEADERS are a plist of outgoing headers to accompany the request."))
+  
+  (defmethod capture-raw-url ((url url:http-url) &key headers (display-stream *standard-output*)  start end)
++   #+cmu (declare (optimize (speed 0)))
+    (let ((range (when (and start end)
+  		 `(,start ,end))))
+      (declare (dynamic-extent range))
+diff -rc w4/examples/web-archive.lisp w4/examples/web-archive.lisp
+*** w4/examples/web-archive.lisp	Mon Jul  7 14:19:24 1997
+--- w4/examples/web-archive.lisp	Sat Oct  4 04:30:14 1997
+***************
+*** 32,38 ****
+  (define-parameter *web-archive-base-uri-path* "/cl-http/archives/"
+    "The base uri that archives are exported under.")
+  
+! (define-parameter *web-archive-default-directory* #p"http:web-archive;"
+    "Default directory for storing archived resources.")
+  
+  (define-variable *web-archive-table* (make-hash-table :test #'equalp)
+--- 32,39 ----
+  (define-parameter *web-archive-base-uri-path* "/cl-http/archives/"
+    "The base uri that archives are exported under.")
+  
+! (define-parameter *web-archive-default-directory*
+!     (translate-logical-pathname "http:web-archive;")
+    "Default directory for storing archived resources.")
+  
+  (define-variable *web-archive-table* (make-hash-table :test #'equalp)
+diff -rc w4/walker.lisp w4/walker.lisp
+*** w4/walker.lisp	Sat Apr 24 07:41:10 1999
+--- w4/walker.lisp	Sun Apr 25 05:59:29 1999
+***************
+*** 893,898 ****
+--- 893,899 ----
+  	  (t (error "No constraint type available for ~S." constraint)))))
+  
+  (defmethod satisfies-p ((url url:http-url) (activity activity) (constraint-set constraint-set))
++   #+cmu (declare (optimize (speed 0)))
+    (with-slots (context-constraints dns-constraints header-constraints resource-constraints
+                                     url-constraints sorted-p) constraint-set
+      (flet ((%satisfies-constraint-list-p (url activity c-list)
+***************
+*** 1125,1130 ****
+--- 1126,1132 ----
+                          (unless (zerop ,wait-interval) (sleep ,wait-interval))))))))
+  
+  (defmethod get-resource-content :around ((activity activity) (url http-url) &key refetch-p headers (report-stream *report-stream*))
++   #+cmu (declare (optimize (speed 0)))
+    (with-network-operation-retries ((format nil "(get-resource-content ~S ~S)" activity url)
+                                     *retries-on-network-error*
+                                     :wait-interval *wait-interval-before-retry*
+***************
+*** 1136,1141 ****
+--- 1138,1144 ----
+      (call-next-method activity url :refetch-p refetch-p :headers headers :report-stream report-stream)))
+  
+  (defmethod get-resource-headers :around ((activity activity) (url http-url) &key refetch-p headers (report-stream *report-stream*))
++   #+cmu (declare (optimize (speed 0)))
+    (with-network-operation-retries ((format nil "(get-resource-content ~S ~S)" activity url)
+                                     *retries-on-network-error*
+                                     :wait-interval *wait-interval-before-retry*
+diff -rc examples/log-window.lisp examples/log-window.lisp
+*** examples/log-window.lisp	Sat May 22 22:35:15 1999
+--- examples/log-window.lisp	Sun May 23 02:26:23 1999
+***************
+*** 248,255 ****
+--- 252,261 ----
+  			      (with-centering (:stream stream)
+  				(log-display-statistics-as-html-table log stream)))))
+  			(force-output stream)
++ 			#+multi-threaded
+  			(process-wait "Log Counter Refresh Wait" #'refresh-p
+  				      log (+ (log-total-number-of-requests log) *log-window-statistics-refresh-rate*) stream)
++ 			#-multi-threaded (return)
+  			(unless (live-connection-p stream)
+  			  (return))))
+  	  (error 'document-not-found :url url
+***************
+*** 349,354 ****
+--- 355,363 ----
+  ;		   (write-extended-common-logfile-entry server stream)
+  ;		   (terpri stream)
+  ;		   (force-output stream))
++ ;		 #+(and cmu (not mp))
++ ;		 (error () (%log-deinstall-remote-stream log stream))
++ ;		 #-(and cmu (not mp))
+  ;		 (network-error () (%log-deinstall-remote-stream log stream))))
+  ;      (error (err) (bug-report-error-logging-access server log err 'notify-remote-client)))
+  ;    t))
+***************
+*** 377,389 ****
+  (defun %write-log-window-notification (host-name requests-per-connection request request-time status bytes user-name user-agent referer
+  						 cpu-time elapsed-time stream)
+    (flet ((write-milliseconds (milliseconds stream) ;; "Writes milliseconds in 4 characters."
+! 	   (cond ((< milliseconds 1000)
+! 		  (prin1 (float (/ (round milliseconds 10) 100)) stream))
+! 		 ((< milliseconds 10000)
+! 		  (prin1 (float (/ (round milliseconds 10) 100)) stream))
+! 		 ((< milliseconds 100000)
+! 		  (prin1 (float (/ (round milliseconds 100) 10)) stream))
+! 		 (t (prin1 (round milliseconds 1000) stream))))
+  	 (write-microseconds (microseconds stream) ;; "Writes microseconds in 4 characters."
+  	   (let* ((milliseconds (round microseconds 1000)))
+  	     (cond ((> 10 milliseconds)
+--- 386,401 ----
+  (defun %write-log-window-notification (host-name requests-per-connection request request-time status bytes user-name user-agent referer
+  						 cpu-time elapsed-time stream)
+    (flet ((write-milliseconds (milliseconds stream) ;; "Writes milliseconds in 4 characters."
+! 	   (macrolet ((write-it (time stream)
+! 			#+fast`(prin1 ,time ,stream)
+! 			`(format ,stream "~4,2F" ,time)))
+! 	     (cond ((< milliseconds 1000)
+! 		    (write-it (float (/ (round milliseconds 10) 100)) stream))
+! 		   ((< milliseconds 10000)
+! 		    (write-it (float (/ (round milliseconds 10) 100)) stream))
+! 		   ((< milliseconds 100000)
+! 		    (prin1 (float (/ (round milliseconds 100) 10)) stream))
+! 		   (t (prin1 (round milliseconds 1000) stream)))))
+  	 (write-microseconds (microseconds stream) ;; "Writes microseconds in 4 characters."
+  	   (let* ((milliseconds (round microseconds 1000)))
+  	     (cond ((> 10 milliseconds)
+***************
+*** 405,411 ****
+  	(write-24-hour-time hours minutes seconds stream))
+        ;; milliseconds of elapsed time
+        (write-char #\space stream)
+!       (write-milliseconds elapsed-time stream)
+        ;; microsecond CPU time
+        (write-char #\space stream)
+        (write-microseconds cpu-time stream)
+--- 417,423 ----
+  	(write-24-hour-time hours minutes seconds stream))
+        ;; milliseconds of elapsed time
+        (write-char #\space stream)
+!       (write-milliseconds (* elapsed-time #.(/ 1000 internal-time-units-per-second)) stream)
+        ;; microsecond CPU time
+        (write-char #\space stream)
+        (write-microseconds cpu-time stream)
+***************
+*** 546,554 ****
+--- 558,568 ----
+  				  (unwind-protect
+  				      ;; make sure it is not deinstalled by another log window.
+  				      (log-install-remote-stream (setq log (ensure-remote-notification-log port)) stream)
++ 				    #+multi-threaded
+  				    (process-wait "Log Window Refresh Wait" #'refresh-p
+  						  log (+ (notification-log-ticks log) *log-window-history-size*) stream)
+  				    (log-deinstall-remote-stream log stream)))))))
++ 		        #-multi-threaded (return)
+  			(unless (live-connection-p stream)
+  			  (return))
+  			(force-output stream)))
+diff -rc examples/mail-archive.lisp examples/mail-archive.lisp
+*** examples/mail-archive.lisp	Sat May 22 22:36:02 1999
+--- examples/mail-archive.lisp	Sun May 23 02:28:13 1999
+***************
+*** 372,378 ****
+  	    #+CLIM-SYS
+  	    (eql (cl-user::search-wild "From *@*" line) 0))))
+  
+- #+Ignore
+  (define-message-delimiter rmail
+       (:prefix-delimitation-p t
+        :documentation "Delimits messages in mail files written in Rmail format.")
+--- 372,377 ----
+***************
+*** 2097,2103 ****
+    (flet ((name (class)
+  	   (typecase class
+  	     (symbol class)
+! 	     (t (class-name class)))))
+      (loop for super-class in (class-direct-superclasses class)
+  	  for name = (name super-class)
+  	  as sc = (class-superclasses super-class)
+--- 2096,2103 ----
+    (flet ((name (class)
+  	   (typecase class
+  	     (symbol class)
+! 	     (t #+CMU (pcl:class-name class)
+! 		#-CMU (class-name class)))))
+      (loop for super-class in (class-direct-superclasses class)
+  	  for name = (name super-class)
+  	  as sc = (class-superclasses super-class)
+diff -rc examples/vrml/vrml.lisp examples/vrml/vrml.lisp
+*** examples/vrml/vrml.lisp	Sun Jun 22 23:10:16 1997
+--- examples/vrml/vrml.lisp	Sat Jan 10 15:47:17 1998
+***************
+*** 50,57 ****
+  (defun simple-scene (out-stream)
+    (with-vrml-world (:stream out-stream)
+      (with-separator-group (out-stream)
+!       (translation-node* out-stream 0.1 0.7 -8)
+!       (cube-node out-stream :width 1.1))))
+  
+  (let ((file (pathname "http:examples;vrml;scene1.wrl")))
+    (unless (probe-file file)
+--- 50,57 ----
+  (defun simple-scene (out-stream)
+    (with-vrml-world (:stream out-stream)
+      (with-separator-group (out-stream)
+!       (translation-node* out-stream 0.1f0 0.7f0 -8)
+!       (cube-node out-stream :width 1.1f0))))
+  
+  (let ((file (pathname "http:examples;vrml;scene1.wrl")))
+    (unless (probe-file file)
+***************
+*** 71,79 ****
+  (defun colored-simple-scene (out-stream)
+    (with-vrml-world (:stream out-stream)
+      (with-separator-group (out-stream)
+!       (let-fields ((color color :red 1.0 :green 0.5 :blue 0.1))
+          (material-node out-stream :diffuse-color color))
+!       (translation-node* out-stream 0.1 0.7 -8)
+        (cylinder-node out-stream :radius 3.1))))
+  
+  (let ((file (pathname "http:examples;vrml;scene2.wrl")))
+--- 71,79 ----
+  (defun colored-simple-scene (out-stream)
+    (with-vrml-world (:stream out-stream)
+      (with-separator-group (out-stream)
+!       (let-fields ((color color :red 1.0f0 :green 0.5f0 :blue 0.1f0))
+          (material-node out-stream :diffuse-color color))
+!       (translation-node* out-stream 0.1f0 0.7f0 -8)
+        (cylinder-node out-stream :radius 3.1))))
+  
+  (let ((file (pathname "http:examples;vrml;scene2.wrl")))
+***************
+*** 167,175 ****
+  Changes the color of each cube."
+    (flet ((random-inserter (fun stream)
+             (let-fields ((color color
+!                                :red (random 1.0)
+!                                :green (random 1.0)
+!                                :blue (random 1.0)))
+               (material-node stream :diffuse-color color)
+               (funcall fun stream))))
+      (with-vrml-world (:stream stream)
+--- 167,175 ----
+  Changes the color of each cube."
+    (flet ((random-inserter (fun stream)
+             (let-fields ((color color
+!                                :red (random 1f0)
+!                                :green (random 1f0)
+!                                :blue (random 1f0)))
+               (material-node stream :diffuse-color color)
+               (funcall fun stream))))
+      (with-vrml-world (:stream stream)
+diff -rc html-parser/v8/html-parser.lisp html-parser/v8/html-parser.lisp
+*** html-parser/v8/html-parser.lisp	Sat Nov 15 12:54:49 1997
+--- html-parser/v8/html-parser.lisp	Tue Mar 10 22:34:43 1998
+***************
+*** 50,61 ****
+              (tokenize-name (symbol-name *pcdata-default-container*))))
+    ;; Load the DTD
+    (let* ((dtd-name (cadr (assoc doctype *html-dtd-list* :test #'string=)))
+!          (src-file (make-pathname :host "HTML-PARSER"
+!                                   :name dtd-name
+!                                   :type *source-file-extension*))
+!          (fasl-file (make-pathname :host "HTML-PARSER"
+!                                    :name dtd-name
+!                                    :type *compiled-file-extension*)))
+      (declare (dynamic-extent fasl-file src-file))
+      (when (or (not (probe-file* fasl-file))
+                (file-newer-p src-file fasl-file))
+--- 50,63 ----
+              (tokenize-name (symbol-name *pcdata-default-container*))))
+    ;; Load the DTD
+    (let* ((dtd-name (cadr (assoc doctype *html-dtd-list* :test #'string=)))
+!          (src-file
+! 	  (translate-logical-pathname
+! 	   (concatenate 'string "HTML-PARSER:" dtd-name "."
+! 			*source-file-extension*)))
+!          (fasl-file
+! 	  (translate-logical-pathname
+! 	   (concatenate 'string "HTML-PARSER:" dtd-name "."
+! 			*compiled-file-extension*))))
+      (declare (dynamic-extent fasl-file src-file))
+      (when (or (not (probe-file* fasl-file))
+                (file-newer-p src-file fasl-file))
+diff -rc lambda-ir/examples/lambdavista-exports.lisp lambda-ir/examples/lambdavista-exports.lisp
+*** lambda-ir/examples/lambdavista-exports.lisp	Wed May  6 01:43:07 1998
+--- lambda-ir/examples/lambdavista-exports.lisp	Sat Feb  7 19:45:35 1998
+***************
+*** 134,146 ****
+  (defmethod perform-search (url stream substring)
+    (declare (ignore url))
+    (html:with-section-heading ("Search Results" :stream stream)
+!     (multiple-value-bind (urls unused-words)
+          ;; this should return a count and accept an ordering argument (forward
+          ;; or backward) and possibly a sort predicate 4/23/97 -- JCMa.
+!         (lambda-ir::perform-search-constraint lambda-ir::*document-context* lambda-ir::archive-search-constraint substring nil) 
+!       (cond (unused-words
+               (with-paragraph (:stream stream)
+!                (format stream "The index does not contain these words: ~{~A~^, ~}." (ensure-list unused-words))))
+              (urls
+               (with-paragraph (:stream stream)
+                 (format stream "~D document~:P satisfy the search specification: "
+--- 134,146 ----
+  (defmethod perform-search (url stream substring)
+    (declare (ignore url))
+    (html:with-section-heading ("Search Results" :stream stream)
+!     (multiple-value-bind (urls count)
+          ;; this should return a count and accept an ordering argument (forward
+          ;; or backward) and possibly a sort predicate 4/23/97 -- JCMa.
+!         (lambda-ir::perform-search-constraint lambda-ir::*document-context* lambda-ir::archive-search-constraint substring nil)
+!       (cond ((zerop count)
+               (with-paragraph (:stream stream)
+!                (format stream "Not match found.")))
+              (urls
+               (with-paragraph (:stream stream)
+                 (format stream "~D document~:P satisfy the search specification: "
+diff -rc lambda-ir/ir-base.lisp lambda-ir/ir-base.lisp
+*** lambda-ir/ir-base.lisp	Tue Sep 22 17:57:31 1998
+--- lambda-ir/ir-base.lisp	Tue Sep 22 20:29:45 1998
+***************
+*** 233,239 ****
+  
+  (defun bit-vector-resource-matcher (resource object size)
+    (declare (ignore resource))
+!   (> (length object) size))
+  
+  (defun bit-vector-resource-constructor (resource size)
+    (declare (ignore resource))
+--- 233,239 ----
+  
+  (defun bit-vector-resource-matcher (resource object size)
+    (declare (ignore resource))
+!   (>= (length object) size))
+  
+  (defun bit-vector-resource-constructor (resource size)
+    (declare (ignore resource))
+***************
+*** 247,252 ****
+--- 247,256 ----
+    (zero-bit-vector item))
+  
+  (defun bvs-tokenizer-update (bit-vector token-index)
++   (declare (simple-bit-vector bit-vector)
++ 	   (fixnum token-index))
++   (unless (< token-index (length bit-vector))
++     (error 'token-bit-vector-overflow))
+    (set-bit bit-vector token-index 1))
+      
+  (defun bvs-output-function (bit-vector)
+***************
+*** 297,310 ****
+           (raw-document-data (load-document use-document load-type format nil document-universe)))
+      (labels ((attempt-lexification (document-universe tokenizer raw-document-data features size retry-count)
+                 (with-slots (object-name default-size size-increment string-index) tokenizer
+                   (handler-case
+  		   (www-utils:using-resource (storage-vector bit-vector-buffer size)
+                         (apply-lexical-features document-universe object-name document
+                                                 (tokenize document-universe object-name raw-document-data 
+                                                           :tokenizer-args (list :storage storage-vector))
+                                                 features))
+!                    (subscript-out-of-bounds () (attempt-lexification document-universe tokenizer
+!                                                                      raw-document-data features (+ size size-increment) (1+ retry-count)))))))
+        (attempt-lexification document-universe tokenizer raw-document-data features (number-of-tokens token-cluster) 0))))
+  
+  (defmethod %tokenize-and-apply-lexical-features (document-universe token-cluster (tokenizer bitvector-storing-tokenizer) (document sequence)
+--- 301,325 ----
+           (raw-document-data (load-document use-document load-type format nil document-universe)))
+      (labels ((attempt-lexification (document-universe tokenizer raw-document-data features size retry-count)
+                 (with-slots (object-name default-size size-increment string-index) tokenizer
++ 		 (when (> retry-count *number-of-retries*)
++ 		   (format *standard-output* "Failure!")
++ 		   (return-from attempt-lexification))
+                   (handler-case
+  		   (www-utils:using-resource (storage-vector bit-vector-buffer size)
+                         (apply-lexical-features document-universe object-name document
+                                                 (tokenize document-universe object-name raw-document-data 
+                                                           :tokenizer-args (list :storage storage-vector))
+                                                 features))
+!                    (token-bit-vector-overflow ()
+! 		     (attempt-lexification document-universe tokenizer
+! 					   raw-document-data features
+! 					   (+ size size-increment)
+! 					   (1+ retry-count)))
+!                    (subscript-out-of-bounds ()
+! 		     (attempt-lexification document-universe tokenizer
+! 					   raw-document-data features
+! 					   (+ size size-increment)
+! 					   (1+ retry-count)))))))
+        (attempt-lexification document-universe tokenizer raw-document-data features (number-of-tokens token-cluster) 0))))
+  
+  (defmethod %tokenize-and-apply-lexical-features (document-universe token-cluster (tokenizer bitvector-storing-tokenizer) (document sequence)
+diff -rc lambda-ir/ir-utils.lisp lambda-ir/ir-utils.lisp
+*** lambda-ir/ir-utils.lisp	Tue Sep 22 17:58:07 1998
+--- lambda-ir/ir-utils.lisp	Tue Sep 22 20:31:47 1998
+***************
+*** 22,27 ****
+--- 22,28 ----
+  
+  #-MCL
+  (defun zero-bit-vector (bit-vector)
++   (declare (simple-bit-vector bit-vector))
+    (fill bit-vector 0))
+  
+  #+Genera
+***************
+*** 33,38 ****
+--- 34,40 ----
+  
+  #-Genera
+  (defun bit-vector-cardinality (bit-vector)
++   (declare (simple-bit-vector bit-vector))
+    (loop for idx fixnum from 0 below (length bit-vector)
+          count (eq (sbit bit-vector idx) 1)))
+  
+***************
+*** 51,56 ****
+--- 53,71 ----
+  
+  #+MCL
+  (deftype subscript-out-of-bounds () `(satisfies subscript-out-of-bounds-trap-p))
++ 
++ #+CMU
++ (defun subscript-out-of-bounds-p (error)
++   (break)
++   (let ((format-control (lisp::simple-condition-format-control error)))
++     (or (string-equal format-control "Invalid index ~D in ~S")
++ 	(string-equal format-control
++ 	   "Invalid array index, ~D for ~S.  Should have been less than ~D"))))
++ #+CMU
++ (deftype subscript-out-of-bounds () `(satisfies subscript-out-of-bounds-p))
++ 
++ #+CMU
++ (define-condition token-bit-vector-overflow (condition))
+  
+  ;;;------------------------------------------------------------------- 
+  ;;;
+diff -rc lambda-ir/save-utils.lisp lambda-ir/save-utils.lisp
+*** lambda-ir/save-utils.lisp	Mon Nov 24 09:34:09 1997
+--- lambda-ir/save-utils.lisp	Thu Dec  4 03:30:23 1997
+***************
+*** 31,38 ****
+    (setf (gethash type *increment-table*) increment))
+  
+  (defun get-increment (type)
+!   (unless (gethash type *increment-table*)
+!     (error "No increment count exists for type ~s ~%" type)))
+  
+  (defgeneric incremental-write-object (object pathname)
+    (:documentation "Performs an incremental dump of OBJECT to files pointed to by PATHNAME."))
+--- 31,38 ----
+    (setf (gethash type *increment-table*) increment))
+  
+  (defun get-increment (type)
+!   (or (gethash type *increment-table*)
+!       (error "No increment count exists for type ~s ~%" type)))
+  
+  (defgeneric incremental-write-object (object pathname)
+    (:documentation "Performs an incremental dump of OBJECT to files pointed to by PATHNAME."))
+***************
+*** 167,173 ****
+    (load file-name)
+    *saved-universe*)
+  
+! #-Genera
+  (defun save-document-universe (document-universe save-file)
+    (setf *save-temp* document-universe)
+    (with-open-file (stream #p"http:lambda-ir;examples;dump.temp" :direction :output
+--- 167,173 ----
+    (load file-name)
+    *saved-universe*)
+  
+! #-(or Genera CMU)
+  (defun save-document-universe (document-universe save-file)
+    (setf *save-temp* document-universe)
+    (with-open-file (stream #p"http:lambda-ir;examples;dump.temp" :direction :output
+***************
+*** 177,182 ****
+--- 177,192 ----
+    (compile-file #p"http:lambda-ir;examples;dump.test" :output-file save-file)
+    (delete-file #p"http:lambda-ir;examples;dump.test"))
+  
++ #+CMU
++ (defun save-document-universe (document-universe save-file)
++   (setf *save-temp* document-universe)
++   (with-open-file (stream (translate-logical-pathname "http:lambda-ir;examples;dump.temp") :direction :output
++                           :if-does-not-exist :create :if-exists :overwrite)
++     (format stream "(defmacro return-obj () *save-temp*) ~%")
++     (format stream "(setf *saved-universe* (return-obj)) ~%"))
++   (compile-file (translate-logical-pathname "http:lambda-ir;examples;dump.test") :output-file save-file)
++   (delete-file (translate-logical-pathname "http:lambda-ir;examples;dump.test")))
++ 
+  #+Genera
+  (defun save-document-universe (document-universe save-file-name save-file-directory)
+    (let ((document-pathname (concatenate 'string save-file-directory save-file-name "-" "documents"))
+***************
+*** 218,224 ****
+        (maphash #'do-it tokens)))
+    *saved-universe*)
+  
+! (defmethod make-load-form ((document-universe document-universe))
+    (with-slots (documents tokens tokenizers access-codes supported-formats)
+                document-universe
+      `(make-document-universe :documents ',documents 
+--- 228,235 ----
+        (maphash #'do-it tokens)))
+    *saved-universe*)
+  
+! (defmethod make-load-form ((document-universe document-universe) &optional env)
+!   (declare (ignore env))
+    (with-slots (documents tokens tokenizers access-codes supported-formats)
+                document-universe
+      `(make-document-universe :documents ',documents 
+***************
+*** 227,272 ****
+                               :access-codes ',access-codes
+                               :supported-formats ',supported-formats)))
+  
+! (defmethod make-load-form ((hashed-array hashed-array))
+    (with-slots (access-hash linear-structure name-structure)
+                hashed-array
+      `(make-hashed-array :access-hash ',access-hash
+                          :linear-structure ',linear-structure
+                          :name-structure ',name-structure)))
+  
+! (defmethod make-load-form ((hashed-tagged-array hashed-tagged-array))
+    (with-slots (linear-object tags names)
+                hashed-tagged-array
+      `(make-hashed-tagged-array :linear-object ',linear-object
+                                 :tags ',tags
+                                 :names ',names)))
+  
+! (defmethod make-load-form ((tagged-array tagged-array))
+    (with-slots (linear-object tags)
+                tagged-array
+      `(make-tagged-array :linear-object ',linear-object
+                          :tags ',tags)))
+  
+! (defmethod make-load-form ((document document))
+    (with-slots (object-name pdi label format)
+                document
+      `(make-document ',object-name ',pdi ',format ',label)))
+  
+! (defmethod make-load-form ((url url:url))
+    `(url:intern-url ',(url:name-string url)))
+  
+! (defmethod make-load-form ((skinny-token skinny-token-mixin))
+    (with-slots (datum)
+                skinny-token
+      `(make-token ',datum :stat-storage ',(access-cache skinny-token *default-label*))))
+  
+! (defmethod make-load-form ((token-cluster token-cluster))
+    (with-slots (access-hash linear-structure)
+                token-cluster
+      `(make-token-cluster :access-hash ',access-hash
+                           :linear-structure ',linear-structure)))
+                          
+! (defmethod make-load-form ((tokenizer tokenizer))
+    (with-slots (object-name code initialization-function storage-function output-function formats-supported)
+                tokenizer
+      `(make-tokenizer ',object-name ',code ',initialization-function ',storage-function ',output-function ',formats-supported)))
+--- 238,292 ----
+                               :access-codes ',access-codes
+                               :supported-formats ',supported-formats)))
+  
+! (defmethod make-load-form ((hashed-array hashed-array) &optional env)
+!   (declare (ignore env))
+    (with-slots (access-hash linear-structure name-structure)
+                hashed-array
+      `(make-hashed-array :access-hash ',access-hash
+                          :linear-structure ',linear-structure
+                          :name-structure ',name-structure)))
+  
+! (defmethod make-load-form ((hashed-tagged-array hashed-tagged-array)
+! 			   &optional env)
+!   (declare (ignore env))
+    (with-slots (linear-object tags names)
+                hashed-tagged-array
+      `(make-hashed-tagged-array :linear-object ',linear-object
+                                 :tags ',tags
+                                 :names ',names)))
+  
+! (defmethod make-load-form ((tagged-array tagged-array) &optional env)
+!   (declare (ignore env))
+    (with-slots (linear-object tags)
+                tagged-array
+      `(make-tagged-array :linear-object ',linear-object
+                          :tags ',tags)))
+  
+! (defmethod make-load-form ((document document) &optional env)
+!   (declare (ignore env))
+    (with-slots (object-name pdi label format)
+                document
+      `(make-document ',object-name ',pdi ',format ',label)))
+  
+! (defmethod make-load-form ((url url:url) &optional env)
+!   (declare (ignore env))
+    `(url:intern-url ',(url:name-string url)))
+  
+! (defmethod make-load-form ((skinny-token skinny-token-mixin) &optional env)
+!   (declare (ignore env))
+    (with-slots (datum)
+                skinny-token
+      `(make-token ',datum :stat-storage ',(access-cache skinny-token *default-label*))))
+  
+! (defmethod make-load-form ((token-cluster token-cluster) &optional env)
+!   (declare (ignore env))
+    (with-slots (access-hash linear-structure)
+                token-cluster
+      `(make-token-cluster :access-hash ',access-hash
+                           :linear-structure ',linear-structure)))
+                          
+! (defmethod make-load-form ((tokenizer tokenizer) &optional env)
+!   (declare (ignore env))
+    (with-slots (object-name code initialization-function storage-function output-function formats-supported)
+                tokenizer
+      `(make-tokenizer ',object-name ',code ',initialization-function ',storage-function ',output-function ',formats-supported)))
+*** mcl/server/www-utils.lisp	Fri Sep 10 01:17:41 1999
+--- mcl/server/www-utils.lisp	Fri Sep 10 01:17:56 1999
+***************
+*** 844,855 ****
+  ;;; WITH-PROCESS
+  ;;;
+  
+! #-(or Genera LispWorks MCL)
+  (defmacro with-timeout ((timeout &key error-p) &body body)
+    "Executes BODY and returns the values of the last form in BODY. However, if
+  the execution takes longer than TIMEOUT seconds, abort it. If :ERROR-P is
+  unsupplied or false, just return nil. If :ERROR-P is true, signal an error."
+    `(progn ,timeout ,error-p . ,body))
+  
+! #-(or Genera LispWorks MCL)
+  (export 'with-timeout :www-utils)
+--- 844,855 ----
+  ;;; WITH-PROCESS
+  ;;;
+  
+! #-(or Genera LispWorks MCL CMUCL)
+  (defmacro with-timeout ((timeout &key error-p) &body body)
+    "Executes BODY and returns the values of the last form in BODY. However, if
+  the execution takes longer than TIMEOUT seconds, abort it. If :ERROR-P is
+  unsupplied or false, just return nil. If :ERROR-P is true, signal an error."
+    `(progn ,timeout ,error-p . ,body))
+  
+! #-(or Genera LispWorks MCL CMUCL)
+  (export 'with-timeout :www-utils)

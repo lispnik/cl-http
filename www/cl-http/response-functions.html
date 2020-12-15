@@ -1,0 +1,372 @@
+<! -*- Mode: Text -*- -->
+<html>
+<head>
+<title>Computing Responses</title>
+</head>
+<body bgcolor="#FFFFFF" text="#000000">
+
+<h1>Computing Responses</h1>
+
+<ul>
+
+<li><a href="#url-classes">Classes of Computed URLs</a>
+<li><a href="#http-interfaces">Server Interfaces</a>
+<li><a href="#presentation">Advanced Input Management</a>
+<li><a href="#considerations">Issues in Response Functions</a>
+
+</ul>
+
+<img src="/cl-http/icons/line-rain.gif">
+
+<p>Writing Common Lisp functions that compute responses to incoming HTTP
+requests is the main feature of the CL-HTTP.  This page documents the
+supported interfaces that allow you to do this.  In conjunction with the <a
+href="/cl-http/find-documentation?HTML:">HTML Synthesis tools</a>, these
+facilities allow you to dynamically compute web pages.</p>
+
+<p>Response functions compute a reply to the HTTP methods GET or POST.  Before
+returning HTML to the client, they must arrange for an appropriate status code
+and appropriate headers to be returned, usually via the macro <a
+href="#with-successful-response">http:with-successful-response</a>. A response
+function becomes accessible only after an associated URL is exported with <a
+href="/cl-http/show-documentation?HTTP:EXPORT-URL">http:export-url</a>.  A
+number of working examples of response functions are available in <a
+href="/cl-http/sources/examples/exports.lisp">
+http:examples;exports.lisp</a>.</p>
+
+<ol>
+
+<h2><li><a name="url-classes">Classes of Computed URLs</a></h2>
+
+<p>Four general classes of URLs that compute responses to requests.
+
+<dl>
+
+<p><dt><img src="/cl-http/icons/pinkball.gif" align="left">
+<b>HTTP-COMPUTED-URL</b> merely returns some HTML in response to the HTTP GET
+method. It receives no arguments from the client.The HTML is computed by a
+response function which takes two arguments: the requested URL and the STREAM
+to the client.</p>
+
+<p><dt><img src="/cl-http/icons/pinkball.gif" align="left"> <b>HTTP-FORM</b>
+computes the response to the HTTP POST method.  It performs any side effects
+and returns HTML to the client based on submitted values.  The response
+function receives three arguments: the requested URL, the STREAM to the
+client, and a QUERY-ALIST of values.  The macro <a
+href="/cl-http/show-documentation?HTTP:BIND-QUERY-VALUES">http:bind-query-values</a>
+is normally used to decode and bind the contents of the QUERY-ALIST as local
+variables within the response function.<p>
+
+<p><dt><img src="/cl-http/icons/pinkball.gif" align="left">
+<b>HTTP-COMPUTED-FORM</b> is just like HTTP-FORM except that it also computes
+the response to the HTTP GET method by synthesizing the HTML fillout form
+which the client may later POST back to the server. The form function receives
+two arguments: the requested URL and the STREAM to the client.  In order to
+synthesis the form for the client, the form function needs to use <a
+href="/cl-http/show-documentation?HTML:ACCEPT-INPUT">html:accept-input</a> to
+emit HTML input types (user queries] within the scope of the macro <a
+href="/cl-http/show-documentation?HTML:WITH-FILLOUT-FORM">html:with-fillout-form</a>.
+</p>
+
+<p><dt><img src="/cl-http/icons/pinkball.gif" align="left"> <b>HTTP-SEARCH</b>
+computes a response to the HTTP GET method based on arguments passed in via
+the search suffix of the URL following the "?".  The response function
+typically uses arguments from the search suffix accessed by <a
+href="/cl-http/show-documentation?SEARCH-KEYS">url:search-keys</a> to compute
+a returned HTML page and perform any side effects. It may also refer to search
+database with <a
+href="/cl-http/show-documentation?URL:SEARCH-DATABASE">url:search-database</a>.
+At times, the response function may wish to access the parent of the search
+URL with <a
+href="/cl-http/show-documentation?URL:SEARCH-PARENT">url:search-parent</a>,
+for example to issue a new search anchor.  The arguments to a search URL can
+carry only a relatively small amount of data compared to POSTing to a form
+because the URL standard limits URLs to 1024 characters.</p>
+
+</dl>
+
+<h2><li><a name="http-interfaces">Server Interfaces</a></h2>
+
+<p>When CL-HTTP receives an HTTP request, it creates an instance of the class
+SERVER from which all information relevant to the transaction can be accessed.
+This section documents the program interfaces to the server object.  Among
+other things, these interfaces allow response functions to:</p>
+
+<p><ul>
+
+<li> Return status codes and headers to the client;
+
+<li> Access HTTP headers sent by the client;
+
+</ul></p>
+
+<dl>
+
+<h3><dt><img src="/cl-http/icons/pinkball.gif" align="left">Variables</h3>
+
+<ul>
+
+<p><li><b><a
+href="/cl-http/show-documentation?HTTP:*SERVER*">HTTP:*SERVER*</a>:</b> A
+variable that is always bound to the server instance handling the current
+transaction.</p>
+
+<p><li><b><a
+href="/cl-http/show-documentation?HTTP:*SERVER-CLASS*">HTTP:*SERVER-CLASS*</a>:</b>
+Advanced applications may set this variable to a specialization of standard
+server class in order to customize the behavior of CL-HTTP.</p>
+
+</ul>
+
+<h3><dt><img src="/cl-http/icons/pinkball.gif" align="left">Functions and Macros</h3>
+
+<ul>
+
+<p><li><b><a
+href="/cl-http/show-documentation?HTTP:ALLOW-USER-ACCESS-P">HTTP:ALLOW-USER-ACCESS-P</a>:</b>
+Use this function to decide which real resource will be accessed based on the
+identity of the user accessing a controlled resource.  For example, people in
+the developers group see more internal details than regular users.</a>
+
+<p><li><b><a
+href="/cl-http/show-documentation?HTTP:BIND-QUERY-VALUES">HTTP:BIND-QUERY-VALUES</a>:</b>
+Use this macro with a the response function to a POST method in order to bind
+the incoming values of a form to local variables.  The local variables will be
+the same name as the query identifiers used on the input types in the actual
+form.</p>
+
+<p><li><b><a
+href="/cl-http/show-documentation?HTTP:CURRENT-USER-AGENT">HTTP:CURRENT-USER-AGENT</a>:</b>
+Provides a convenient interface to identifying the client accessing the
+resource. This useful,for example, in conjunction with <a
+href="/cl-http/show-documentation?HTTP:USER-AGENT-CAPABILITY-P">http:user-agent-capability-p</a>
+for deciding in your response function whether to use the <a
+href="/cl-http/find-documentation?NS1.1:-TABLE">Netscape table
+extensions</a>.
+
+<p><li><b><a
+href="/cl-http/show-documentation?HTTP:DEBUG-SERVER">HTTP:DEBUG-SERVER</a>:</b>
+Allows errors during HTTP transactions to enter the debugger by turning
+off most condition handling.  Challenging bugs in response functions
+succumb most easily when debugging from the runtime environment of an
+interactive LISP debugger.
+
+<p><li><b><a
+href="/cl-http/show-documentation?HTTP:GET-HEADER">HTTP:GET-HEADER</a>:</b>
+Provides marginally faster access to the value of header in the current http
+transaction.
+
+<p><li><b><a
+href="/cl-http/show-documentation?URL:EXPIRATION-UNIVERSAL-TIME">URL:EXPIRATION-UNIVERSAL-TIME</a>:</b> returns
+the universal time when a URL should expire. It should be used to compute the expires argument for the macros <a
+href="#with-successful-response">http:with-successful-response</a> and <a
+href="#with-conditional-get-response">http:with-conditional-get-response</a>.
+
+<p><li><b><a
+href="/cl-http/show-documentation?HTTP:REDIRECT-REQUEST">HTTP:REDIRECT-REQUEST</a>:</b>
+Use this function to issue a redirect to another URL.</a>
+
+<p><li><b><a
+href="/cl-http/show-documentation?HTTP:SEND-MAIL-FROM">HTTP:SEND-MAIL-FROM</a>:</b>
+Use this function to send email from a response function. Normally, you will
+want to specify the from field as <a
+href="/cl-http/show-documentation?HTTP:*SERVER-MAIL-ADDRESS*">http:*server-mail-address*</a>.
+Lisps other than Symbolics Genera, need to initialize smtp:*network-mail-host*
+and enumerate any secondary mailer in smtp:*store-and-forward-mail-hosts*. For
+automatic bug reporting, see <a
+href="/cl-http/show-documentation?HTTP:REPORT-BUG">http:report-bug</a>.</p>
+
+<p><li><b><a
+href="/cl-http/show-documentation?HTTP:WITH-SERVER-INTERFACE-ENVIRONMENT">HTTP:WITH-SERVER-INTERFACE-ENVIRONMENT:</a></b>
+Binds a series of variables useful for writing response functions.  It
+actually creates symbol-macros that macroexpand at compile time into the
+correct form to obtain the desired information. Dynamic values are shown in
+the example of the <a href="/cl-http/server-interface-environment.html">Server
+Interface</a>.  The CL-HTTP Server Interface 1.0 is largely analogous to <a
+href="/cl-http/cgi-environment.html">CGI 1.1</a> (available via <a
+href="/cl-http/show-documentation?HTTP:WITH-CGI-ENVIRONMENT">http:with-cgi-environment</a>),
+except it produces values that are more useful to the Lisp programmer and it
+renames some variables for better mnemonics.  Additionally, one may use the
+methods on the server objects for more advanced applications, including ones
+in which the SERVER class itself is specialized (See <a
+href="/cl-http/show-documentation?HTTP:*SERVER-CLASS*">HTTP:*SERVER-CLASS*</a>).</p>
+
+<p><li><b><a name="with-server-push-response"
+href="/cl-http/show-documentation?NS1.1:WITH-SERVER-PUSH-RESPONSE">NS1.1:WITH-SERVER-PUSH-RESPONSE</a>:</b>
+This macro allows a response function to keep the open the connection
+and replace displayed URIs for clients supporting Netscape 1.1
+extensions. It use a multipart MIME body that is sent in blocks.  The
+macro takes care of sending the appropriate status code and relevant
+headers back to the client, and thus, does not require use of <a
+href="#with-successful-response">html:with-successful-response</a> or
+variants.</p>
+
+<p><li><b><a name="with-successful-response"
+href="/cl-http/show-documentation?HTTP:WITH-SUCCESSFUL-RESPONSE">HTTP:WITH-SUCCESSFUL-RESPONSE</a>:</b>
+This macro should wrap around all code in a response function.  It takes care
+of sending the appropriate status code and relevant headers back to the
+client.</p>
+
+<p><li><b><a name="with-conditional-get-response"
+href="/cl-http/show-documentation?HTTP:WITH-CONDITIONAL-GET-RESPONSE">HTTP:WITH-CONDITIONAL-GET-RESPONSE</a>:</b>
+When the computation can return the same result as the one cached by a client
+or a proxy server, wrap this macro around all code in a response function
+instead of <a
+href="/cl-http/show-documentation?HTTP:WITH-SUCCESSFUL-RESPONSE">http:with-successful-response</a>.
+The generic function <a
+href="/cl-http/show-documentation?HTTP:url:expiration-universal-time">url:expiration-universal-time</a>
+is used to compute the value for the expires argument.</p>
+
+</ul>
+</dl>
+
+<h2><li><a name="presentation">Advanced Input Management</a></h2>
+
+The server comes with a facility that simplifies the presenting and
+accepting user data which is called the <a
+href="/cl-http/w3p/w3p.html">W3P Presentation System</a>. This facility
+relieves the programmer from calling <a
+href="/cl-http/show-documentation?HTTP:ACCEPT-INPUT">http:accept-input</a>
+directly and (re-)writing validation code for each element of form data
+received. Instead the programmer invokes generic operations on
+presentation types that automatically make the correct calls to <a
+href="/cl-http/show-documentation?HTTP:ACCEPT-INPUT">http:accept-input</a>
+and automatically process the returned values. The presentation types
+form a lattice of types describing all the data types either presented
+to or received from the user. Applications can easily extend the
+presentation system by defining new types, presenters, and parsers. It
+is <em>strongly recommended</em> that you learn to use W3P because it
+will help you reduce code duplication and speed the development of
+interactive Web applications as it simplifies and streamlines your
+response functions.
+
+<h2><li><a name="considerations">Issues in Response Functions</a></h2>
+
+<ol>
+
+<p><li><b>Collisions Across Threads:</b> Because CL-HTTP is
+multi-threaded, it can respond to multiple client requests
+simultaneously.  This makes it important to ensure that response
+functions to not collide while accessing a shared resource.  Reading the
+same data is fine.  But, writing the same data can cause unpredictable
+results and trouble. If you need to write shared data from a response
+function, you must to arrange to synchronize the accesses to shared
+resources by the different HTTP connections using process tools
+available in your Common Lisp.</p>
+
+<p><li><b>Efficiency:</b> Response functions need to be as efficient as
+possible in order to service your users swiftly and maximize the load that
+your server can carry, given its endowment in processor speed and physical
+memory.
+
+See the <a
+href="/cl-http/efficiency.html">Efficiency Heuristics</a></b> for ideas on how
+to keep your code nimble.</p> 
+
+<p><li><b>Conformant HTML:</b> Normally, the macros <a
+href="/cl-http/show-documentation?HTML:WITH-HTML-DOCUMENT">html:with-html-document</a>,
+<a
+href="/cl-http/show-documentation?HTML:WITH-DOCUMENT-PREAMBLE">html:with-document-preamble</a>,
+and <a
+href="/cl-http/show-documentation?HTML:WITH-DOCUMENT-BODY">html:with-document-body</a>
+should be used to establish the status of the resource returned to the client and
+to delineate the components of the resource. Clients, especially SGML aware
+ones, and servers are increasingly reliant on this information.
+
+<p><li><b>Evolution:</b> Because the HTML standards are evolving, you may wish
+to always use the HTML synthesis tools to emit HTML.  This way, each time the
+standards change (every 4-6 months), you merely use the next version of the
+synthesis tools, rather than revising all your code. Defining higher level
+abstractions above the CL-HTTP synthesis tools can allow you to slot in new
+features to implement those abstractions as new and more powerful versions of
+of HTML become available.</p>
+
+<p><li><b>Standing Search URLs:</b> Often it is desirable to have both search
+url and fillout form interfaces to a computed response by the same function..
+The fillout form can provide a more user-friendly environment while the search
+url can be inserted in documents to run a prespecified operation with one
+click. This idea is applied by <a
+href="/cl-http/find-url?find-documentation?">/cl-http/find-documentation?</a>
+and <a
+href="/cl-http/find-documentation.html">/cl-http/find-documentation.html</a>
+whose implementation is available in <a
+href="/cl-http/sources/examples/documentation.lisp">http:examples;documentation.lisp</a>.</p>
+
+<p><li><b>Carrying State Across HTTP Transactions:</b> Sometimes it is desirable to
+associate state with uses of resources. Examples of most of the techniques below are
+available in <a
+href="/cl-http/sources/examples/exports.lisp">http:examples;exports.lisp</a>.</p>
+
+<ul>
+
+<p><li><b>Hidden Fields:</b> <a
+href="/cl-http/show-documentation?HTML:ACCEPT-INPUT">html:accept-input</a>
+supports the input type <em>hidden</em>, which carries state with the form
+without displaying it on the client side.  Just like normal input types, the
+macro <a
+href="/cl-http/show-documentation?HTTP:BIND-QUERY-VALUES">http:bind-query-values</a>
+can rebind the hidden value when the form is returned.   When using <it>hidden
+fields</it>, <a
+href="/cl-http/show-documentation?HTTP:WRITE-TO-ARMOR-PLATED-STRING">
+http:write-to-armor-plated-string</a> and <a
+href="/cl-http/show-documentation?HTTP:READ-FROM-ARMOR-PLATED-STRING">
+http:read-from-armor-plated-string</a> protect Lisp data from damage by HTML
+and HTTP escaping in transit.</p>
+
+<p><li><b><a href="/cl-http/cookies.html">Client-Side Cookies</a>:</b> Some
+browsers support <a
+href="http://www.netscape.com/newsref/std/cookie_spec.html">client-side
+cookies</a> to store state across HTTP transactions and sessions. To set
+cookie values, the primitive function <a
+href="/cl-http/show-documentation?HTTP:MAKE-SET-COOKIE-HEADER-VALUE">
+http:make-set-cookie-header-value</a> creates values for the SET-COOKIE.  The
+top-level macro <a
+href="/cl-http/show-documentation?HTTP:SET-COOKIE-HTTP-HEADERS">
+http:set-cookie-http-headers</a> expands into possibly multiple calls to <a
+href="/cl-http/show-documentation?HTTP:MAKE-SET-COOKIE-HEADER-VALUE">
+http:make-set-cookie-header-value</a>, ensures that the client handles
+cookies, and returns a header plist that can be passed in as the additional
+headers argument to <a
+href="/cl-http/show-documentation?HTTP:WITH-SUCCESSFUL-RESPONSE">
+http:with-successful-response</a>, or relatives. To inspect cookie values, <a
+href="/cl-http/show-documentation?HTTP:WITH-COOKIE-VALUES">http:with-cookie-values</a>
+allows provides an interface for accesses cookies transmitted by the
+client.</p>
+
+<p><li><b>HTML Meta Info:</b> Outside forms, <a
+href="/cl-http/show-documentation?HTML:DECLARE-META-INFO">html:declare-meta-info</a>
+allows header information to be passed back to a client hidden in the HTML
+markup.</p>
+
+<p><li> <b>Maintaining the Connection:</b> <a
+href="#with-server-push-response">Server push</a> allows the server to
+maintain dynamic state because it keeps client connection open.  Beyond these
+approaches, maintenance of state on the server side requires a backing store,
+for example a transaction-controlled, persistent-object database.</p>
+
+</ul>
+
+<p><li><b>Displaying Pages in Specific Browser Window:</b> The content of URLs can be
+displayed in named windows on a number of clients.  TARGET arguments to HTML generation
+forms provide on way to do this.  It is also possible to send the :window-target header
+with a string naming the window in which to display.  This header can be sent as an
+additional header for <a
+href="/cl-http/show-documentation?HTTP:WITH-SUCCESSFUL-RESPONSE">http:with-successful-response</a>
+and related response macros. The function <a
+href="/cl-http/show-documentation?NS2.0:CLIENT-TARGET-WINDOW-HTTP-HEADERS">
+ns2.0:client-target-window-http-headers</a> constructs the header to send only when the
+client supports the feature.
+
+</ol>
+
+</ol>
+
+<p><img src="/cl-http/icons/line-rain.gif"></p>
+
+<address><a href="http://www.ai.mit.edu/people/jcma/jcma.html">John C. Mallery</a> -- <a
+href="mailto:jcma@ai.mit.edu">jcma@ai.mit.edu</a><br><a
+href="http://web.mit.edu/">M.I.T.</a> <a href="http://www.ai.mit.edu/">Artificial
+Intelligence Laboratory</a> </address>
+
+</body>
+</html>

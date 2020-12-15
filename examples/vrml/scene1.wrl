@@ -1,0 +1,11 @@
+#VRML V1.0 ascii
+
+
+Separator {
+Translation {
+  translation 0.1 0.7 -8
+}
+Cube {
+  width 1.1
+}
+}

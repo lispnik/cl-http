@@ -1,0 +1,153 @@
+<! -*- Mode: Text -*- -->
+<html>
+<head>
+<title>Extending CL-HTTP</title>
+</head>
+<body bgcolor="#FFFFFF" text="#000000">
+
+<h1>Extending CL-HTTP</h1>
+
+<img src="/cl-http/icons/line-rain.gif">
+
+<dl>
+
+<p><dt><h2> <img src="/cl-http/icons/orangeball.gif"> Computing
+Responses</h2><dd> Dynamically computed Web pages are the forte of this
+server. These computed responses are written in LISP, which supersedes
+legacy CGI interfaces. See the documentation on <a
+href="/cl-http/response-functions.html">computing responses</a>.</p>
+
+<p><dt><h2> <img src="/cl-http/icons/orangeball.gif"> Exporting CGI
+Scripts</h2><dd>The server provides a <a
+href="/cl-http/cgi-environment.html">Common Gateway Interface</a></b>
+via the macro <a
+href="/cl-http/show-documentation?HTTP:WITH-CGI-ENVIRONMENT">http:with-cgi-environment</a>
+that is useful when writing new export methods that need to invoke
+invoke conventional scripts outside of Common Lisp via the CGI 1.1
+standard. These export methods should be specialization of the URL class
+URL:COMPUTED-URL.</p>
+
+<dt><h2> <img src="/cl-http/icons/orangeball.gif">Defining New Mime
+Types</h2><dd> In general New MIME types is needed primarily when you
+want to export a new MIME content type, either from static files or
+dynamic computations. <a
+href="/cl-http/show-documentation?HTTP:DEFINE-URL-EXPORT-TYPE">
+http:define-url-export-type</a> automatically defines new MIME types
+when it sets up a new export types.  Here is an example:
+
+<p>
+<pre>(<a href="/cl-http/show-documentation?HTTP:DEFINE-URL-EXPORT-TYPE">http:define-url-export-type</a>
+	:shockwave-file	<i>;Export Type</i> :dir <i>;Primary
+	Extension</i> (:application :x-director)	<i>;MIME
+	Type</i> :copy-mode :binary	<i>;Binary Content</i>
+	:alternate-extensions (:dcr))	<i>;Other
+	Extensions</i></pre></p>
+
+<p>When no corresponding export type is required, you may use <a
+href="/cl-http/show-documentation?HTTP::DEFINE-MIME-CONTENT-TYPE">http::define-mime-content-type</a>.</p>
+
+<p><dt><h2> <img src="/cl-http/icons/orangeball.gif"> Writing New Export
+Methods</h2><dd> In order to add new export types, you need to write
+methods for the generic functions:
+
+<p><ul> 
+
+<li><b>EXPORT-URL:</b> This method interns the URL and initializes it. Don't
+forget to update the documentation string on the generic function definition
+to explain how to use your new export type/
+
+<li><b>WRITE-DOCUMENT-HEADERS:</b> This method is invoked to handle the HTTP
+:HEAD operation. It writes the HTTP headers describing the document over the
+HTTP stream back to the client.
+
+<li><b>WRITE-DOCUMENT:</b> This method is invoked to handle the HTTP :GET
+operation. It writes the document body and headers over the HTTP stream back
+to the client.
+
+</ul><p>
+
+<p>A new export type is appropriate when existing ones cannot do the job you require.
+It is important to consider whether and existing export type could be generalized to
+meet your requirements before embarking on a new export type. If your new
+operation is not idempotent (i.e., side effects on the server), you should
+define method for POST-DOCUMENT instead. Earlier versions of the HTTP
+specification included additional methods, like PUT, DELETE, and LINK,
+which may be reinstated when their application becomes apparent.</p>
+
+</dl>
+
+<p><dt><h2> <img src="/cl-http/icons/orangeball.gif">Defining New Log
+Classes</h2><dd> A number of logging choices are available by merely
+setting <a
+href="/cl-http/show-documentation?HTTP:*LOG-ACCESS-LOG-CLASS*">http:*log-access-log-class*</a>
+in your CL-HTTP configuration file. When these do not suffice, CL-HTTP
+logging can be easily extended. A standard log object contains various
+mixins that perform different actions. For example, <a
+href="/cl-http/show-documentation?HTTP:BASIC-FILE-LOGGING-MIXIN">http:basic-file-logging-mixin</a>
+provides the functionality to write log entries without blocking HTTP
+connections, and therefore, without slowing the server down to disk
+speeds. <a
+href="/cl-http/show-documentation?HTTP:LOG-COUNTERS-MIXIN">http:log-counters-mixin</a>
+keeps track of server statistics whereas <a
+href="/cl-http/show-documentation?HTTP:LOG-NOTIFICATION-MIXIN">http:log-notification-mixin</a>
+writes notifications to the log window.  Typically, an application will
+run one of the standard log classes, such as <a
+href="/cl-http/show-documentation?
+HTTP:COMMON-FILE-LOG">http:common-file-log</a>. Extensions will want to
+write different information to a file. In this case, remove notification
+or counter mixins that duplicate other logs you are running, and follow
+the procedure below:
+
+<ol>
+
+<p><b><li>Define a new log class</b><br> Copy one of the existing
+definitions such as <a
+href="/cl-http/show-documentation?HTTP:EXTENDED-COMMON-FILE-LOG">http:extended-common-file-log</a>.
+After renaming the calss, provide your own mixin class to which defines
+your own methods to write entries:</p>
+
+	<p><ul type="disc">
+
+	<li><b><a
+	href="/cl-http/show-documentation?HTTP:LOG-ENTRY-WRITER"</a>HTTP:LOG-ENTRY-WRITER</a></b>
+	is the non-blocking method that snapshots the state of an HTTP
+	connection and returns a closure to write the entry to the log
+	file.
+
+	<li><b><a href="/cl-http/show-documentation?HTTP:WRITE-ACCESS-LOG-ENTRY">HTTP:WRITE-ACCESS-LOG-ENTRY</a></b>
+	is the blocking method that writes the information to other streams.
+
+	</ul></p>
+
+<p><b><li>Run a new log instance on a port</b><br> Add a call to <a
+href="/cl-http/show-documentation?HTTP:INTERN-ACCESS-LOG">http:intern-access-log</a>
+to your CL-HTTP configuration file. This will install an instance of
+your log class on the specified port.</p>
+
+</ol>
+
+If you decide to make your custom log the default, instead of 
+using <a href="/cl-http/show-documentation?HTTP:INTERN-ACCESS-LOG">http:intern-access-log</a>, you can set
+<a href="/cl-http/show-documentation?HTTP:*LOG-ACCESS-LOG-CLASS*">http:*log-access-log-class*</a>
+to your new class in your CL-HTTP configuration file. 
+
+<p>A number of variations are possible. The class <a
+href="/cl-http/show-documentation?HTTP:CUSTOM-NOTIFICATION-LOG">http:custom-notification-log</a>
+simplifies the task of writing a log class that notifies the console. <a
+href="/cl-http/sources/examples/log-window.lisp">http:examples;log-window.lisp</a>
+defines a log object that notifies a remote Web browser. In some cases,
+you may need to define methods for <a
+href="/cl-http/show-documentation?HTTP:LOG-SERVER-ACCESS">HTTP:log-server-access</a>.
+Be sure to check the documentation for related log operators [<a
+href="/cl-http/find-documentation?HTTP:LOG">External</a> <a
+href="/cl-http/find-documentation?HTTP::LOG">Internal</a>].</p>
+
+<p><img src="/cl-http/icons/line-rain.gif"></p>
+
+<address><a href="http://www.ai.mit.edu/people/jcma/jcma.html">John C. Mallery</a> -- <a
+href="mailto:jcma@ai.mit.edu">jcma@ai.mit.edu</a><br><a
+href="http://web.mit.edu/">M.I.T.</a> <a href="http://www.ai.mit.edu/">Artificial
+Intelligence Laboratory</a> </address>
+
+</body>
+</html>

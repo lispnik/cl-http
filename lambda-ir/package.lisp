@@ -1,0 +1,105 @@
+;;;-*- Syntax: Ansi-Common-Lisp; Base: 10; Mode: lisp; Package: cl-user; -*-
+
+;;; (C) Copyright 1997, Andrew J. Blumberg (blumberg@ai.mit.edu).
+;;;     All Rights Reserved.
+;;;
+;;;
+;;;------------------------------------------------------------------- 
+;;;
+;;; Basic substrate for information retrieval tasks.
+;;;
+
+(in-package :cl-user)
+
+;; advise the lisp environment of the presence of W3P
+(pushnew :lambda-ir *features*)
+
+(defpackage lambda-ir
+  (:use future-common-lisp http)
+  (:nicknames lr information-retrieval-substrate)
+  (:import-from http
+   "SET-MASK-BIT-P"
+   "WITH-SERVER-LINE-BUFFER")
+  (:export 
+    "%CREATE-UNNAMED-OBJECT"
+    "%TOKEN-INTERN"  "%TOKEN-INTERN-RETURNING-INDEX"
+    "*OP-CODE-TABLE*"
+    "+DOCUMENT-HASHED-TAGGED-ARRAY-TAG+"
+    "+DOCUMENT-UNIVERSE-TAG+"
+    "ACCESS-CACHE"
+    "ADD-ACCESS-CODE"
+    "ADD-DOCUMENT"
+    "ADD-STEMMING-FUNCTION"
+    "ADD-URL-TO-DOCUMENT-UNIVERSE"
+    "ADD-TOKENIZER"
+    "BINARY-SEARCH"
+    "BIT-VECTOR-CARDINALITY"
+    "BIT-VECTOR-LENGTH"
+    "BOTTOM-UP-SEARCH-RETURNING-URLS"
+    "CATEGORY-BOTTOM-UP-SEARCH"
+    "CLEAR-CACHE"
+    "COPY"
+    "DEFAULT-DOCUMENT-UNIVERSE"
+    "DEFAULT-TAGS"
+    "DELIMITER-P"
+    "DOC-FORMAT"
+    "DOC-LABEL"
+    "DOCUMENT-CONTEXT"
+    "DUMP-ONE"
+    "DUMP-RUNTIME-ENCODED-ARRAY"
+    "DUMP-THING"
+    "FORCIBLE-TOKEN-INTERN"
+    "GET-DOCUMENT"
+    "GET-DOCUMENT-PDI"
+    "GET-TOKEN-INDEX"
+    "GET-TOKEN-STATS"
+    "GET-TOKEN-VIA-INDEX"
+    "GET-TOKENIZER"
+    "GET-TOKENIZER-AND-CLUSTER"
+    "GET-TOKENIZER-AND-CLUSTER"
+    "INCREMENTAL-LOAD-OBJECT"
+    "INITIALIZE-CACHE"
+    "INITIALIZE-DOCUMENT-CONTEXT"
+    "LEXICAL-FEATURES-TO-USE"
+    "LOAD-OBJECT"
+    "DEFINE-CLASS-LOCAL"
+    "MAKE-ADJUSTABLE-ARRAY"
+    "MAKE-BIT-VECTOR"
+    "MAKE-BIT-VECTOR-STORING-TOKENIZER"
+    "MAKE-DOCUMENT"
+    "MAKE-DOCUMENT-CONTEXT"
+    "MAKE-DOCUMENT-UNIVERSE"
+    "MAKE-HASHED-TAGGED-ARRAY"
+    "MAKE-LEXICAL-FEATURE-SET"
+    "MAKE-SEARCH-CONSTRAINT"
+    "MAKE-TOKEN-FEATURE"
+    "NAME-MIXIN"
+    "MAP-BIT-VECTOR"
+    "MAP-BIT-VECTOR-ACCUMULATING"
+    "NO-CONS-SUBSEQ"
+    "OBJECT-NAME"
+    "OBTAIN-DOCUMENT-UNIVERSE"
+    "OBTAIN-TOKEN-CLUSTER"
+    "PERFORM-SEARCH-CONSTRAINT"
+    "READ-DOCUMENT-UNIVERSE"
+    "READ-ONE"
+    "READ-THING"
+    "SET-A-LIST"
+    "SET-BIT-VECTOR-LENGTH"
+    "SET-DEFAULT-DOCUMENT-UNIVERSE"
+    "SET-DEFAULT-TAGS"
+    "SET-UP-UNIVERSE"
+    "SIMPLE-BOTTOM-UP-SEARCH"
+    "SKIP-CHAR-P"
+    "SOFT-ADD-TOKENIZER"
+    "SPARSIFY-TOKEN-CLUSTER"
+    "STEM"
+    "STOCK-TOKENIZER"
+    "STRING-TO-LIST"
+    "TABLE-CACHING-OBJECT"
+    "TOKEN-DATUM"
+    "TOKEN-INTERN"
+    "TOKENIZE-AND-APPLY-LEXICAL-FEATURES"
+    "UPDATE-CACHE"
+    "UPDATE-TOKEN-STATS"
+    "WITH-CLEAN-CACHE"))

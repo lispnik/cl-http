@@ -1,0 +1,138 @@
+
+INTERNET-DRAFT                      Larry Masinter, Xerox Corporation
+draft-masinter-url-i18n-00                                May 2, 1997
+Expires: October 27, 1997
+
+
+              Using UTF-8 for non-ASCII Characters in URLs
+
+Status of this Memo
+
+   This document is an Internet-Draft.  Internet-Drafts are working
+   documents of the Internet Engineering Task Force (IETF), its areas,
+   and its working groups.  Note that other groups may also distribute
+   working documents as Internet-Drafts.
+
+   Internet-Drafts are draft documents valid for a maximum of six
+   months and may be updated, replaced, or obsoleted by other
+   documents at any time.  It is inappropriate to use Internet-Drafts
+   as reference material or to cite them other than as ``work in
+   progress.''
+
+   To learn the current status of any Internet-Draft, please check the
+   ``1id-abstracts.txt'' listing contained in the Internet-Drafts
+   Shadow Directories on ftp.is.co.za (Africa), nic.nordu.net
+   (Europe), munnari.oz.au (Pacific Rim), ds.internic.net (US East
+   Coast), or ftp.isi.edu (US West Coast).
+
+Abstract
+
+   Traditionally, URLs have been written in ASCII and used both
+   as a method of transcription and identification, but also in
+   advertising, magazines and newspapers. This document specifies
+   a uniform way of representing non-ASCII scripts in URLs so
+   that they can be used for the world's languages.
+
+   This document is still very rough.
+
+1. Introduction
+
+   URLs were defined as ASCII-only.[RFC-URL-SYNTAX] This leaves out
+   most of the world of people, who do not write merely with the letters
+A-Z.
+
+2. Syntax
+
+   This memo defines two kinds of URLs: Internationalized
+   but hex-encoded URLs (compatible with [RFC-URL-SYNTAX], and
+   8-bit URLs. For traditional URLs, characters should be
+   translated into UTF8 and then any octet not allowed in
+   RFC-URL-SYNTAX should be hex-encoded.
+
+   For 8-bit-URLs, it is necessary to hex-encode reserved
+   characters, delims, unwise special characters, white space,
+   and characters that might otherwise be confusing when
+   printed and then typed. (See RFC-DURST for details.)
+
+3. Software Requirements
+
+   Supporting UTF-8 URLs requires cooperation from the providers
+   of three different components of URL software.
+
+3.1 Requirements for URL entry
+
+   One component of software that deals with URLs allows
+   users to type in the URLs. That is, a human transcribes
+   a visual representation of a URL (as a sequence of
+   glyphs, in some order, in some visual display) using
+   some entry method that will result in a URL.
+
+   If the visual representation contains only those
+   characters that were defined as part of the [RFC-URL-SYNTAX]
+   standard syntax of URLs, the transcription would be
+   simple. However, for all other sequences of characters,
+   entry should result in characters, in logical order,
+   from the ISO 10646 character repertoire, encoded using
+   the UTF-8 method [RFC 2044], and then subsequently
+   encoded using the URL escape mechanism [RFC-URL-SYNTAX].
+
+   Some care must be taken in this conversion, for example,
+   that all accented characters should be translated into
+   their combined form, that no extraneous BIDI marks be
+   left in the resulting stream, that any characters that
+   _look_ like ASCII characters be transcribed into their
+   ascii equivalents and not, for example, as double-wide
+   characters. See [RFC-DUERST] for more complete rules.
+
+3.2 Requirements for URL generation and interpretation
+   
+   Systems that are offering resources through the internet
+   where those resources have logical names sometimes offer
+   the ability to generate URLs for the resources they offer.
+   For example, some HTTP servers offer the ability to
+   generate a 'directory listing' for file directories
+   under their purvue, and then to respond to the generated
+   URLs with the files. If the names of the files consist
+   solely of US-ASCII characters, the transcription is
+   simple, but other file systems offer a wider variety
+   of characters. The generation of directories should
+   result in hex-encoded UTF-8 for non-US-ASCII
+   characters in the listing, for maximum interoperability.
+   
+   When a URL is recieved, the software should 
+   accept both the raw UTF-8 or the hex-encoded version.
+
+   This recommendation applies to HTTP servers, and also
+   to FTP servers, gopher servers, etc.
+
+3.3 Requirements for display of URLs
+
+   Software that displays URLs to users (or other kinds of
+   transcription, e.g., deciding what to print in your
+   magazine) should of course be robust: don't tell users
+   about a URL they can't type!
+
+    1) any 'forbidden' octets should be displayed as if
+      they were UTF-8 encoded characters. That is, those
+      octets are currently disallowed in URLs, but if you
+      see them, display them in a standard way.
+    2) Any sequences of %HH-encoded octets should be displayed
+       EITHER as <%><H><H>, e.g., just show the encoding
+       in ASCII, OR by assuming that they're hex-encoded
+       UTF-8. The latter assumption is likely to be wrong
+       for now, but might change later.
+
+Summary
+
+These three recommendations, when taken together, will allow
+for localization of URLs; users may use their native scripts
+for writing URLs that are "uniform" for their context.
+
+Acknowledgements
+Martin Duerst
+
+References
+
+[RFC 2044] 
+[RFC-URL-SYNTAX] draft-fielding-url-syntax
+[RFC-DUERST]     draft-duerst-url-???

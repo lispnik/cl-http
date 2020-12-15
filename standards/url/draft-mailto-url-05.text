@@ -1,0 +1,330 @@
+
+Internet-Draft                              Paul Hoffman
+draft-hoffman-mailto-url-05                 Internet Mail Consortium
+June 8, 1997                                Larry Masinter
+Expires in six months                       Xerox Corporation
+                                            Jamie Zawinski
+                                            Netscape Communications
+
+                       The mailto URL scheme
+
+Status of This Memo
+
+This document is an Internet-Draft. Internet-Drafts are working documents
+of the Internet Engineering Task Force (IETF), its areas, and its working
+groups. Note that other groups may also distribute working documents as
+Internet-Drafts.
+
+Internet-Drafts are draft documents valid for a maximum of six months and
+may be updated, replaced, or obsoleted by other documents at any time. It
+is inappropriate to use Internet- Drafts as reference material or to cite
+them other than as ``work in progress.''
+
+To view the entire list of current Internet-Drafts, please check
+the "1id-abstracts.txt" listing contained in the Internet-Drafts
+Shadow Directories on ftp.is.co.za (Africa), ftp.nordu.net
+(Northern Europe), ftp.nis.garr.it (Southern Europe), munnari.oz.au
+(Pacific Rim), ftp.ietf.org (US East Coast), or ftp.isi.edu
+(US West Coast).
+
+Abstract
+
+This document defines the format of Uniform Resource Locators (URL) for
+designating electronic mail addresses. It is one of a suite of documents
+which replace RFC 1738, "Uniform Resource Locators", and RFC 1808,
+"Relative Uniform Resource Locators". The syntax of "mailto" URLs from RFC
+1738 is extended to allow creation of more RFC 822 messages by allowing the
+URL to express additional header and body fields.
+
+1. Introduction
+
+The mailto URL scheme is used to designate the Internet mailing address of
+an individual or service. In its simplest form, a mailto URL contains an
+Internet mail address.
+
+For greater functionality, because interaction with some resources may
+require message headers or message bodies to be specified as well as the
+mail address, the mailto URL scheme is extended to allow setting mail
+header fields and the message body.
+
+2. Syntax of a mailto URL
+
+Following the syntax conventions of RFC 1738 [RFC1738], a "mailto" URL has
+the form:
+
+   mailtoURL  =  "mailto:" [ to ] [ headers ]
+   to         =  #mailbox
+   headers    =  "?" header *( "&" header )
+   header     =  hname "=" hvalue
+   hname      =  *urlc
+   hvalue     =  *urlc
+
+"#mailbox" is as specified in RFC 822 [RFC822]. This means that it consists
+of zero or more comma-separated mail addresses, possibly including "phrase"
+and "comment" components. Note that all URL reserved characters in "to"
+must be encoded: in particular, parentheses, commas, and the percent sign
+("%"), which commonly occur in the "mailbox" syntax.
+
+"hname" and "hvalue" are encodings of an RFC 822 header name and value,
+respectively. As with "to", all URL reserved characters must be encoded.
+
+The special hname "body" indicates that the associated hvalue is the body
+of the message. The "body" hname should contain the content for the first
+text/plain body part of the message. The mailto URL is primarily intended
+for generation of short text messages that are actually the content of
+automatic processing (such as "subscribe" messages for mailing lists), not
+general MIME bodies.
+
+Within mailto URLs, the characters "?", "=", "&" are reserved.
+
+Because the "&" (ampersand) character is reserved in HTML, any mailto URL
+which contains an ampersand must be spelled differently in HTML than in
+other contexts.  A mailto URL which appears in an HTML document must use
+"&amp;" instead of "&".
+
+Also note that it is legal to specify both "to" and an "hname" whose value
+is "to". That is,
+
+     mailto:addr1%2C%20addr2
+
+is equivalent to
+
+     mailto:?to=addr1%2C%20addr2
+
+is equivalent to
+
+     mailto:addr1?to=addr2
+
+8-bit characters in mailto URLs are forbidden. MIME encoded words (as
+defined in [RFC2047]) are permitted in header values, but not for any part
+of a "body" hname.
+
+3. Semantics and operations
+
+A mailto URL designates an "internet resource", which is the mailbox
+specified in the address. When additional headers are supplied, the
+resource designated is the same address, but with an additional profile for
+accessing the resource. While there are Internet resources that can only be
+accessed via electronic mail, the mailto URL is not intended as a way of
+retrieving such objects automatically.
+
+In current practice, resolving URLs such as those in the "http" scheme
+causes an immediate interaction between client software and a host running
+an interactive server. The "mailto" URL has unusual semantics because
+resolving such a URL does not cause an immediate interaction. Instead, the
+client creates a message to the designated address with the various header
+fields set as default. The user can edit the message, send this message
+unedited, or choose not to send the message. The operation of how any URL
+scheme is resolved is not mandated by the URL specifications.
+
+4. Unsafe headers
+
+The user agent interpreting a mailto URL SHOULD choose not to create a
+message if any of the headers are considered dangerous; it may also choose
+to create a message with only a subset of the headers given in the URL.
+Only the Subject, Keywords, and Body headers are believed to be both safe
+and useful.
+
+The creator of a mailto URL cannot expect the resolver of a URL to
+understand more than the "subject" and "body" headers. Clients that resolve
+mailto URLs into mail messages should be able to correctly create RFC
+822-compliant mail messages using the "subject" and "body" headers.
+
+5. Encoding
+
+RFC 1738 requires that many characters in URLs be encoded. This affects the
+mailto scheme for some common characters that might appear in addresses,
+headers or message contents. One such character is space (" ", ASCII hex
+20). Note the examples above that use "%20" for space in the message body.
+Also note that line breaks in the body of a message MUST be encoded with
+"%0D%0A".
+
+People creating mailto URLs must be careful to encode any reserved
+characters that are used in the URLs so that properly-written URL
+interpreters can read them. Also, client software that reads URLs must be
+careful to decode strings before creating the mail message so that the mail
+messages appear in a form that the recipient will understand. These strings
+should be decoded before showing the user the message.
+
+The mailto URL scheme is limited in that it does not provide for
+substitution of variables. Thus, a message body that must include a user's
+email address can not be encoded using the mailto URL. This limitation also
+prevents mailto URLs that are signed with public keys and other such
+variable information.
+
+6. Examples
+
+URLs for an ordinary individual mailing address:
+
+   <mailto:ietf-url@imc.org>
+
+A URL for a mail response system that requires the name of the file in the
+subject:
+
+   <mailto:infobot@example.com?subject=current-issue>
+
+A mail response system that requires a "send" request in the body:
+
+   <mailto:infobot@example.com?body=send%20current-issue>
+
+A similar URL could have two lines with different "send" requests (in this
+case, "send current-issue" and, on the next line, "send index".)
+
+   <mailto:infobot@example.com?body=send%20current-issue%0D%0Asend%20index>
+
+An interesting use of your mailto URL is when browsing archives of
+messages. Each browsed message might contain a mailto URL like:
+
+   <mailto:foobar@foo.bar?In-Reply-To=%3c34F69A91.D10A4F4C@foo.bar>
+
+A request to subscribe to a mailing list:
+
+   <mailto:majordomo@example.com?body=subscribe%20bamboo-l>
+
+A URL for a single user which includes a CC of another user:
+
+   <mailto:joe@example.com?cc=bob@example.com&body=hello>
+
+Another way of expressing the same thing:
+
+   <mailto:?to=joe@example.com&cc=bob@example.com&body=hello>
+
+Note the use of the "&" reserved character, above. The following example,
+by using "?" twice, is incorrect:
+
+   <mailto:joe@example.com?cc=bob@example.com?body=hello>   ; WRONG!
+
+According to RFC 822, the characters "?", "&", and even "%" may occur in
+addr-specs. The fact that they are reserved characters in this URL scheme
+is not a problem: those characters may appear in mailto URLs, they just may
+not appear in unencoded form. The standard URL encoding mechanisms ("%"
+followed by a two-digit hex number) must be used in certain cases.
+
+To indicate the address "gorby%kremvax@example.com" one would do:
+
+   <mailto:gorby%25kremvax@example.com>
+
+To indicate the address "unlikely?address@example.com", and include another
+header, one would do:
+
+   <mailto:unlikely%3Faddress@example.com?blat=foop>
+
+As described above, the "&" (ampersand) character is reserved in HTML and
+must be replacded with "&amp;". Thus, a complex URL that has internal
+ampersands might look like:
+
+   Click
+   <a href="mailto:?to=joe@xyz.com&amp;cc=bob@xyz.com&amp;body=hello">
+   mailto:?to=joe@xyz.com&amp;cc=bob@xyz.com&amp;body=hello</a>
+   to send a greeting message to <i>Joe and Bob</i>.
+
+7. Security
+
+The mailto scheme can be used to send a message from one user to another,
+and thus can introduce many security concerns. Mail messages can be logged
+at the originating site, the recipient site, and intermediary sites along
+the delivery path. If the messages are not encoded, they can also be read
+at any of those sites.
+
+A mailto URL gives a template for a message that can be sent by mail client
+software. The contents of that template may be opaque or difficult to read
+by the user at the time of specifying the URL. Thus, a mail client should
+never send a message based on a mailto URL without first showing the user
+the full message that will be sent (including all headers that were
+specified by the mailto URL), fully decoded, and asking the user for
+approval to send the message as electronic mail. The mail client should
+also make it clear that the user is about to send an electronic mail
+message, since the user may not be aware that this is the result of a
+mailto URL.
+
+A mail client should never send anything without complete disclosure to the
+user of what is will be sent; it should disclose not only the message
+destination, but also any headers. Unrecognized headers, or headers with
+values inconsistent with those the mail client would normally send should
+be especially suspect. MIME headers (MIME-Version, Content-*) are most
+likely inappropriate, as are those relating to routing (From, Bcc,
+Apparently-To, etc.)
+
+Note that some headers are inherently unsafe to include in a message
+generated from a URL. For example, headers such as "From:", "Bcc:", and so
+on, should never be interpreted from a URL. In general, the fewer headers
+interpreted from the URL, the less likely it is that a sending agent will
+create an unsafe message.
+
+Examples of problems with sending unapproved mail include:
+
+  * mail that breaks laws upon delivery, such as making illegal threats;
+
+  * mail that identifies the sender as someone interested in breaking laws;
+
+  * mail that identifies the sender to an unwanted third party;
+
+  * mail that causes a financial charge to be incurred on the sender;
+
+  * mail that causes an action on the recipient machine that causes damage
+    that might be attributed to the sender.
+
+Programs that interpret mailto URLs should ensure that the SMTP "From"
+address is set and correct.
+
+8. Acknowledgments
+
+This document was derived from RFC 1738 and RFC 1808 [RFC1808]; the
+acknowledgments from those specifications still applies.
+
+The following people contributed to this draft or had and discussed similar
+ideas for mailto.
+
+Harald Alvestrand
+Bryan Costales
+Steve Dorner
+Al Gilman
+Mark Joseph
+Laurence Lundblade
+Keith Moore
+Jacob Palme
+Michael Patton
+
+9. References
+
+[RFC822] Crocker, D., "Standard for the Format of ARPA Internet Text
+Messages", RFC 822, University of Delaware, August 1982.
+
+[RFC1738] Berners-Lee, T., Masinter, L., and M. McCahill, Editors, "Uniform
+Resource Locators (URL)", RFC 1738, CERN, Xerox Corporation, University of
+Minnesota, December 1994.
+
+[RFC1808] Fielding, R., "Relative Uniform Resource Locators", RFC 1808, UC
+Irvine, June 1995.
+
+[RFC2047] Moore, K., "MIME Part Three: Message Header Extensions for
+Non-ASCII Text", RFC 2047, University of Tennessee, November 1996.
+
+Appendixes
+
+A. Change from RFC 1738
+
+RFC 1738 defined only a simple 'mailto' with no headers, just an addr-spec
+(not a full mailbox.)  However, required usage and implementation has led
+to the development of an extended syntax that included more header fields.
+
+B. Author contact information
+
+Paul E. Hoffman
+Internet Mail Consortium
+127 Segre Place
+Santa Cruz, CA  95060 USA
+phoffman@imc.org
+
+Larry Masinter
+Xerox Corporation
+3333 Coyote Hill Road
+Palo Alto, CA 94304 USA
+masinter@parc.xerox.com
+
+Jamie Zawinski
+Netscape Communications Corp.
+501 East Middlefield Road
+Mountain View, CA 94043 USA
+jwz@netscape.com
+

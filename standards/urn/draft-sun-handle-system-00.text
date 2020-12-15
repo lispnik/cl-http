@@ -1,0 +1,621 @@
+
+
+
+Network Working Group                                     Sam X. Sun
+INTERNET-DRAFT                                                  CNRI
+Expires July 19, 1998                               November 14, 1997
+draft-sun-handle-system-00.txt
+
+
+        Handle System: A Persistent Global Naming Service
+                        Overview and Syntax
+
+Status of this Memo 
+
+   This document is an Internet-Draft. Internet-Drafts are working
+   documents of the Internet Engineering Task Force (IETF), its areas, 
+   and its working groups. Note that other groups may also distribute 
+   working documents as Internet-Drafts. 
+
+   Internet-Drafts are draft documents valid for a maximum of six 
+   months and may be updated, replaced, or obsoleted by other 
+   documents at any time. It is inappropriate to use Internet-Drafts
+   as reference material or to cite them other than as "work in 
+   progress."
+
+   To learn the current status of any Internet-Draft, please check
+   the "1id-abstracts.txt" listing contained in the Internet-Drafts 
+   Shadow Directories on ftp.is.co.za (Africa), nic.nordu.net 
+   (Europe), munnari.oz.au (Pacific Rim), ds.internic.net (US East 
+   Coast), or ftp.isi.edu (US West Coast). 
+
+Abstract
+
+   The Handle System (r) is a comprehensive system  for assigning, 
+   managing, and resolving persistent identifiers, known as
+   ''handles,'' for digital objects and other resources on the Internet.
+   Handles can be used as Uniform Resource Names (URNs). The Handle
+   System includes:(a) an open set of protocols, (b) a namespace,
+   and (c) an implementation of the protocols. The protocols enable 
+   a distributed computer system to store handles of digital 
+   resources and resolve those handles into the information necessary
+   to locate and access the resources. This associated information
+   can be changed as needed to reflect the current state of the
+   identified resource without changing the handle, thus allowing the
+   name of the item to persist over changes of location and other
+   state information. Combined with a centrally administered naming 
+   authority registration service, the Handle System provides a
+   general purpose, distributed global naming service for the reliable
+   management of information on networks over long periods of time.
+   (Note that in this document we do not attempt to distinguish
+   between the terms 'name' and 'indentifier' and will use them
+   interchangably.)
+
+   The Handle System has been implemented and is currently in use in 
+   a number of prototype projects, including efforts with the Library 
+   of Congress, the Association of American Publishers, the Defense
+   Technical Information Center, and the United States Information 
+   Agency.
+
+   This is the first of a series of planned documents that will 
+   specify the handle protocol and services, and relate the Handle 
+   System to other IETF activities in URN/URI/URL working groups. 
+   This document provides a concise overview of the system and the 
+   syntax of handles. Additional information can be found on CNRI
+   and related project web sites [4, 5, 6, 8, 16, 17, 18, 19].
+
+
+1. Objectives 
+
+   The Handle System is a distributed information system that provides
+   a persistent naming service for use on networks such as the
+   Internet. Handles can be used to identify any network resources.
+   The Handle System resolves handles into state information about the
+   named objects, e.g., location. This state information may of course 
+   be constrained by its intended application, but is otherwise
+   entirely determined by the party responsible for naming the object.
+
+   The system ensures that every handle is unique within the context of 
+   the Handle System and can be retained and resolved over long time
+   periods. The resolution information associated with each handle can
+   be changed as needed, allowing the handle to persist over changes
+   in location and other states of the named resource.
+
+   Specifically, the Handle System was designed to address the 
+   following problems in network resource identification:
+
+   * Persistence
+
+     A named resource can outlast any specific computer system or 
+     organization. Any resource name which is inextricably linked 
+     with a specific system or name of an organization will 
+     not be able to survive the demise or radical change of that
+     computer system or organization. By separating the object's name
+     from location, ownership, and other state information, the 
+     Handle System allows that identifier to persist over time.
+
+   * Location independence
+
+     With handles, the name of the item is unrelated to the 
+     location of the item. This allows easy reorganization of 
+     information. Handles make it possible to transfer 
+     resources from one organization to another without 
+     affecting or breaking the existing user references (i.e., 
+     handles) to those collections. This is not possible using 
+     location based references.
+
+   * Multiple instances of an item
+
+     A single handle can refer to more than one instance of an item.
+     Care must be taken, of course,  to ensure that these are multiple
+     instances of the same item. That said, the issue of what
+     constitutes multiple instances of an item as opposed to multiple
+     items is beyond the scope of this document.
+
+
+2. Handle Syntax 
+
+   Every handle in the Handle System is defined in two parts: 
+   its naming authority, otherwise know as its prefix, and a unique
+   handle string under that naming authority, otherwise known as its
+   suffix. 
+
+   The naming authority identifies the administrative unit of 
+   the underlying handles. It is globally unique and persistent 
+   once obtained. Naming authorities are defined using a subset 
+   of ASCII characters, including alphanumeric characters, and 
+   some special characters listed below. Characters in the 
+   naming authority segment are case insensitive. 
+
+   The handle string is Unicode based and uses UTF8 [1,2] 
+   character set encoding. Handles can consist of any characters 
+   of any national language, and the Unicode based encoding 
+   ensures its global uniqueness and no ambiguity. ACSII 
+   characters within the handle string are case insensitive. 
+
+   The following is the handle syntax described in Extended 
+   Backus-Naur Form (EBNF) notation:
+
+      <Handle>           ::= <Naming Authority> "/" <HandleString> 
+
+      <Naming Authority> ::= ( <AlphaNumeric> | "." | "-"  | "_" ) +
+
+      <HandleString>     ::= ( < octet from UTF-8 encoding > ) +
+
+      <AlphaNumeric>     ::= [a-zA-Z0-9]
+
+   And here are some examples of valid handles:
+
+      cnri.dlib/july95-arms 
+
+      10.1002/0002-8231(199601)47:1<1:SPOTEO>2.3.TX;2-K
+      
+      any-printable-characters/a-zA-Z0-9!@#$%^&*()_"<>,.?/`~|\
+
+      handles-in-germany/Universität-Karlsruhe
+
+   It will be useful in some contexts (for example, when used in 
+   URL) to specify operations, or service requests, on the objects 
+   named by handles, e.g., designating a fragment. There will be 
+   various approaches to this, depending on context, but one that 
+   is compatible with many current Internet applications and which 
+   influences syntax is to associate a modifier string directly 
+   with a handle string. For this we specify placing the modifier 
+   before the handle and using the "@" character as 
+   delimeter:
+
+      <HandleRef> ::= [ <Modifier> "@" ] <Handle>
+
+   For example, a handle in a URL context could be combined with a 
+   modifier as follows:
+
+      HREF="hdl:action=verify@4263537/certificate-1234567"
+
+   Here, the <Modifier> is used to describe the desired 
+   operations on the digital object specified by the handle. 
+
+   The syntax of the <Modifier> may be context specific and driven 
+   by application domains. Meta-level formats will be described in 
+   a future document. 
+
+   Note that the <Modifier> is positioned in front of the naming
+   authority of the underlying <Handle>. This is to avoid defining
+   any reserved characters in the namespace of <HandleString>, 
+   by taking advantage of the already highly constrained character
+   set of <Naming Authority> segment.
+
+   It is important to distinguish <Handle> from <HandleRef>, which 
+   is a Handle_with_Modifier. The <Modifier> is a mechanism 
+   allowing specification of customized usage of the underlying 
+   handles. It is not part of the name of the underlying resource, 
+   nor is it part of the handle resolution process. The 
+   implementation and interpretation of <Modifier> is left to the 
+   client software using the Handle System. 
+
+
+3. Using Handles with the World Wide Web
+
+3.1 URL representation of handles
+
+   Handles can be used in place of URLs in Web browsers or in 
+   HTML mark-up documents to refer to persistent Internet 
+   resources. The direct approach is to use the handle preceded 
+   with proposed URL scheme "hdl:". This is called Handle URL 
+   Syntax:
+
+      <Handle URL Syntax>     ::=     "hdl:" <HandleRef>
+
+   The Handle URL Syntax has two reserved characters, % and ", 
+   from the native handle namespace. The character % is used 
+   for hex encoding, which is necessary to allow any handles 
+   specified from the standard keyboard. And the character " is 
+   reserved to allow handles to be separated from the surrounding 
+   text in HTML documents. Reserved characters must be 
+   hex encoded when used in the URL context. The choice of % 
+   and hex encoding is also compatible with the current 
+   URL practice. Because some browser implementations drop the 
+   # character when processing the URL of any scheme, hex 
+   encoding of character # is also strongly recommended. 
+   Examples of handles using Handle URL Syntax are: 
+
+      hdl:cnri.dlib/july95-arms
+
+      (which refers to handle "cnri.dlib/july95-arms")
+
+   and
+
+      hdl:handle-with-hex-encoding/handle%25abc 
+   
+      (which refers to handle "handle-with-hex-encoding/handle%abc")
+ 
+   Handles can also be resolved using a URL that references a proxy 
+   service. This is called Handle Proxy Syntax:
+
+      <HandleProxySyntax> ::= "http://" <ProxyServer> "/" <HandleRef>
+
+   In this case, the <Proxy Server> is the domain name of a
+   proxy server that will be responsible for resolving the
+   <Handle> and directing the resolution results back to the
+   client. Since this is a URL any excluded characters in the URL
+   specification [3] will have to be hex encoded when used in 
+   the handle name.
+
+   For example, a handle in a URL context could be combined with a 
+   modifier as follows:
+
+      http://hdl.handle.net/cnri.dlib/july95-arms
+
+      (which refers to handle "cnri.dlib/july95-arms")
+
+   and
+
+      http://hdl.handle.net/10.1000/14
+
+      (which refers to handle "10.1000/14")
+
+   Here "hdl.handle.net" is a global proxy service provided by 
+   CNRI to allow handles to be resolved using the "http:"
+   protocol. 
+
+   It's worth noting that the handle namespace by itself does not 
+   impose any hex or escape encoding, nor does the underlying 
+   Handle System. The reserved characters and hex encoding are 
+   introduced only when handles are used in the URL context. It is
+   the client software's responsibility to decode any hex encoding
+   in the handle URL before sending the handles out for resolution.
+   And on systems where other character set encoding is used, it is
+   also the client software's responsibility to convert a natively
+   displayed handle to its UTF8 encoding before sending it out
+   for resolution.
+
+3.2 Handle Resolution service from Web browsers
+
+   Handles specified using Handle URL Syntax (ie, hdl:<handle>) 
+   can be resolved from a Web browser directly using the Handle 
+   System Resolver [4]. The resolver is a freely available 
+   extension to the current popular Web browsers. It resolves 
+   handles into corresponding URLs, which are then retrieved by 
+   the browser in the normal fashion.  This is the suggested way 
+   to resolve the handles in the future, because it provides 
+   better performance, is more scalable, and is locally 
+   configurable.
+
+   Handles can also be resolved using proxy services using Handle 
+   Proxy Syntax (ie, http:<proxy>/<handle>). In this case, the 
+   proxy server performs the handle resolution task, and sends 
+   the resulting URL to the client browser for processing. 
+   Currently, CNRI provides global handle proxy service through
+   "hdl.handle.net", and "dx.doi.org". It is worth noting that 
+   even though using the proxy server approach is straight-forward
+   and doesn't require any customer software customization, 
+   it has the effect of connecting the handles with the proxy 
+   server's URL location. Hence the selection of a proxy server 
+   should be made with care; this is another reason for 
+   using the Handle System Resolver instead of the proxy server.
+
+3.3 Creating handles for network resources
+
+   The Handle System allows handles to be created in a distributed 
+   fashion. Organizations in need of providing a naming service 
+   for their persistent internet resources will be able to contact 
+   CNRI or other organizations to register for their own handle 
+   naming authority, as well as their own local handle services. 
+   This will enable them to create handles for their own 
+   organizational use. Policies and procedures for Naming Authority 
+   registration are currently under development.
+
+   As an initiative for general public service, CNRI has established  
+   a public handle registration service for the IETF community. This 
+   service provides an open channel to allow individuals to create 
+   handles and experiment with the handle system.  The service is 
+   provided for testing purposes only. Future availability of this 
+   service is not guaranteed. Details on how to use this service, as 
+   well as its terms and conditions can be obtained from 
+   http://www.handle.net/ietf/handle/register_handle.html.
+
+4. Distributed service model
+
+   The Handle System is distributed, scalable, and designed for 
+   widespread deployment. The current implementation consists of one 
+   global service and many local handle services. Each handle 
+   service consists of one of more physically distributed handle 
+   servers. (Currently, the global service consists of two servers 
+   in Virginia and two in California. A European location is 
+   planned.) And each handle server can have one or more secondary 
+   servers for mirroring. In addition, handle caching servers are 
+   provided for faster resolution service for a local environment, 
+   and they can also be used to provide proxy service through 
+   firewalls.
+
+4.1 Handle services 
+
+   The Handle System consists of many services. Each service is 
+   responsible for part of the handle namespace. One specific 
+   service, called the Global Handle Registry, is globally unique, 
+   and has a special function, which is to know of the existence, 
+   location, and namespace responsibilities of all other public 
+   services, or local handle services. There can be an unlimited 
+   number of local handle services, managed by various organizations. 
+   In the current implementation each local handle service is 
+   registered with the Global Handle Registry to ensure efficient
+   resolution. Policies and procedures for disconnected local handle
+   services are under development. The primary issue here is to
+   guarantee identifier uniqueness in disconnected systems.
+
+4.2 Handle servers within a service
+
+   Each handle service consists of one or more handle servers. 
+   Typically, each handle server runs on a separate computer but
+   multiple handle servers can run on a single computer. Within a
+   handle service, the distribution of handles across its constituent
+   servers is determined by a hash table such that each of N servers
+   within a service will be responsible for 1/N handles. The number
+   of servers can be adjusted as required to meet the needs of a
+   service.
+
+4.3 Server replication
+
+   Additionally, it may be desirable to mirror the contents of any of
+   the handle servers within a service, presumably on a separate
+   computer. This is referred to as replication and is accomplished
+   by creating one or more additional servers whose sole purpose is
+   to mirror the contents of the original server. Within each set of
+   replicated servers, the initial server is called the primary server
+   and all others are called secondary servers. The creation and
+   administration of handles always takes place on the primary server,
+   but resolution can use either the primary or any of its secondaries. 
+   This provides fault tolerance, as well as the potential for
+   performance improvement.
+
+4.4 Caching Server
+
+   The Handle System Caching Server has been built to reduce the 
+   network traffic between handle clients and handle services and 
+   its use is strongly encouraged. Caching handle data or routing 
+   information on the caching server allows some handle resolution 
+   to be performed within an organization's local area network.
+
+4.5 Proxy Server
+
+   The Handle System Proxy Server has been developed to act as a 
+   client to the Handle System, allowing handles to be resolved using 
+   Handle Proxy Syntax (ie, http:<proxy server>/<handle>). Using 
+   this syntax, the browser passes a handle to the proxy server, 
+   which in turn passes the handle to the appropriate handle 
+   service for resolution. If the handle can be resolved into one 
+   or more URLs, a URL is returned from the handle 
+   server to the proxy, and from the proxy to the client browser.
+
+4.6 Handle System Resolver
+
+   The Handle System Resolver [4] is a software component which 
+   extends Netscape or Microsoft Web browsers, and allows handles 
+   to be resolved using Handle URL Syntax (ie, hdl:<handle>). Using 
+   this syntax, the browser passes the handle directly to the 
+   appropriate handle service for resolution. If the handle can 
+   be resolved into one or more URLs, one of the URLs is returned to
+   the browser which then transparently retrieves and displays the
+   intended content.
+
+
+5. Handle data
+
+   A handle within the Handle System is associated with, and can 
+   be resolved to, one or more elements of typed data. Examples of 
+   data types in use include URLs, object request brokers, and 
+   other URNs. Other examples might include e-mail addresses or 
+   public key certificates. There is a controlled set of named 
+   types accepted by the system. This list can be extended as 
+   needed at the system level. Additionally, for ad hoc use, 
+   any numeric value will be accepted as an undefined data type.
+
+   Administrative data, e.g., permissions to create handles or 
+   edit handle data, is also associated with each handle. This data 
+   is not returned as part of the handle resolution but is used 
+   for handle administration only.
+ 
+   Other than the relationship between the Global Handle Registry 
+   and local handle services described above, there are no 
+   hierarchical relationships assumed among handle records.  Note, 
+   however, that handles can include in their associated data 
+   references to other handles, thus allowing hierarchical or other 
+   relationships to be constructed as needed.
+
+
+6. Handle resolution
+
+   Handle clients and handle services use the Handle Resolution 
+   Protocol [5] to conduct resolution transactions. The Handle 
+   Resolution protocol uses registered port number 2641. By 
+   default, a handle resolution request will be answered with 
+   all of the typed data associated with a handle, with the 
+   exception of the administrative data. It is also possible 
+   to request data only of a certain type.
+
+   Handle clients that do not know which handle service to 
+   query for a given handle start with the Global Handle 
+   Registry, which is guaranteed to know which service contains 
+   a given handle. Within a given service, a client uses the hash 
+   table specific to the service to discover the individual 
+   server, or set of replicated servers, which can resolve the 
+   given handle.
+
+   A number of handle resolution clients have been constructed, 
+   all of which utilize the Handle Client Library [6], which 
+   is currently implemented as a C library. The clients include 
+   a Web proxy server, the Handle System Resolver [4], and the 
+   Grail Web browser [7].
+
+
+7. Handle administration
+
+   Handle System administration is carried out using the 
+   Handle System Administration Protocol [8]. This protocol 
+   allows the creation and administration of handles and their 
+   associated data within the Handle System.  A series of APIs
+   currently under construction on top of this protocol will be 
+   made publicly available.
+
+
+8. Security Consideration
+
+   The Handle System has been designed to enable secure 
+   transactions between clients and servers and to allow 
+   secure and stable storage of handle data. Development and
+   documentation of secure practices and policies is underway.
+
+   A handle does not in itself pose a security threat. When 
+   specified or used in URL context, it is subject to all 
+   the security considerations in the URL specification [3]. 
+
+
+9. Handle System and URL/URN/URI
+
+   While the Handle System is designed to be usable in many 
+   contexts and is not a subset or extension of current UR* schemes, 
+   it can be used in conjunction with those schemes. When used 
+   within those schemes it is, of course, subject to their 
+   constraints. The Handle System is designed to provide all the 
+   fundamental requirements outlined in the URN/URI specifications 
+   [9,10]. On the other hand, the Handle System differs from the 
+   current proposed URN implementations [11,12,13] discussed in the 
+   IETF URN working group in the following ways.
+
+   First of all, the Handle System defines a namespace independent 
+   of URL, and is not subject to the current namespace constraints 
+   of URL. The namespace of handles is Unicode based, and imposes no 
+   reserved or excluded characters on the handle string. This 
+   allows handles to be specified in any national language natively 
+   in a globally unique and unambiguous manner. The elimination of 
+   any reserved characters also allows any legacy naming system, 
+   such as SICI [14], to be used with no or minimum change. 
+
+   The Handle System is designed to support, instead of exclude, the 
+   use of user friendly names in any native language. There are 
+   situations in which using descriptive names may hurt the persistence 
+   of the name once the identified object changes its association. 
+   Objects of this nature may be better served using non-descriptive 
+   names; for example, digits only. On the other hand, there are 
+   objects for which descriptive names are desirable.   
+
+   The current URN/URI was defined "generally to be for machine, 
+   rather than human, consumption" [20]. It uses a subset of ASCII 
+   character set, and requires a set of reserved/excluded characters. 
+   A Human Friendly Name Service is expected to work with it.
+
+   Finally, Handle URL representation is not restricted to the 
+   particular URL scheme "urn:", but can use other URL schemes such 
+   as  "hdl:". The system further provides a distributed, scalable 
+   implementation of a globally unique, persistent naming service 
+   independent of DNS service.
+
+10. History and Acknowledgment
+
+   The initial design and implementation of the Handle System 
+   was part of the Computer Science Technical Reports project, 
+   funded by the Defense Advanced Projects Agency (DARPA)
+   under Grant No. MDA-972-92-J-1029. One aspect of this 
+   project was to develop a framework for the underlying 
+   infrastructure of digital libraries. It is described in a 
+   paper by Robert Kahn and Robert Wilensky [15]. The first 
+   implementation was created at CNRI in the fall of 1994.
+   Subsequent work on the Handle System has been supported in part
+   by the Advanced Research Projects Agency under Grant No.
+   MDA972-92-J-1029.
+
+   The following people have contributed to the Handle 
+   System design and implementation: David Ely, William Arms, 
+   Navjeet Chabbewal, Judith Grass, Robert Kahn, 
+   Timothy Kendall, Connie McLindon, Charles Orth, Ed Overly, 
+   Varna Puvvada, John Stewart, Allison Yu-McNamara, Ron Ely, 
+   Catherine Rey, Jane Euler, Larry Lannom, and Sam Sun. 
+   We also want to acknowledge the contribution of the other 
+   members of the Computer Science Technical Reports project.
+
+
+11. Author's Address
+
+   Sam X. Sun
+   1895 Preston White Dr.
+   Suite 100
+   Reston, VA 20191-5434
+   (703) 620-8990
+   ssun@cnri.reston.va.us
+
+
+12. References
+
+   [1]  The Unicode Consortium, "The Unicode Standard, 
+        Version 2.0", Addison-Wesley Developers Press, 1996. 
+        ISBN 0-201-48345-9
+
+   [2]  Yergeau, Francois, "UTF-8, A Transform Format for Unicode
+        and ISO10646", RFC2044, October 1996.
+        http://ds.internic.net/rfc/rfc2044.txt
+
+   [3]  Berners-Lee, T., Masinter, L., McCahill, M., et al., 
+        "Uniform Resource Locators (URL)", RFC1738, December 1994.
+        http://ds.internic.net/rfc/rfc1738.txt
+
+   [4]  Handle System Resolver.
+        http://www.handle.net/resolver/
+
+   [5]  Handle System Client Library download site.
+        http://www.handle.net/download.html
+
+   [6]  Handle Resolution Protocol.
+        http://www.handle.net/client_spec.html
+
+   [7]  The Grail Internet Browser. 
+        http://grail.cnri.reston.va.us/grail/
+
+   [8]  Handle Administration Protocol.
+        http://www.handle.net/handle_admin.html
+
+   [9]  Sollins, K. and L. Masinter, "Functional Requirements 
+        for Uniform Resource Names", RFC 1737, December 1994. 
+        http://ds.internic.net/rfc/rfc1737.txt
+
+   [10] Berners-Lee, T., "Universal Resource Identifiers 
+        in WWW" RFC 1630, June 1994. 
+        http://ds.internic.net/rfc/rfc1630.txt
+
+   [11] Daniel, Ron and Michael Mealling, "Resolution of 
+        Uniform Resource Identifiers using the Domain Name 
+        System", RFC 2168, June 1997. 
+        http://ds.internic.net/rfc/rfc2168.txt
+
+   [12] Daniel, Jr., Ron, "A Trivial Convention for using 
+        HTTP in URN Resolution", RFC-2169, June 1997. 
+        http://ds.internic.net/rfc/rfc2169.txt
+
+   [13] Moats, Ryan, "URN Syntax", RFC-2141, May 1997.   
+        http://ds.internic.net/rfc/rfc2141.txt
+
+   [14] Serial Item and Contribution Identifier (SICI) Standard.
+        http://sunsite.berkeley.edu/SICI/
+
+   [15] Kahn, Robert and Wilensky, Robert. "A Framework for 
+        Distributed Digital Object Services", May, 1995. 
+        http://www.cnri.reston.va.us/tmp_hp/k-w.html
+
+   [16] Digital Object Identifier System.
+        http://hdl.handle.net/10.1000/1
+
+   [17] National Digital Library Program.
+        http://hdl.handle.net/4263537/003 
+
+   [18] The CNRI Registry.
+        http://hdl.handle.net/4263537/001 
+
+   [19] Defense Virtual Library.
+        http://hdl.handle.net/4263537/002 
+
+   [20] Sollins, K., "Architectural Principles of Uniform Resource 
+        Name Resolution", September 26, 1997, Work in Progress. 
+        ftp://ftp.ietf.org/internet-drafts/
+        draft-ietf-urn-req-frame-04.txt
+
+INTERNET-DRAFT                                                   
+draft-ietf-handle-system-00.txt
+Expires July 19, 1998

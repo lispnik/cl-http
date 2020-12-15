@@ -1,0 +1,318 @@
+<html>
+<head>
+<title>Configuring CL-HTTP for MCL</title>
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+<h1><img src="/cl-http/icons/construction.gif" align=left> Configuring CL-HTTP for MCL</h1>
+
+<font size=3>
+<i>
+<ol>
+
+<li><a href="#basic">Basic Configuration</a>
+<li><a href="#production">Production Configuration</a>
+<li><a href="#appletalk">AppleTalk  &amp; Standalone  Configuration</a>
+<li><a href="#powerbook">PowerBook Configuration</a>
+<li><a href="#binary-images">Saving Binary Images</a>
+
+</ol>
+</i> 
+</font>
+
+<p><img src="/cl-http/icons/line-rain.gif"></p>
+
+<ol>
+
+<h2><li> <a name="basic">Basic Configuration</a></h2>
+
+<p>
+
+<dl>
+
+<p><dt><img src="/cl-http/icons/check-yes.gif"> <b>Physical Memory</b><dd>
+CL-HTTP runs well with 9192K bytes of memory and virtual memory turned off.
+You may want to set the preferred size of MCL using <em>Get Info</em> from the
+<em>File Menu</em> in the Finder on the MCL Application.  You may be able to
+run with 6-8 megabytes if you do not intend to compile or use much space.</p>
+
+<dt><img src="/cl-http/icons/check-yes.gif"> <b>Networking Software</b><dd>
+Macintosh computers offer two network software packages:  OpenTransport
+TCP/AppleTalk and the legacy MacTCP/AppleTalk.  OpenTransport runs natively on
+both PowerPC and 68K architectures, whereas MacTCP runs natively only on 68k
+machines.  OpenTransport (version 1.1.1 or later) is recommended for use with
+CL-HTTP.
+
+<p><dt><img src="/cl-http/icons/check-yes.gif"> <b>Load Server</b><dd>On a Macintosh,
+http:mcl;sysdcl.lisp will just load the server while http:mcl;start-server.lisp will load the
+server and start it running by automatically performing steps 3-5.</p>
+
+<p><dt><img src="/cl-http/icons/check-yes.gif"><b>Set Configuration Switches</b><dd> Load <a
+href="/cl-http/sources/examples/configuration.lisp">Configuration.lisp</a> or equivalent to initialize a
+number of variables controlling the operation of the server. The comments describe the significance of the
+various parameters. Consider <a href="#enable-email">enabling email</a> so that automatic bug reporting and
+other programmatic email transmission can work.</p> 
+
+<p><dt><img src="/cl-http/icons/check-yes.gif"><b>Export URLs</b><dd> Use <a
+href="/cl-http/show-documentation?HTTP:EXPORT-URL">http:export-url</a> function to make URLs
+available through the server.  At first, load the examples in <a
+href="/cl-http/sources/examples/exports.lisp">Exports.lisp</a>. Then, you can adapt or extend these
+examples to meet your own needs.</p>
+
+</p><dt><img src="/cl-http/icons/check-yes.gif"> <b>Start Server</b><dd>
+Evaluate the function <a
+href="/cl-http/show-documentation?HTTP:ENABLE-HTTP-SERVICE">http:enable-http-service</a>
+to start the server.<p>
+
+<p><dt><img src="/cl-http/icons/check-no.gif"> <b>Stop Server</b><dd> Evaluate <a
+href="/cl-http/show-documentation?HTTP:DISABLE-HTTP-SERVICE">http:disable-http-service</a>
+to stop the server. In MCL 2.0.1 or earlier, use <em>Command-.</em> before
+evaluating http:disable-http-service.</p>
+
+</dl>
+
+<h2><li> <a name="production">Production Configuration</a></h2>
+
+Once you are ready to open up your server to production level loads, you can
+improve server performance by making the following changes to your version of
+<a href="/cl-http/sources/examples/configuration.lisp">Configuration.lisp</a>:
+
+<dl>
+
+<p><dt><img src="/cl-http/icons/check-yes.gif"> <b>Keep Lisp in Foreground</b><dd>
+MCL CL-HTTP is able to control the amount of the machine allocated to HTTP
+service most effectively when the CL-HTTP application is in the foreground.
+When it is in the background, scheduling depends on the whims of other
+applications running on the Macintosh. In general, fewer competing applications will
+mean better HTTP performance.</p> 
+
+<p><dt><img src="/cl-http/icons/check-yes.gif"> <b>Turn off Virtual Memory</b><dd>
+Load up your server with enough physical memory so that you can run MCL
+without virtual memory turned on. This will reduce disk contention.</p>
+
+<p><dt><img src="/cl-http/icons/check-yes.gif"> <b>Serve Static Pages From RAM</b><dd>
+
+Major performance improvements can come by eliminating moving parts from your server, most notably the disk drive. There
+are two ways to reduce or prevent disk accesses during Web service:
+
+<p><ol>
+
+<b><li> Increase RAM Allocated to Disk Caching:</b> In the memory control panel off the Apple Menu, increase the amount of
+RAM used for disk caching to between 1 and 5 megabytes, or more. Larger RAM disk caches reduce the likelihood that the server
+must retrieve static web data from the file system. Thus, web server performance from disk access speeds, which are
+normally much slower than network speeds. For maximum performance, allocate enough RAM for the disk cache to hold all the
+frequently-accessed pages on your server plus 5 or so megabytes for other disk accesses (<i>e.g</i>., file logging).</p> 
+
+<b><li>Move Static Web Pages into a RAM Disk:</b> In the memory control panel off the Apple Menu, create an
+appropriately-sized RAM disk and check the box to save. on shutdown. Move the folder containing static Web pages onto the RAM
+disk. Export the pages from the folder on the RAM disk.</p>
+
+</ol>
+
+<P>Assuming sufficient RAM is available to hold all static Web pages, both approaches should achieve the same results, although
+the disk caching approach can conserve memory because it works with memory less than the total size of all static pages.</p> 
+
+<p><dt><img src="/cl-http/icons/check-yes.gif"> <b>Disable Log Domain Resolution</b><dd> Set the variable
+<a
+href="/cl-http/show-documentation?HTTP:*RESOLVE-IP-ADDRESSES-FOR-LOG*">http:*resolve-ip-addresses-for-log*</a>
+to NIL or your machine will be bogged down trying to resolve client domain names.</p>
+
+<p><dt><img src="/cl-http/icons/check-yes.gif"> <b>Disable Log Notifications</b><dd>
+Turn off log notifications on the console with <a
+href="/cl-http/show-documentation?HTTP:LOG-NOTIFICATIONS-ON">http:log-notifications-on</a>.</p> 
+
+<p><dt><img src="/cl-http/icons/check-yes.gif"> <b>Tune Simultaneous Connections</b><dd> Adjust the
+number of simultaneous connections that you allow with <a
+href="/cl-http/show-documentation?HTTP:SET-MAXIMUM-NUMBER-OF-CONNECTIONS">http:set-maximum-number-of-connections</a>.</p>
+
+<p><dt><img src="/cl-http/icons/check-yes.gif"> <b><a name="enable-email">Enable Email Interface</a></b><dd>
+Set the variable <a
+href="/cl-http/show-documentation?SMTP:*NETWORK-MAIL-HOST*">smtp:*network-mail-host*</a> to the
+primary store-and-forward mail host at your site, and provide some alternates on <a
+href="/cl-http/show-documentation?SMTP:*STORE-AND-FORWARD-MAIL-HOSTS*">smtp:*store-and-forward-mail-hosts*</a>
+in case the primary mailer is unavailable. This will enable automatic bug reporting via <a
+href="/cl-http/show-documentation?WWW-UTILS:REPORT-BUG">www-utils:report-bug</a> and allow
+ response functions to send email during <a
+href="/cl-http/show-documentation?WWW-UTILS:SEND-MAIL-FROM">www-utils:send-mail-from</a>.</p>
+
+</dl>
+
+<h2><li> <a name="appletalk">AppleTalk &amp;  Standalone Configuration</a></h2>
+
+<p>CL-HTTP can run standalone or over an isolated AppleTalk network. This describes the configuration with or without domain name
+resolution service (DNS). </p>
+
+<p>When DNS is available from a server such as <a href="http://cybertech.apple.com/MacDNS.html"> Apple's MacDNS</a>, set TCP to
+connect via AppleTalk.,enable AppleTalk, and use the <a href="#basic">Basic Configuration</a> with the standard configuration file,
+<a href="/cl-http/sources/examples/configuration.lisp">Configuration.lisp</a> or equivalent.</p> 
+
+<p>For standalone operation, the disconnected server talks to the browser via a AppleTalk loopback connection. However, running a DNS
+server may be too cumbersome for many standalone configurations. The main objective is to avoid resolving domain names. Thus, all
+references to URLs must use the IP address of the server. Any references to the local host in HTML should omit the host component so
+that URLs will be relative to the local host (IP address) serving the documents.</p>
+
+<p> This configuration allows <b>standalone service</b> to clients running on the same host <b>without a connection to a
+network</b>. It also works for to clients running on other hosts and connecting to the server over an AppleTalk link (e.g.,
+ethernet, LocalTalk cables, IrTalk wireless nets).</p>
+
+<p>
+<dl>
+
+<p><dt><img src="/cl-http/icons/check-yes.gif"> <b>Network
+Configuration</b><dd> Follow either OpenTransport or MacTCP configuration
+steps depending on which networking software is installed on your
+computer.</p>
+
+<dl>
+
+<p><dt><img src="/cl-http/icons/orangeball.gif"> <b>OpenTransport Configuration</b><dd>
+Set MacTCP on both the server or client machines as follows:
+
+<p><ol>
+
+<b><li> AppleTalk Control Panel</b><br> Create a LocalTalk configuration for
+AppleTalk (Command-K) and, using the basic AppleTalk configuration mode
+(Command-U), set it as follows:  
+
+<p><ul>
+
+<li><b>Connect Via:</b> Printer Port
+
+<li>Make sure <b>AppleTalk is active</b>.
+
+</ul></p>
+
+<b><li>TCP/IP Control Panel</b><br> Create a LoopBack configuration for TCP/IP
+and, using the advanced OT configuration mode (Command-U), set it as follows:
+
+<p><ul>
+
+<li><b>Connect Via:</b> <i>AppleTalk (MacIP)</i>
+
+<li><b>Configure:</b> <i>Using MacIP Manually</i>
+
+<li><b>Select Hosts File:</b> <i>Macintosh HD:System Folder:Hosts</i><br> See
+<a href="#host-names">how to set host name mappings</a>.
+
+<li><b>Ip Address:</b> <i>127.0.0.3</i><br>Any unique IP address will do. 127.x.x.x is the LoopBack IP subnet reserved for
+standalone applications whereas 10.*.*.* is reserved for private subnets not connected to the internet.
+
+<li><b>Implicit Search Path:</b> <i>AppleTalk.net</i><br>Any unique domain
+name will do.
+
+<li>Make sure <b>TCP/IP is active</b>.
+
+</ul></p>
+
+
+
+</ol></p>
+
+
+<dt><img src="/cl-http/icons/orangeball.gif"> <b>MacTCP Configuration</b><dd>
+Set MacTCP on both the server or client machines as follows:
+
+<p><ul>
+
+<li>Use <b>AppleTalk</b>.
+
+<li>Obtain address <b>Manually</b>.
+
+<li>Set <b>IP Address</b> uniquely.
+
+<li>Make sure <b>AppleTalk is active</b>.
+
+</ul></p>
+
+</dl>
+
+<p><dt><img src="/cl-http/icons/check-yes.gif"> <b>Domain Name Service</b><dd> Proceed with the <a href="#basic">Basic
+Configuration</a> except substitute the configuration file, <a
+href="/cl-http/sources/mcl/examples/configuration-appletalk.lisp">Configuration-AppleTalk.lisp</a> or equivalent.</p>
+
+<p><dt><img src="/cl-http/icons/check-yes.gif"> <b><a name="host-names">Host Names</a></b><dd> Domain names may be
+used after you have specified the mapping from the IP address to the host name in the Hosts file in your system folder. Here is
+an example of what might appear in your <b>Macintosh HD:System Folder:Hosts</b> file:</p>
+
+<pre>Local-Host.AppleTalk.Net A 127.0.0.3 ;AppleTalk operation (stand alone)
+WWW.AppleTalk.Net CNAME Local-Host.AppleTalk.Net      ; canonical name</pre>
+
+This can be used to give your host the name local-host so that you don't need
+to remember its IP address, or names might be given to any number of local
+talk hosts by providing the IP-DNS mappings in the hosts file of each
+machine. </p>
+
+</dl></p>
+
+
+<h2><li> <a name="powerbook">PowerBook Configuration</a></h2>
+
+<dl>
+
+<p><dt><img src="/cl-http/icons/check-yes.gif"> <b>Disconnected Operation</b><dd> Use the <a
+href=#appletalk"> AppleTalk Server Configuration</a>.</p>
+
+<p><dt><img src="/cl-http/icons/check-no.gif"> <b>Power Cycling</b><dd> <b>Disable</b> the
+power saving feature whereby the computer conserves power by sleeping the computer.</p>
+
+<p><dt><img src="/cl-http/icons/check-no.gif"> <b>Sleeping</b><dd> Make sure that the processor
+cannot go to sleep while Web serving and while the network is active.</p>
+
+</dl> 
+
+<h2><li> <a name="binary-images">Saving Binary Images</a></h2>
+
+<p>You can save a binary image containing CL-HTTP in order to reduce the time required to launch the
+server. These server application images are easiest to manage if they are unconfigured and contain no
+URL exports. They can be booted and configured in any way without concern to data that might be
+cached in the image, such as local host information, configuration preferences, or exported URLs.
+
+</p>
+
+<dl>
+
+<dt><img src="/cl-http/icons/check-yes.gif"> <b>Load Server</b><dd> Load the server without any
+configuration file or URL exports into a fresh MCL image.
+
+<ul> <pre><code>(load "http:mcl;sysdcl")</code></pre> </ul>
+
+<dt><img src="/cl-http/icons/check-yes.gif"> <b>Save Image</b><dd> Save the application using:
+
+<ul> <pre><code>(ccl:save-application "CL-HTTP-major.minor" :init-file "CL-HTTP-Init.lisp")</code></pre>
+</ul>
+
+<p>If you want to have the server launch automatically when the Lisp
+image is booted, <em>CL-HTTP-Init.lisp</em> should reload the logical pathname
+translations from http:mcl;translations.lisp, perform a standard server
+configuration, load an exports file, and enable HTTP service with <a
+href="/cl-http/show-documentation?HTTP:ENABLE-HTTP-SERVICE">http:enable-http-service</a>.
+See the example init file in <a
+href="/cl-http/sources/mcl/examples/cl-http.lisp">http;mcl;examples;cl-http-init.lisp</a>.
+Otherwise, <a href="/cl-http/maintenance/configure-server.html">web
+configuration</a> or the <a
+href="/cl-http/contributions/mcl/rjoswig/cl-http-menu.lisp">CL-HTTP
+toolbar</a> item may be used to manually configure and launch the server.</p>
+
+
+</dl> 
+
+<p>When circumstances require saving configuration information and URL exports in lisp images, it is
+necessary to reconfigure the image and remap the URLs <em>every</em> time the image is booted on
+different host computers. Loading a configuration file like <a
+href="/cl-http/sources/examples/configuration.lisp">http:examples;configuration.lisp</a> will
+update all the parameters, but it will be necessary to use <a
+href="/cl-http/show-documentation?URL:REMAP-URL-HOST">url:remap-url-host</a> to remap
+any local URLs from the old host to the new host.</p>
+
+<p>When a server image is intended for users rather than developers, the binary image should be saved
+with the Digitool application generator in order to reduce the amount of disk space consumed by the
+application, and limit the facilities available to users.
+
+</ol>
+
+<p> If you have any questions or suggestions, send mail to <B><a
+href="mailto:www-cl@ai.mit.edu">www-cl@ai.mit.edu</A></b> </p>
+
+<p><img src="/cl-http/icons/line-rain.gif"></p>
+
+</body></html> 

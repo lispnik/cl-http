@@ -1,0 +1,735 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+
+<HEAD>
+	<META HTTP-EQUIV="Content-Type" CONTENT="text/html;CHARSET=iso-8859-1">
+<!--
+<DOCUMENTATION>
+ <CHRONOLOGY>
+  <DELTA><DATE>19971115</DATE>
+   <A HREF="mailto:jaa%mecom-gmbh@mixx.de">jaa </A>:
+   this document was composed to accompany the prototype distribution.
+   covers background, program structure, and file organization.
+   </DELTA>
+  <DELTA><DATE>19971210</DATE>
+   jaa:
+   additions for model compiler and element matcher
+   </DELTA>
+  <DELTA><DATE>19980102</DATE>
+   jaa: relation to other lisp serialization / representation efforts
+   <DELTA>
+  </CHRONOLOGY>
+ </DOCUMENTATION>
+-->
+
+	<META NAME="GENERATOR" Content="Symantec Visual Page Mac 1.1.1">
+	<TITLE>Common Lisp - XML</TITLE>
+</HEAD>
+
+<BODY TEXT="#000000" BGCOLOR="#E8E8E8">
+
+<H2 ALIGN="CENTER">Common Lisp support for the<BR>
+'Extensible Markup Language'<BR>
+(CL-XML)</H2>
+<P>27. february 1998 (v 0.30)<BR>
+james anderson, benno biewer <A HREF="mailto:mecom-gmbh@mixx.de">&lt;mecom-gmbh@mixx.de&gt;</A></P>
+
+<P>we have implemented a primitive &quot;processor&quot; in common lisp for data
+streams serialized according to the proposed <A HREF="#PR-XML">&quot;extensible markup
+language&quot;</A> standard. this document provides a cursory introduction to xml,
+describes the proposed <A HREF="PARSE-PROCESS">parsing/processing</A> mechanism and
+implementation approach, and explains how to use the processor.</P>
+<P>the processor is intended both as an extension to the cl-http server and as a
+stand-alone xml interface. the runtime environment is examined during the loading
+process to determine if the if http support is already present. if so, then the existing
+facilities are used and server extenions are generated to support xml.</P>
+<P>the xml processor reads an marked up data stream to produce a document object
+which binds definition information and element content. the repsective class definitions
+include support for access to definition and content data and for document serialization.</P>
+
+<P>an additional utility is planned to provide parsing and serialization support
+for instances of arbitrary specializations of <CODE>STANDARD-CLASS</CODE>.<BR>
+<BR>
+a facility is included to offer an element interface to mcl records, thereby offering
+an uniform interface to &quot;ascii&quot; and &quot;binary&quot; data.</P>
+
+<P>
+<HR>
+
+
+<UL>
+	<LI><A HREF="#XML-BACKGROUND">background</A> on xml
+	<LI><A HREF="#OTHER-REPRESENTATIONS">alternative &quot;representations&quot; in lisp</A>
+	<LI><A HREF="#IMPLEMENTATION-LEVEL">xml-support level</A>
+	<LI><A HREF="#IMPLEMENTATION-APPROACH">xml-support level</A>
+	<LI><A HREF="#IMPLEMENTATION-LEVEL">implmentation approach</A>
+	<LI><A HREF="#IMPLEMENTATION-QUESTIONS">further work</A>
+	<LI><A HREF="#EXAMPLES">examples</A>
+</UL>
+
+<P>
+<HR>
+
+<H3><A NAME="XML-BACKGROUND"></A>a bit of background on xml</H3>
+<P>in its role as an &quot;introduction&quot; to xml, this note provides an admittedly
+cursory treatment of two topics: what xml is and, how xml relates to lisp applications
+and development. please note, that - especially with respect to xml itself - our
+goal is just to get you started. there are already numerous documents available on-line
+about xml, none of which it makes sense to duplicate here. the reader is referred,
+in particular, to
+
+<UL>
+	<LI><A HREF="http://www.w3.org/XML/">the W3 xml page</A>,
+	<LI>an <A HREF="http://sunsite.unc.edu/pub/sun-info/standards/xml/why/xmlapps.htm">article
+	by Jon Bosak</A>, which suggests various xml applications,
+	<LI>the <A HREF="http://www.textuality.com/xml/">textuality xml root</A> (Tim Bray,
+	from textuality, is one of proposal editors),
+	<LI>and the <A HREF="http://www.microsoft.com/standards/xml/xmlfaq.htm">microsoft
+	xml root</A> (Jean Paoli, from microsoft, is another editor; IE4 includes access
+	to xml data objects),
+</UL>
+
+<P>and to the various links included therein.</P>
+<P>the simplest description of xml is, that it is a cross between html and sgml.
+html is the notation used to &quot;markup&quot; text for display in a &quot;browser&quot;.
+sgml is also a markup notation, which in some forms, looks much like html, but, in
+general, permits syntax definitions, called &quot;document types&quot;, with various
+markup forms. html, in its recent versions, is a particular document style in sgml.
+xml is a simplified subset of sgml. it permits document type definitions, but limits
+the syntax to one resembling html. <BR>
+xml is intended to be a notation for storing, retrieving, and, in general, communicating
+data in a &quot;self-describing&quot; serialized form. the standard specifies a syntax
+to &quot;mark up&quot; text data using annotated, or attributed tags so as to denote
+sequence and containment relations among data. each application is free to define
+its own tags and relations as a document type.</P>
+<P>xml is proposed, in particular, as a notation for data to be exchanged between
+http clients and servers (or, more accurately among any processes capable of operating
+with URL-specified data resources). the <A HREF="http://www.w3.org/">www-consortium</A>
+is administering the proposal and standardization process. to quote the proposed
+standard
+
+
+<BLOCKQUOTE>
+	<P>&quot;The Extensible Markup Language (XML) is a simple dialect of SGML.... The
+	goal is to enable generic SGML to be served, received, and processed on the Web in
+	the way that is now possible with HTML. XML has been designed for ease of implementation
+	and for interoperability with both SGML and HTML.&quot;
+
+</BLOCKQUOTE>
+
+<P>if the xml elements are chosen from the html document definition, then the documents
+would look much like html documents. documents are also permitted, which have no
+definition, so long as all elements are marked with matching open and close tags
+or with an empty tag, and so long as containment relations are unambiguous.</P>
+<P>one might, for example, express the most trivial of relations from the lisp domain
+as the following xml document:</P>
+<PRE>&lt;cons&gt;&lt;car&gt;first&lt;/car&gt;&lt;cdr&gt;rest&lt;/cdr&gt;&lt;/cons&gt;
+</PRE>
+<P>the following, also trivial, html document, would also be a legitimate xml document:</P>
+<PRE>&lt;html&gt;
+ &lt;head&gt;&lt;/head&gt;
+ &lt;body&gt;greetings in xml&lt;/body&gt;
+ &lt;/html&gt;
+</PRE>
+<P>in addition to straight-forward markup, the standard also includes special purpose
+syntactic constructs to represent document definitions. the syntax of these forms
+has been chosen to be compatible with sgml. they could, however, just as well have
+been encoded using the same markup forms as the rest of the document.</P>
+<P>the present thinking about XML is embodied in a collection of w3 proposals and
+technical notes concerning the representation and manipulation of &quot;document
+objects&quot;.
+
+<UL>
+	<LI>the <A HREF="#PR-XML">XML proposal</A> itself, concerns the standard notation
+	to serialize &quot;document objects&quot;.
+	<LI>a <CITE>&quot;document object model&quot;</CITE> (or <A HREF="#WD-DOM">&quot;DOM&quot;</A>)
+	describes a standard class hierarchy and functional interface to retrieve data from
+	&quot;document objects&quot;.
+	<LI>an <CITE>&quot;extensible style language</CITE> (or <A HREF="#NOTE-XSL">&quot;XSL&quot;</A>)
+	proposes a system-independent description language for presentation and data store
+	interfaces
+	<LI>an <CITE>&quot;extensible linking language</CITE> (or <A HREF="#NOTE-XLL">&quot;XLL&quot;</A>)
+	concerns the representation on effects of links between &quot;document objects&quot;.
+	<LI>an <A HREF="http://www.microsoft.com/standards/xml/xmldata.htm"><CITE>&quot;xml-data&quot;</CITE>
+	proposal</A> exists, which suggests a more expressive alternative to the DTD, encoded
+	instead strictly as element data, for encoding meta-object data
+	<LI>a proposed <A HREF="http://www.w3.org/TR/NOTE-CDFsubmit.html"><CITE>&quot;channel-definition
+	format&quot;</CITE></A> suggests a way to describe data communications links between
+	a browser and a server.
+	<LI>java classes exist (<A HREF="http://www.microsoft.com/standards/xml/xmlparse.htm#docs">com.ms.xml.dso</A>)
+	which can operate within a brower to retrieve content from xml data sources and incorporate
+	them in html content.
+</UL>
+
+<P>XML would appear to be on its way to becoming the standard representation for
+serialized electronic data.</P>
+<P>in practical terms, these collected documents describe
+
+<UL>
+	<LI>a serialization standard sufficiently expressive to represent arbitrary CLOS
+	data: the data stream proper can encode instance attributes and relations. meta-object
+	data can be encoded either in an optional DTD (or &quot;document type definition&quot;)
+	or in an xml &quot;schema&quot;. both may be included in the stream either literally
+	or by reference.
+	<LI>a linking notation and mechanism which can represent and navigate arbitrary graphs.
+	<LI>a notation which can already be used with a range of sgml editing and viewing
+	applications.
+	<LI>a notation which can already be used to exchange data among programs written
+	in numerous languages (c, c++, java, and perl among them) and operating on any os-base
+	which supports tcp/ip
+	<LI>a serialization notation which should not, however, be mistaken, despite the
+	somewhat inaccurate name, for a <A HREF="#LANGUAGE">&quot;language&quot;</A>. the
+	standard specifies an encoding <EM>syntax</EM> only. all encoding <EM>rules</EM>
+	are internal to the notation and limited to those for verifying whether a document
+	conforms to a given definition.
+</UL>
+
+<P>in terms useful for the lisp developer, this means that a single serialization
+interface - alternative, but equivalent to the standard reader, would suffice to
+communicate data with any and all of
+
+<UL>
+	<LI>another lisp process, which can parse xml;
+	<LI>a browser, which uses xml-data sources to present the content as html
+	<LI>a java process, which can parse xml;
+	<LI>a sgml (or ultimately xml) editor, which could perform structurally constrained
+	editing and return the data as an xml object;
+	<LI>any xml-equiped database could be a persistent object store;
+</UL>
+
+<P>we're using it as the serialization form to communicate data among a cl-http server
+and java front-ends. we intend to use it as the media for communication to editors
+and persistent stores as they become available. it is straight-forward to implement
+basic support in a common lisp environment. for a small effort, it will be possible
+to leverage the development efforts which will follow over the next several years
+to carry the dynamic development and deployment features which lisp offers into wider
+setting.</P>
+<P>
+<HR>
+
+<H3><A NAME="OTHER-REPRESENTATIONS"></A>what about other &quot;representations&quot;</H3>
+<P>the lisp world is at no loss for alternatives to serialize data or otherwise represent
+it external to a lisp process. the lisp standard includes at least two means (reader
+macros and load forms) which can be used to serialize data for archival or to pass
+it to another process. with suitable meta-object support, the necessary definitions
+can be specified as an aspect of class definition.</P>
+<P>the lisp application community has also been at no loss to develop representations
+for data and for data manipulation. in most cases (for example, KIF) the standard
+incorporates the standard lisp reader and therby depends on equivalent runtime support
+among a communicating processes. such standards also extend well beyond the scope
+of xml, to specify protocols for application-level data-exchange protocols and to
+specify mechanisms for interpreting messages.</P>
+<P>xml, on the other hand, is strictly a convention for encoding. it plays a role
+analogous to the <CODE>#(<I>structure-type</I> <I>slot-name</I> <I>slot-value</I>)</CODE>,
+and could be substituted for it in applications which share data with foreign application
+environments. as an encoding, xml does not concern protocol questions, which are
+relegated to the application domain, where http is the likely dominant protocol.
+semantic issues are also left entirely to the application, whereby a number of &quot;standardized&quot;
+applications are being discussed. (see the various w3c <A HREF="http://www.w3.org/Submission/">submissions</A>
+and <A HREF="http://www.w3.org/TR/">reports</A>.)</P>
+<P>
+<HR>
+
+<H3><A NAME="IMPLEMENTATION-LEVEL"></A>implementation level</H3>
+<P>the distributed collection of files implements a &quot;nonconforming, validating,
+model-based XML processor&quot;. in practical terms, this means that
+
+<UL>
+	<LI>it does not catch and /or report all possible syntax errors,
+	<LI>it is able to verify a document against a document definition, and
+	<LI>it transforms the document stream into a &quot;DOM-like&quot; object model.
+</UL>
+
+<P>this version of the processor can parse and process complete xml documents, including
+
+<UL>
+	<LI>internal elements, and entity references,
+	<LI>document type definitions, also referred to as DTD's, both internal and external
+	to an XML document,
+	<LI>external parsed entities.
+</UL>
+
+<P>it also includes a provisional pattern matcher for use, for example, as the core
+of an XSL matcher, and a compiler for element models which can be used to implement
+validation.</P>
+<P>the most significant limitations are
+
+<UL>
+	<LI>it does not observe character encodings.
+	<LI>it is rather careless about storage, generating strings and interning symbols
+	which could just be managed more efficiently
+	<LI>it makes no effort to perform efficient io and is too dependant on the lisp reader
+</UL>
+
+<P>a the next version will address these issues.</P>
+<P>the processor reads XML document to produce an internal node tree which represents
+the node containment relations denoted in the stream and which establishes links
+to the specified element definitions for reference to model and attribute declarations
+and to entity definitions for replacement text. if the XML document specifies a source
+for a DTD, the DTD document is read to produce an internal representations of the
+declared elements, models, atttributes, and entities.</P>
+<P>as an optional step when creating element definitions, the respective model is
+compiled to produce a validation predicate. use of the predicates are left to the
+'application' either by means of auxiliary (likely :before) constraint methods, for
+example on <CODE>XML-ELEMENT.APPEND-ELEMENT</CODE> or on <CODE>(SETF XML-NODE.CONTENT)(t
+XML-ELEMENT)</CODE>.</P>
+<P>DTD and XML streams are, for the most part, processed identically. a distinction
+is limited to two interface functions which read the named respective stream type
+and enforce content constraints on the results. <BR>
+<CODE>READ-DTD-STREAM (generic-function (<I>stream</I> <I>NAME</I>) <I>DTD</I>)</CODE>
+<BR>
+<CODE>READ-XML-STREAM (generic-function (<I>stream</I>) <I>XML-ELEMENT</I>)</CODE>
+<BR>
+the additional argument to <CODE>READ-DTD-STREAM</CODE> is necessary in order to
+specify the root element and the namespace into which the dtd is imported.</P>
+<P>additional interface functions are provided to read individual elements, read
+PCDATA, CDATA, etc. look at &quot;interface.lisp&quot; for descriptions.</P>
+<P>the reading and construction process is controlled by numerous parameter bindings.
+there are, for example, bindings to specify the class of each node to be instantiated.
+see &quot;global-bindings.lisp&quot; for explanations. these bindings may be changed
+and /or the respective access functions specialized in order to either
+
+<UL>
+	<LI>transform the processor from a &quot;model-based&quot; into an &quot;event-based&quot;
+	processor, by instantiating nodes which have merely a control function but do not
+	bind element content
+	<LI>parse directly to CLOS instances rather than to generic <CODE>XML-ELEMENT</CODE>
+	nodes.
+</UL>
+
+<P>this prototype includes support for the following xml forms. the distinction between
+parsing and processin means that the element is either merely read and instantiated,
+or that the relations or side effects specified by the standard are implemented.
+<BR>
+&nbsp; 
+<TABLE BORDER="0">
+	<TR VALIGN="TOP">
+		<TH>element</TH>
+		<TH>parsed</TH>
+		<TH>processed</TH>
+		<TH>comments</TH>
+	</TR>
+	<TR VALIGN="TOP">
+		<TD><B><TT>&lt;!--</TT></B></TD>
+		<TD>yes</TD>
+		<TD>yes</TD>
+		<TD>comments are appended to the parent node. they are bound separate from element children
+			and keyed to the immediately preceeding element.</TD>
+	</TR>
+	<TR VALIGN="TOP">
+		<TD><B><TT>!ELEMENT</TT></B></TD>
+		<TD>yes</TD>
+		<TD>yes</TD>
+		<TD>element definitions are bound to the parent DTD. the names are required to be of
+			the same package as the DTD. where element references appear in a model, supplementary
+			(non-standard) ELEMENT-REFERENCE nodes are generated to accommodate forward references
+			and to accept instance-specific attributes.</TD>
+	</TR>
+	<TR VALIGN="TOP">
+		<TD><B><TT>!ENTITY</TT></B></TD>
+		<TD>yes</TD>
+		<TD>yes</TD>
+		<TD>internal and external character, parameter and parsed character entities are supported.
+			the processor diverges from standard behaviour in that it does not enforce the specified
+			context constraints entity references.</TD>
+	</TR>
+	<TR VALIGN="TOP">
+		<TD><B><TT>!NOTATION</TT></B></TD>
+		<TD>yes</TD>
+		<TD>no</TD>
+		<TD></TD>
+	</TR>
+	<TR VALIGN="TOP">
+		<TD><B><TT>![CDATA[</TT></B></TD>
+		<TD>yes</TD>
+		<TD>yes</TD>
+		<TD>bound as text to the parent node</TD>
+	</TR>
+	<TR VALIGN="TOP">
+		<TD><B><TT>![INCLUDE[</TT></B></TD>
+		<TD>yes</TD>
+		<TD>yes</TD>
+		<TD>read as a string and reparsed. the last element in the stream is returned.</TD>
+	</TR>
+	<TR VALIGN="TOP">
+		<TD><B><TT>![IGNORE[</TT></B></TD>
+		<TD>yes</TD>
+		<TD>yes</TD>
+		<TD>read as string and discarded</TD>
+	</TR>
+	<TR VALIGN="TOP">
+		<TD><B><TT>?XML</TT></B></TD>
+		<TD>yes</TD>
+		<TD>yes</TD>
+		<TD>processed to bind the standalone declaration, but without support for encoding</TD>
+	</TR>
+	<TR VALIGN="TOP">
+		<TD><B><TT>?NAMESPACE</TT></B></TD>
+		<TD>yes</TD>
+		<TD>yes</TD>
+		<TD>this processing instructions is not a part of the xml standard. on the other hand,
+			it would be hard to manage complex documents without some means to define and select
+			namespaces, so we adopted one. namespaces are implemented through packages. each
+			DTD is associated with a package which has the same name as the DTD. where a DTD
+			has been included by virtue of a namespace reference, the respective package is renamed
+			according to the &quot;AS&quot; attribute.</TD>
+	</TR>
+	<TR VALIGN="TOP">
+		<TD><B><TT>!DOCTYPE</TT></B></TD>
+		<TD>yes</TD>
+		<TD>yes</TD>
+		<TD>a document type declaration specifies the root element, it can reference the an external
+			DTD and or provide an internal definition</TD>
+	</TR>
+	<TR VALIGN="TOP">
+		<TD><B><TT>&amp;</TT></B><TT><I>entity</I><B>;</B></TT></TD>
+		<TD>yes</TD>
+		<TD>yes</TD>
+		<TD>named entity references are appended to the content of containing elements. methods
+			to retrieve and parse the referenced entity's content are not yet implemented. if
+			they were PCDATA only, the dtd is available through the containing elements dtd-element-reference
+			and the string content could be reread with READ-PROCESS-PCDATA. this should wait,
+			however, until we understand the meaning and uses of notations, since things like
+			external entities and binary data aren't that simple.</TD>
+	</TR>
+	<TR VALIGN="TOP">
+		<TD><B><TT>%</TT></B><TT><I>entity</I><B>;</B></TT></TD>
+		<TD>yes</TD>
+		<TD>yes</TD>
+		<TD>wherever they are permitted (type names, models, attributes, ... ?), parameter entities
+			are supported by concatenating streams. the entity value is prepended to the active
+			stream in place of the entity reference. this means that syntactic restrictions specified
+			by the standard for entity values are not enforced.</TD>
+	</TR>
+	<TR VALIGN="TOP">
+		<TD><I><TT>element</TT></I></TD>
+		<TD>yes</TD>
+		<TD>yes</TD>
+		<TD>elements are parsed and processed. the processing step appends an element to its
+			parent node. <BR>
+			attributes are parsed and bound to the element node. limited attribute normalization
+			is not supported. <BR>
+			empty elements are supported.</TD>
+	</TR>
+</TABLE>
+</P>
+<P>the processor performs limited case-folding. element and attribute names and values
+are left unmodified with the exceptions: ID, IDREF, IDREFS, NMTOKEN, NMTOKENS.</P>
+<P>
+<HR>
+
+<H3><A NAME="IMPLEMENTATION-APPROACH"></A>programm structure</H3>
+<P>this implementation is an extension of the standard lisp reader. it augments the
+reader with reader macros which transform the serial xml representation into the
+equivalent node tree. it is a 'hand-coded' implementation of the XML standard and
+makes no attempt to implement the bnf-specification through the means of automatic
+translation.</P>
+<P>it is implemented in terms of three constructs: (take a look at &quot;markup-reader.lisp&quot;)
+
+<OL>
+	<LI>reader macros: <BR>
+	the xml standard specifies distinct lexical rules for different aspects of a document.
+	for our purposes, by virtue of the presence of internal document type definitions,
+	the circumstances hold true for xml documents and document type definitions. the
+	lexical behaviour of the parser is defined for each aspect of a document in terms
+	of a specific readtable. each table comprises aspect-specific character syntax and/or
+	reader macros. the lexical analysis is then left (with the exception of occasional
+	application of peek-char) to the reader.
+	<LI>structural analysis through generic dispatch <BR>
+	the xml standard specifies a small number of structural forms:
+	<UL>
+		<LI>declarations: documents, elements, entities, notations
+		<LI>elements
+		<LI>processing instructions
+		<LI>sections: notations, cdata
+	</UL>
+	each has a specific syntax and specific lexical constraints. in order to accommodate
+	these differences, while providing for the foreseeable need to extend the processor,
+	the the parser is distributed among several generic functions and their respective
+	methods. <BR>
+	the parsing process is initiated in reader macros specific to each lexical aspect.
+	these macros collect a datum, which then serves as the discriminator for an aspect-specific
+	parsing function. this read/discriminate process continues until the element syntax
+	is determined, at which point the parse is performed by a specific method.
+	<P>the parsing process passes control among several functional levels. from outermost
+	to innermost they are: 
+	<TABLE BORDER="0">
+		<TR>
+			<TD>( read-dtd-stream | read-xml-stream )</TD>
+			<TD>these, the outermost functions for the respective streams, read and process pcdata
+				until the end of the stream is reached.</TD>
+		</TR>
+		<TR>
+			<TD>markup-dispatching-reader-macro</TD>
+			<TD>this is function is bound,as a convenience, to the default readtable to facilitate
+				&quot;in-line&quot; element values. it either reads a succeeding element, of if the
+				successor datum is a string, parses the entire string as an xml datum</TD>
+		</TR>
+		<TR>
+			<TD>-&nbsp; read-element-stream</TD>
+			<TD>invoked by markup-dispatching-reader-macro to read a single element</TD>
+		</TR>
+		<TR>
+			<TD>-&nbsp; read-element</TD>
+			<TD></TD>
+		</TR>
+		<TR>
+			<TD>-&nbsp;-&nbsp; read-process-pcdata</TD>
+			<TD>this, the primary function for parsing a markup stream, employs on reader macros
+				to recognize and dispatch on the respective distinguished characters. nb.one reason
+				the processor is &quot;non-conformant&quot;, is that, in the present version this
+				function is called upon to parse a stream under circumstances in which the standard
+				does not allow pcdata. in order to rectify this, we would have to either introduce
+				a number of additional readtables which follow the XML-BNF more closely.</TD>
+		</TR>
+		<TR>
+			<TD>-&nbsp;-&nbsp;-&nbsp; element-reader-macro</TD>
+			<TD>this function is bound the the tag open character, &quot;&lt;&quot;, in the readtables.</TD>
+		</TR>
+		<TR>
+			<TD>-&nbsp;-&nbsp;-&nbsp; read-typed-markup-element</TD>
+			<TD></TD>
+		</TR>
+		<TR>
+			<TD>-&nbsp;-&nbsp;-&nbsp;-&nbsp; read-typed-processing-instruction</TD>
+			<TD></TD>
+		</TR>
+		<TR>
+			<TD>-&nbsp;-&nbsp;-&nbsp;-&nbsp; read-typed-markup-declaration</TD>
+			<TD></TD>
+		</TR>
+		<TR>
+			<TD>-&nbsp;-&nbsp;-&nbsp;-&nbsp; read-typed-section-element</TD>
+			<TD></TD>
+		</TR>
+		<TR>
+			<TD>-&nbsp;-&nbsp;-&nbsp;-&nbsp; read-markup-tag-attributes</TD>
+			<TD></TD>
+		</TR>
+		<TR>
+			<TD>-&nbsp;-&nbsp;-&nbsp;-&nbsp; read-markup-tag-type</TD>
+			<TD></TD>
+		</TR>
+		<TR>
+			<TD>-&nbsp;-&nbsp;-&nbsp;-&nbsp; read-markup-tag-parameters</TD>
+			<TD></TD>
+		</TR>
+		<TR>
+			<TD>-&nbsp;-&nbsp;-&nbsp;-&nbsp;-&nbsp; <I>read-process-pcdata</I></TD>
+			<TD></TD>
+		</TR>
+		<TR>
+			<TD>-&nbsp;-&nbsp;-&nbsp;-&nbsp;-&nbsp; read-process-cdata</TD>
+			<TD></TD>
+		</TR>
+		<TR>
+			<TD>-&nbsp;-&nbsp;-&nbsp;-&nbsp;-&nbsp; read</TD>
+			<TD></TD>
+		</TR>
+	</TABLE>
+
+	<LI>construction by side-effect <BR>
+	the standard cl reader constructs data structures from returned values to embody
+	relationships identical to the lexical structure of the read expressions. an xml
+	processor, in contrast, instantiates relations which are not necessarily denoted
+	through lexical containment. while the lexical-structural identity may hold for element
+	data, it does not hold for declarations and the relation implied by processing instructions
+	is completely unspecified. for this reason we propose an xml processor which acts
+	as a side-effecting reader rather than as a functional reader. this means that each
+	object establishes a dynamic context as it is read and permits lexically contained
+	objects to assert their relation to it or to any other, or appropriate object.
+</OL>
+
+<P>
+<HR>
+
+<H3><A NAME="IMPLEMENTATION-QUESTIONS"></A>implementation questions and further work</H3>
+<P>the present implementation is a prototype. we use it to communicate data among
+an http server and java clients. there are a number of questions, about how it should
+evolve, for which we as yet have no answers and must gain experience using it together
+with other parsers and document generators.
+
+<DL>
+	<DT>application interface</DT>
+	<DD>
+	<P>the form of interface remains a question. the c- and java-based parser/processor
+	implementations make significant distinctions between an interface concerned with
+	the lexical processing and one concerned with the content. contemporary (as of q1.98,
+	that is pre-dom-implementations) deliberations regarding standard interfaces are
+	directed to so-called &quot;event-based&quot; interfaces. in this form of interface
+	a calling application is informed of the presence of lexical tokens and or the completion
+	of syntax productions through a &quot;call-back&quot; interface, as if they were
+	&quot;events&quot; in the data stream.</P>
+	<P>such interfaces are significant for applications which intend to filter <EM>very</EM>
+	large amounts of data in order to operate on a small percentage of the content. in
+	our case such an interface is of little interest. the primary interfaces are for
+	entire document objects. if there should be a need to filter data selectively, one
+	method would be to specialize the element and text classes as well as the functions
+	for processsing or appending elements to implement the &quot;call backs&quot; but
+	not retain the data. either</P>
+	<DT>conformance</DT>
+	<DD>this version of the processor is &quot;non-conforming&quot; in a number of respects.
+	in particular it neither fully constrains document syntax to conform to the standard
+	(accepting pcdata where it is not &quot;permitted&quot;, allowing a more liberal
+	tag syntax, ...), nor does it terminate processing should it detect an error when
+	it is instead possible to recover from an error.
+	<P>we elected this implementation, because it is important to our application to
+	recover all aossible data in the event of a syntax error. we are prepared to enforce
+	many would-be &quot;well-formedness&quot; constraints on a semantic level.</P>
+	<P>a stricter processor would require further work to implement the restrictions
+	in terms of the additional reader macros , or through an alternative reader.
+</DL>
+
+<P>
+<HR>
+
+<H3><A NAME="EXAMPLES"></A>examples</H3>
+<P>the directory &quot;dtd&quot; includes several simple document type definitions.
+one for lisp &quot;lisp.dtd&quot; and one for XSL patterns &quot;xsl.dtd&quot;. the
+directory &quot;xml&quot; contains small example files. one from microsoft contains
+a channel description. the the best sources for further examples are net resources:
+
+<UL>
+	<LI>the <A HREF="mailto:majordomo@ic.ac.uk">xml-dev mailing list</A> discusses xml
+	development issues. <BR>
+	among the example resources which have been mentioned there are
+	<LI>encoded transcriptions of <A HREF="http://sunsite.unc.edu/pub/sun-info/standards/xml/eg/">shakespeare
+	and religious works</A>.
+	<LI><A HREF="mailto:donpark@quake.net">Don Park's</A> collection of <A HREF="http://users.quake.net/donpark/xmlcat.html">links
+	to examples and standards</A>.
+</UL>
+
+<P>there are also several test / example files
+
+<UL>
+	<LI>example-dtd.lisp<BR>
+	demonstrates the content od a document type definition;
+	<LI>example-model-compiler.lisp<BR>
+	demonstrates the use of the validity predicates;
+	<LI>example-parser.lisp<BR>
+	demonstrates how to read an xml stream to produce a document;
+	<LI>example-pattern.lisp<BR>
+	demonstrates how the pattern matcher works
+	<LI>example-server.lisp<BR>
+	shows how to bind a url to generate xml-form data
+</UL>
+
+<P>
+<HR>
+
+<H3>release</H3>
+<P>in addition to generic elements, this release parses all forms identified by the
+XML 1.0 Working Draft. (i have not yet read the proposed standard) (see the XML package
+in &quot;exports.lisp&quot;). in some cases they are parsed but are not 'processed'.</P>
+<P>the code is distributed among some two dozen files. they can be divided into four
+categories:
+
+<DL>
+	<DT>interface management and documentation</DT>
+	<DD>defsystem, exports, interface, xml-node, XapiJ, DOM, xml-error
+	<DT>primitive lexical analysis</DT>
+	<DD>markup-reader
+	<DT>document declaration elements</DT>
+	<DD>dtd, dtd-element, dtd-element-declaration, dtd-element-reference, dtd-attdef,
+	dtd-entity, dtd-parser
+	<DT>xml elements</DT>
+	<DD>xml-document, xml-text, xml-attribute, xml-coment, xml-pi, xml-element, xml-parser
+	<DT>prospective applications</DT>
+	<DD>xml-pattern, pattern-function, xml-records
+</DL>
+
+<P>there are also several files provided which are specific to run-time support within
+MCL.the system definition file  is &quot;<A HREF="defsystem.lisp">defsystem.lisp</A>&quot;.
+the file &quot;<A HREF="defsystem-xml-records.lisp">defsystem-xml-records.lisp</A>&quot;
+concerns an additional modules which provides a uniform interface to xml elements
+and mcl records.</P>
+
+<P>this prototype is no paradigm of efficiency, it is merely a draft tool for serializing
+data for exchange with java &quot;front-end&quot; processes. it is in flux and future
+compatibility is not assured. it should be seen as a base for discussion and possible
+further implementation only. please do not REdistribute it. it is available from
+the cl-http contributed source archive, from which, for the time being, all distribution
+should occur. <BR>
+working with a 2.5M portion of the old testament xml-example file, for instance,
+the performance looks like this (mcl 4.1, ppc7300/200):</P>
+<PRE>? (room)
+There are at least 13,426,192 bytes of available RAM.
+
+                  Total Size             Free                 Used
+Mac Heap:      1295856 (1265K)       477552 (466K)        818304 (800K)
+Lisp Heap:    15453968 (15092K)     12948640 (12645K)      2505328 (2447K)
+Stacks:         240368 (235K)        236804 (231K)          3564 (3K)
+Static:           5584 (5K)               0 (0K)            5584 (5K)
+? (time (let ((*xml-text-class* nil)) ; intern text simply as strings
+          (defparameter *ot*
+            (read-xml-stream #P&quot;entwicklung-server:Source:LISP:XML:otxml Folder:ot-abridged.xml&quot;))))
+(LET ((*XML-TEXT-CLASS* NIL)) (DEFPARAMETER *OT* (READ-XML-STREAM #P&quot;entwicklung-server:Source:LISP:XML:otxml Folder:ot-abridged.xml&quot;))) took 125,784 milliseconds (125.784 seconds) to run.
+Of that, 19,010 milliseconds (19.010 seconds) were spent in The Cooperative Multitasking Experience.
+ 11,065,544 bytes of memory allocated.
+*OT*
+? (gc)
+NIL
+? (room)
+There are at least 5,853,552 bytes of available RAM.
+
+                  Total Size             Free                 Used
+Mac Heap:      1295840 (1265K)       477552 (466K)        818288 (800K)
+Lisp Heap:    15453984 (15092K)      5376000 (5250K)     10077984 (9842K)
+Stacks:         240368 (235K)        236804 (231K)          3564 (3K)
+Static:           5584 (5K)               0 (0K)            5584 (5K)
+? 
+</PRE>
+<P>which is several factors slower than the equivalent c++ parser</P>
+<H3>references</H3>
+<P>several of the references are gathered here in order since, in many cases, a reference
+includes an alternative link to the respective original document in addition to the
+documents included with the distribution.
+
+<UL>
+	<LI><A NAME="NOTE-DOM"></A>[the dom proposal]: the proposed interface specification
+	is available <A HREF="http://www.w3.org/WD-DOM/level-one-core">from the w3 consortium</A>
+	or, as the 09.10.97 version, <A HREF="/cl-http/standards/DOM/dom.html">with the cl-http
+	release.</A>
+	<LI><A NAME="LANGUAGE"></A>see please &quot;a theory of semiotics&quot;, eco, indiana
+	university press, 1979. in particular p. 38, the discussion of <CITE>s-codes</CITE>.
+	the xml standard distances itself from all issues of interpretation and restricts
+	itself to to specify a <EM>notation for</EM> encoding, rather than an encoding.
+	<LI><A NAME="PARSE-PROCESS"></A>[the &quot;parser&quot; / &quot;processor&quot; dualism]:
+	the xml literature is marked by a &quot;parser&quot; v/s &quot;processor&quot; dichotomy.
+	it arises from a distinction between a mechanism which recognizes and manipulates
+	the lexical entities denoted by document and a mechanism which operates on data in
+	the domain of &quot;parsed entities&quot;. for example, while the sequence <BR>
+	<CODE>&lt;e1 a1=&quot;1&quot;&gt;&lt;e2/&gt; and text&lt;/e1&gt;</CODE> <BR>
+	concerns a &quot;parser&quot; as a sequence of tokens only: <BR>
+	element start: <CODE>&quot;e1&quot;</CODE> <BR>
+	attribute-name: <CODE>&quot;a1&quot;</CODE> <BR>
+	attribute-value: <CODE>&quot;1&quot;</CODE> <BR>
+	element start: <CODE>&quot;e2&quot;</CODE> <BR>
+	element end: <CODE>&quot;e2&quot;</CODE> <BR>
+	parsed character data: <CODE>&quot; and text&quot;</CODE> <BR>
+	element end: <CODE>&quot;e1</CODE> <BR>
+	a &quot;processor&quot; operates in a domain where the relation between an element
+	<CODE>e1</CODE> and possible content of <CODE>e2</CODE>, <CODE>&quot; and text&quot;</CODE>
+	may be constrained by a declaration stipulates content types and/or attribute values.
+	<BR>
+	see also the note on <A HREF="#IMPLEMENTATION-QUESTIONS">implementation questions</A>.
+	<LI><A NAME="WD-XLL"></A>[the xll proposal]: the draft standard is available <A HREF="http://www.w3.org/TR/WD-xml-link.html">from
+	the w3 consortium</A> or, as the 31.07.97 version, <A HREF="/cl-http/standards/XML/WD-xml-link.html">with
+	the cl-http release.</A>
+	<LI><A NAME="PR-XML"></A>[the xml proposal]: the proposed standard is available <A
+	HREF="http://www.w3.org/TR/PR-xml">from the w3 consortium</A> or, as the 08.12.97
+	version, <A HREF="/cl-http/standards/XML/PR-xml.html">with the cl-http release.</A>
+	<LI><A NAME="NOTE-XSL"></A>[the xsl proposal]: the original technical note is available
+	<A HREF="http://www.w3.org/TR/NOTE-XSL.html">from the w3 consortium</A> or, in the
+	27.08.97 version, <A HREF="/cl-http/standards/XSL/NOTE-xsl.html">with the cl-http
+	release.</A>
+</UL>
+
+<P>
+<HR>
+<A HREF="/cl-http/standards/XSL/NOTE-xsl.html"><BR>
+</A>&copy; MeCom 1998
+
+</BODY>
+
+</HTML>

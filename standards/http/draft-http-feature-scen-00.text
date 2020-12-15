@@ -1,0 +1,545 @@
+
+HTTP Working Group                                     Koen Holtman, TUE
+Internet-Draft                              Andrew Mutz, Hewlett-Packard
+Expires: January 28, 1998                                  July 28, 1997
+
+                          Feature Tag Scenarios
+
+                 draft-ietf-http-feature-scenarios-01.txt
+
+
+STATUS OF THIS MEMO
+
+        This document is an Internet-Draft. Internet-Drafts are
+        working documents of the Internet Engineering Task Force
+        (IETF), its areas, and its working groups. Note that other
+        groups may also distribute working documents as
+        Internet-Drafts.
+
+        Internet-Drafts are draft documents valid for a maximum of
+        six months and may be updated, replaced, or obsoleted by
+        other documents at any time. It is inappropriate to use
+        Internet-Drafts as reference material or to cite them other
+        than as "work in progress".
+
+        To learn the current status of any Internet-Draft, please
+        check the "1id-abstracts.txt" listing contained in the
+        Internet-Drafts Shadow Directories on ftp.is.co.za
+        (Africa), nic.nordu.net (Europe), munnari.oz.au (Pacific
+        Rim), ds.internic.net (US East Coast), or ftp.isi.edu (US
+        West Coast).
+
+        Distribution of this document is unlimited.  Please send
+        comments to the HTTP working group at
+        <http-wg@cuckoo.hpl.hp.com>.  Discussions of the working
+        group are archived at
+        <URL:http://www.ics.uci.edu/pub/ietf/http/>.  General
+        discussions about HTTP and the applications which use HTTP
+        should take place on the <www-talk@w3.org> mailing list.
+
+        A HTML version of this document can be found at
+        <URL:http://gewis.win.tue.nl/~koen/conneg/>.
+
+ABSTRACT
+
+   Recent Internet applications, such as the World Wide Web, tie
+   together a great diversity in data formats, client and server
+   platforms, and communities.  This has created a need for various
+   kinds of negotiation mechanisms, which tailor the data which is
+   exchanged, or the exchange process itself, to the capabilities and
+   preferences of the parties involved.
+
+   Extensible negotiation mechanisms need a vocabulary to identify
+   various things which can be negotiated on.  To promote
+   interoperability, a registration process is needed to ensure that
+   that this vocabulary, which can be shared between negotiation
+   mechanisms, is developed in an orderly, well-specified, and public
+   manner.
+
+   This document discusses requirements and scenarios the registration
+   of this vocabulary, which is the vocabulary of feature tags.
+   Feature tag registration is foreseen as an ongoing, open process
+   which will keep pace with the introduction of new features by
+   software vendors, and other parties such as standards bodies.
+
+
+TABLE OF CONTENTS
+
+   1 Introduction
+
+   2 Basic concepts and definitions
+    2.1 Areas of negotiation and feature tags
+    2.2 Complexity of negotiation
+    2.3 The result in an area of negotiation
+
+   3 Extensible negotiation mechanisms
+    3.1 The need for extensible negotiation mechanisms: the case of the Web
+    3.2 Extensible negotiation mechanisms for the Web
+    3.3 Extensible negotiation mechanisms for other Internet protocols
+
+   4 Feature tag registration
+    4.1 IANA registration procedures
+    4.2 Examples of parties who would want to register feature tags
+    4.3 Feature tag registration scenario
+    4.4 Volume considerations
+    4.5 Danger of excessive registration
+
+   5 Security considerations
+
+   6 Acknowledgments
+
+   7 References
+
+   8 Authors' addresses
+
+
+1 Introduction
+
+   Recent Internet applications, such as the World Wide Web, tie
+   together a great diversity in data formats, client and server
+   platforms, and communities.  This has created a need for various
+   kinds of negotiation mechanisms, which tailor the data which is
+   exchanged, or the exchange process itself, to the capabilities and
+   preferences of the parties involved.
+
+   Extensible negotiation mechanisms need a vocabulary to identify
+   various things which can be negotiated on.  To promote
+   interoperability, a registration process is needed to ensure that
+   that this vocabulary, which can be shared between negotiation
+   mechanisms, is developed in an orderly, well-specified, and public
+   manner.
+
+   This document discusses requirements and scenarios the registration
+   of this vocabulary, which is the vocabulary of feature tags.
+   Feature tag registration is foreseen as an ongoing, open process
+   which will keep pace with the introduction of new features by
+   software vendors, and other parties such as standards bodies.
+
+
+2 Basic concepts and definitions
+
+2.1 Areas of negotiation and feature tags
+
+   Something which can be negotiated on is called an `area of
+   negotiation' in this document.  Examples of areas of negotiation
+   are:
+
+     * the MIME media type of the data which is transmitted  
+     * the language of the text document which is transmitted
+     * the color depth of the screen on which something is to be
+       displayed
+     * whether the recipient supports the `floating 5 dimensional
+       tables' feature
+     * the fonts which are available to the recipient
+     * whether a Web user prefers speed over graphical detail
+     * whether the recipient is capable of displaying graphical
+       content
+     * whether the user prefers a blue background with purple dots over
+       a green background with pictures of small furry animals, except
+       on Fridays.
+
+   A feature tag identifies a single area of negotiation.
+
+   It is expected that the majority of feature tags will identify new
+   areas of negotiation, in which the object of negotiation is to
+   decide on the presence or use of some new feature in a software
+   product.  This explains the name `feature tag'.
+
+   It is recognized that there is continuous growth in the number of
+   areas in which some form of negotiation is desirable.  To keep up
+   with this growth, extensible negotiation mechanisms are needed,
+   which refer to the feature tag vocabulary to identify new areas of
+   negotiation, rather than relying on hard-coded knowledge about a
+   few areas.
+
+   To avoid the duplication of work, and to promote the interoperable
+   naming of areas of negotiation across protocols and applications,
+   the feature tag namespace should not be bound to a particular
+   protocol or negotiation mechanism.  Also, there should be no prior
+   restriction on the areas of negotiation which may be identified by
+   a feature tag, other than that it must be conceivable to negotiate
+   in these areas in the context of some Internet application.
+
+
+2.2 Complexity of negotiation
+
+   Negotiation processes can often be complex.  Two frequent sources
+   of complexity are:
+
+    1. An area of negotiation may be inherently complex.  For
+       example, negotiating on the use of a particular media type is
+       inherently more complex than negotiating on the presence of a
+       single feature, because there are more possible outcomes.
+   
+    2. There may be complex of interdependencies between the choices
+       in different areas of negotiation.  For example, if the
+       following versions of a document are available on a Web server:
+
+           * text/html, English
+           * text/plain, French
+           * audio/x-wav, German
+           
+       then the content negotiation mechanism cannot treat the areas
+       of `MIME media type negotiation' and `language negotiation' as
+       separate.
+
+   It is recognized that extensible negotiation mechanisms will often
+   differ in the type and amount of complexity they can handle.  Thus,
+   though negotiation mechanisms share the feature tag namespace, it
+   will not be the case that every tag is usable in every negotiation
+   mechanism, or that every negotiation mechanism will be able to
+   handle all possible interdependencies.
+
+
+2.3 The result in an area of negotiation
+
+   During negotiation, negotiation mechanisms will often need to
+   transmit (canonical representations of) the possible results in
+   various areas of negotiation over the wire.  Also, at the end of a
+   negotiation process, the mechanism may need to return (a
+   canonical representation of) the result to the application which
+   invoked it.
+
+   In many areas of negotiation, there will be a natural, canonical
+   representation of the result.  For example, in the area
+
+     * whether the recipient supports the `floating 5 dimensional
+       tables' feature
+
+   the canonical representation of the result is a boolean value (yes,
+   the feature is supported, or no, the feature is not supported).  In
+   the area
+
+      * the MIME media type of the data which is transmitted  
+
+   the canonical representation of the result will be a MIME media
+   type identifier like text/html or application/postscript.  In some
+   areas of negotiation, the result could be a compound value (e.g. a
+   coordinate in a 3D space).
+
+   To promote interoperability, the registration entry of a feature
+   tag can include a definition of the canonical representations of
+   the possible results in the corresponding area of negotiation.
+
+   
+3 Extensible negotiation mechanisms
+
+   We call a negotiation mechanism extensible if the set of areas
+   on which the mechanism can negotiate is extensible, instead of
+   hard-coded inside the mechanism.
+
+3.1 The need for extensible negotiation mechanisms: the case of the Web
+
+   HTTP [2] has traditionally recognized four areas of negotiation:
+
+     1. MIME media type
+     2. Charset
+     3. Language
+     4. Encoding
+
+   HTTP provides support for these areas of negotiation by defining
+   identifiers (Accept headers) for these areas, and defining
+   canonical representations of the possible results in these areas.
+
+   Experience with the Web has shown there is a great need to
+   negotiate on things which do not fit the four areas above.  This
+   need has shown itself in a number of ways:
+
+     - Web servers routinely use (abuse) other headers than the Accept
+       headers for negotiation purposes.  In particular, the HTTP
+       User-Agent header has been widely used by web sites to detect
+       the presence of certain features in browsers, and by browsers
+       to trigger certain features in web sites, even though such use
+       is error-prone, and conflicts with the original purpose of the
+       User-Agent header.
+
+     - Web servers routinely use `dynamic URLs' and cookies to encode
+       negotiation related information like user preferences.  This
+       can be cache-unfriendly, in particular in the case of `dynamic
+       URLs'.
+
+     - During the standardization of HTTP, several proposals for
+       additional Accept headers, matching additional areas of
+       negotiation, were made.  These proposals have been rejected in
+       favor of developing an extensible negotiation mechanism.
+
+     - There has been pressure to extend the MIME media type parameter
+       mechanism to allow for the naming of, and negotiation on, new
+       features in media types already registered, something which is
+       explicitly disallowed in the MIME type registration rules.  It
+       was recognized that this pressure would be better addressed by
+       creating a new namespace independent from the MIME media type
+       space.
+
+
+3.2 Extensible negotiation mechanisms for the Web
+
+   In the IETF HTTP working group, it has been recognized that the
+   number of areas for Web content negotiation is growing so rapidly
+   that the IETF would never be able to keep up with this growth by by
+   continually revising a negotiation mechanism with a hard-coded set
+   of areas.  Instead, a number of extensible content negotiation
+   mechanisms have been proposed.  All of these mechanisms share the
+   need for an external vocabulary to identify areas, a vocabulary
+   which can be updated quickly enough to keep pace with the
+   introduction of new features by Web software vendors.
+
+   The proposed extensible content negotiation mechanisms are
+   transparent content negotiation [2], and negotiation mechanisms
+   based on various forms of "active content".  In "active content"
+   negotiation, the web server returns an executable program which is
+   run by the browser.  This program then accesses a database of
+   negotiation related settings inside the browser, and chooses and
+   renders the most appropriate content.  Note that there are several
+   existing and proposed forms of active content.
+
+   To tie everything together, a browser architecture with a common
+   internal database for negotiation related information has been
+   proposed.  The database would be filled to reflect the capabilities
+   of all browser components, both native components and plugins, and
+   the preference settings made by the user.  Feature tags would serve
+   as the keys under which the database entries for different areas of
+   negotiation are stored.  Individual negotiation mechanisms could
+   access the central database through some API.  The architecture is
+   shown in the following picture.
+
+   +-----------------------------------------------------------------+
+   | BROWSER                                                         |
+   |                                                                 |
+   |  +------------------+  +----------+ +----------+  +-----------+ |
+   |  | Native browser   |  | Plugin 1 | | Plugin 2 |  |User       | |
+   |  | rendering engine |  +----------+ +----------+  |preferences| |
+   |  +------------------+     |               |       +-----------+ |
+   |               |           |               |             |       |
+   |               V           V               V             V       |
+   |        +------------------------------------------------------+ |
+   |        | Common internal database for negotiation information | |
+   |        +------------------------------------------------------+ |
+   |               |         |         |                |            |
+   |              API       API       API              API           |
+   |               |         |         |                |            |
+   |               V         V         V                V            |
+   |         +---------+ +---------+             +-------------+     |
+   |         | Java    | | JScript |             | transparent |     |
+   |         | based   | | based   | ..etc       | content     |     |
+   |         | active  | | active  |             | negotiation |     |
+   |         | content | | content |             | engine      |     |
+   |         +---------+ +---------+             +-------------+     |
+   |                                                                 |
+   +-----------------------------------------------------------------+
+
+
+3.3 Extensible negotiation mechanisms for other Internet protocols
+
+   Extensible negotiation mechanisms for Internet printing and
+   Internet fax are currently under investigation in the IETF.  
+
+   It has been proposed to make multipart/alternative negotiation in
+   Internet mail more extensible, in particular if the mail client is
+   part of a Web browser, by adapting some of the protocol elements
+   developed for transparent content negotiation [2] to Internet mail.
+
+4 Feature tag registration
+
+4.1 IANA registration procedures
+
+   Examples of IANA registration procedures can be found in [1].
+
+   There has been some confusion over what the IANA will register.
+   Jon Postel told us that:
+
+     The IANA is pretty good at keeping lists.  It is not so good at
+     evaluating the merits (or lack thereof) of the requests to add
+     things to lists.  [...]  So, yes the IANA would keep the list of
+     "feature tags" provided that that there is either a very simple
+     way to decide if requests pass muster, or a designated someone
+     else will be available to make that decision.
+
+   So two types of registration namespaces can be created:
+
+      a) a space with feature tag review process performed by the IETF
+
+      b) a space with very basic registration rules which do not take
+         the merit of the feature tag into account.  To quote [1],
+         this type of registration "does not imply endorsement,
+         approval, or recommendation by the IANA or IETF or even
+         certification that the specification is adequate."
+
+   If extensible negotiation mechanisms are to keep up with the speed
+   of development in the Web, a type b) registration process for
+   feature tags seems necessary, if only because the IETF does not
+   have the manpower required for a review process which can keep up
+   with the speed of Web development.
+
+   It is proposed that feature tag registration closely mimics the new
+   MIME media type registration rules in [1], providing both type a)
+   and b) namespaces.  This proposal is based on the observation that
+   the rules in [1] seem to be working nicely.
+
+
+4.2 Examples of parties who would want to register feature tags
+
+   Feature registration allows for the quick introduction of new areas
+   of negotiation in extensible negotiation mechanisms.  In a Web
+   context, examples of parties which might want to introduce new
+   areas of negotiation are:
+
+     1. Browser and browser component vendors, when inventing and
+        implementing new features or components.
+
+     2. The IETF or some other standards body, when creating a new
+        standard for a content format, or when identifying a new type
+        of user preference (for example a preference for
+        representations without animated gifs).
+
+     3. Content authors, when identifying a new type of user
+        preference and creating new content to match.
+
+   A fast registration process is mainly needed for registration by
+   group 1 and 3.  For 2, a slower process would suffice.
+
+
+4.3 Feature tag registration scenario
+
+   Below is a scenario, in a Web context, for the registration of a
+   feature tag which succeeds in being generally used.
+
+    Time    Action
+   (months)
+
+    t+0    Browser vendor A invents the new feature XY.
+
+    t+1    Vendor A starts implementing XY, and completes a
+           feature tag registration form for the `g.xy' tag.
+
+    t+2    Vendor A submits the form and the IANA registers the `g.xy'
+           feature tag.
+
+    t+2.1  Vendor A releases a new browser version, which
+            a) implements the feature XY
+            b) has an entry under `g.xy' in its negotiation database,
+               which tells extensible negotiation mechanisms that this
+               feature is present
+
+    t+2.5  `Early adopter' content authors start making content
+           representations which use XY.
+
+    t+3    Vendor B starts implementing XY in their own browser.
+
+    t+3    The `g.xy' tag appears in lists of useful tags maintained by
+           third parties.
+
+    t+3.5  Vendor B releases a new browser version, which
+            a) implements the feature XY
+            b) has an entry under `g.xy' in its negotiation database,
+               which tells extensible negotiation mechanisms that this
+               feature is present
+
+    t+3.5  Many content authors start making content representations
+           which use XY.
+
+    t+4    Vendor C starts implementing XY, and invents the extension
+           XY_COLOR.
+
+    t+4.5  Vendor C registers the `g.xy_color' feature tag.
+
+    t+4.5  Vendor C releases a new browser version, which
+            a) implements the features XY and XY_COLOR
+            b) has appropriate entries under `g.xy' and `g.xy_color'
+               in its database
+
+    t+10   90% of all deployed browsers support XY. Content authors
+           start using XY it without bothering to provide an alternate
+           representation.
+
+
+4.4 Volume considerations
+
+   Feature tag registration which will have to keep pace with the
+   introduction of new features by vendors.
+
+   In particular in the Web domain, vendors are moving fast, and this
+   will inevitably lead to a feature tag namespace which contains a
+   lot of tags.  Also, a lot of tags will be `dead' tags, tags related
+   to features which failed to take off and gain widespread use.
+   Compare this to the situation in the USENET newsgroup namespace.
+
+   Like a list of all MIME media types, a list of all registered
+   feature tags will generally be too long to be useful to any content
+   author.  Third parties could filter the feature tag namespace and
+   compile short lists of useful tags.  In the Web domain, Web
+   indexing robots could, while traversing the web, gather statistics
+   about actual use of feature tags; these statistics could help in
+   compiling lists.
+
+
+4.5 Danger of excessive registration
+
+   One danger for the feature tag namespace is the emergence of
+   excessive registration as seen in the internet domain name system
+   (DNS) namespace.
+
+   We speculate that the various forces which contributed to the DNS
+   registration problems are absent for feature tags: feature tags
+   will not be very visible to end users, and registration of a
+   feature tag does not mean you get exclusive use.
+
+   We therefore do not expect excessive registration to occur.  We
+   note it has not occured (so far) in the MIME media type namespace.
+   Of course it is possible to update the registration procedure if
+   excessive registration _does_ occur.  A necessary precaution is to
+   reserve a part of the feature tag namespace for future use.
+
+
+5 Security considerations
+
+   When used, negotiation mechanisms usually reveal some information
+   about one party to other parties.  This may raise privacy concerns,
+   and may allow a malicious party to make more educated guesses about
+   the presence of security holes in the other party.
+
+
+6 Acknowledgments
+
+   The idea of creating a vocabulary of areas of negotiation, which is
+   maintained in a central open registry, is due to discussions on
+   extensible negotiation mechanisms in the IETF HTTP working group.
+   The authors wish to thank Larry Masinter and Graham Klyne for
+   contributing to discussions about feature tag registration.
+
+
+7 References
+
+   [1] N. Freed, J. Klensin, J. Postel, Multipurpose Internet Mail
+       Extensions (MIME) Part Four: Registration Procedures.  RFC
+       2048, BCP 13, Network Working Group, November 1996
+
+   [2] R. Fielding, J. Gettys, J. C. Mogul, H. Frystyk, and
+       T. Berners-Lee.  Hypertext Transfer Protocol -- HTTP/1.1.  RFC
+       2068, HTTP Working Group, January, 1997.
+
+   [3] K. Holtman, A. Mutz.  Transparent Content Negotiation in HTTP.
+       Internet-Draft draft-ietf-http-negotiation-03.txt, HTTP Working
+       Group.  July 1997.
+
+
+8 Authors' addresses
+
+   Koen Holtman
+   Technische Universiteit Eindhoven
+   Postbus 513
+   Kamer HG 6.57
+   5600 MB Eindhoven (The Netherlands)
+   Email: koen@win.tue.nl
+
+   Andrew H. Mutz
+   Hewlett-Packard Company
+   1501 Page Mill Road 3U-3
+   Palo Alto CA 94304, USA
+   Fax +1 415 857 4691
+   Email: mutz@hpl.hp.com
+
+
+Expires: January 28, 1998
+
+

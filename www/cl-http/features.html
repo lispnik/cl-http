@@ -1,0 +1,338 @@
+<!-- -*- Mode: Text -*- -->
+<html>
+<head>
+<title>CL-HTTP Guided Tour</title>
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+
+<h1><a
+href="http://www.ai.mit.edu/projects/iiip/doc/cl-http/home-page.html"><img
+src="/cl-http/icons/power.gif" height=59 width=134 align="left"
+alt="CL-HTTP"></a> Guided Tour of the Common Lisp Hypermedia Server</h1>
+
+<br clear="left">
+<p><img src="/cl-http/icons/line-rain.gif"></p>
+
+
+<h2>The server supports a full range of features.</h2>
+
+<EMBED LANGUAGE="Talker"  SRC="welcome.talk" WIDTH=5 HEIGHT=5>
+
+<dl>
+
+<p><dt><img src="/cl-http/icons/check-yes.gif"> It can serve images like: <p><a href="/cl-http/yosemite-large.gif"><img
+src="/cl-http/yosemite.gif"> Yosemite Valley</a>.</p>
+
+<p><dt><img src="/cl-http/icons/check-yes.gif"> It can serve audio like <a href="/cl-http/audio.au">Sound Bite</a>.</p>
+
+<p><dt><img src="/cl-http/icons/check-yes.gif"> It can serve video like <a href="/cl-http/video.mpeg">Video Bite</a>.</p> 
+
+<p><dt><img src="/cl-http/icons/check-yes.gif"> You can compute and generate
+HTML dynamically using <a href="/cl-http/response-functions.html">computed
+URLs</a> and the <a href="/cl-http/find-documentation?HTML:">HTML generation
+tools</a>, <i>e.g.,</I> <a href="/cl-http/headers.html">View Headers</a>.</p> 
+
+<p><dt><img src="/cl-http/icons/check-yes.gif"> It can <a
+href="/cl-http/show-documentation?HTTP:EXPORT-URL">export</a> whole
+directories of text, html or multimedia at single directory level or
+recursively. See <a href="/cl-http/distribution/">CL-HTTP Distribution</a> or
+<a href="/cl-http/standards/"> standards</a> related to the <a
+href="http://www.w3.org/">World Wide Web.</a> Directory exports can be eager
+or lazy (the default) as needed for start-up time requirements and DNS
+speed.</p>
+
+<p><dt><img src="/cl-http/icons/check-yes.gif"> Standard abstractions can be adapted to compute pages
+of interest, such as <a href="/cl-http/icons/index.html">Basic Icons</a>.</p>
+
+<p><dt><img src="/cl-http/icons/check-yes.gif"> Common Lisp source code directories are also
+conveniently exported:</p>
+
+<ol> 
+
+<li> <a href="/cl-http/sources/examples/">Configuration Examples</a>
+
+<li> <a href="/cl-http/sources/common-lisp/">Portable Server Sources</a>
+
+<li> <a href="/cl-http/sources/mcl/">Macintosh Sources</a>
+
+<li> <a href="/cl-http/sources/acl/">Allegro Sources</a>
+
+<li> <a href="/cl-http/sources/lw/">LispWorks Sources</a>
+
+<li> <a href="/cl-http/sources/lcl/">Lucid Sources</a>
+
+<li> <a href="/cl-http/sources/lispm/">Symbolics Sources</a>
+
+</ol>
+
+<p><dt><img src="/cl-http/icons/check-yes.gif"> The object-oriented
+architecture spans URLs, exceptional conditions, server instances, as well as
+authentication objects.  See <a
+href="/cl-http/server-structure/class-structure.html">basic class
+structure</a>.
+
+<p><dt><img src="/cl-http/icons/check-yes.gif"> Fill-out Forms and
+search URLs provide a convenient way to accept user input to functions
+that <a href="/cl-http/response-functions.html">compute responses</a> to
+requests. For example, response functions defined in <a
+href="/cl-http/sources/examples/exports.lisp">http:examples;exports.lisp</a>
+allow you to:</p>
+
+<ul>
+
+<li><a href="/cl-http/find-documentation.html">Find Documentation about this server</a>
+
+<li><a href="/cl-http/find-url?">View All Exported URLs</a>
+
+<li><a href="/cl-http/find-url.html">Find Specific URLs</a>
+
+</ul>
+
+<p><dt><img src="/cl-http/icons/check-yes.gif"> Dynamic computation of fill-out forms
+allows the queries asked to vary according to the data driving an application
+such as <a href="/cl-http/computed-form.html">Computed Form</a>.</p>
+
+<p><dt><img src="/cl-http/icons/check-yes.gif"> Input types provide a high-level
+abstraction for eliciting user input using the full power of the HTML 2.0
+fill-out form facility.  The Input Type System is a basic presentation system
+that has is upward compatible with the Common Lisp Interface Manager in the
+Lisp Machine version. See <a
+href="/cl-http/show-documentation?HTML:ACCEPT-INPUT">HTML:ACCEPT-INPUT</a>.</p>
+
+<p><dt><img src="/cl-http/icons/check-yes.gif"> A modular and extensible
+logging facility allows <a href="/cl-http/logs/">Server Log Files</a> to
+be maintained in any of several formats, including common logfile
+format.  The variable <a
+href="/cl-http/show-documentation?HTTP:*LOG-ACCESS-LOG-CLASS*">http:*log-access-log-class*</a>
+controls the format used. It possible to have multiple logs on a single
+port or different log formats on different ports. The <a
+href="/cl-http/maintenance/log-window.html">log window</a> example
+illustrates an interesting extension of logging.
+
+.</p>
+
+<p><dt><img src="/cl-http/icons/check-yes.gif"> IP Subnet security is available globally
+for the entire server and locally for specific URLS. See <a
+href="/cl-http/show-documentation?HTTP:EXPORT-URL">HTTP:EXPORT-URL</a>.</p>
+
+<p><dt><img src="/cl-http/icons/check-yes.gif"> Usernames and passwords are
+available for <a href="/cl-http/authentication/authentication.html">user
+authentication</a>, using both the basic and digest authentication methods.
+<a href="/cl-http/describe-realm?">View Realms</a> shows the defined realms,
+users, groups, URL access groups, <em>but</em> you must know the <a
+href="/cl-http/authentication/authentication.html#Webmaster">Webmaster
+password</a> for the server and your browser must support Digest
+Authentication. See <a
+href="/cl-http/sources/examples/access-control.lisp">http:examples;access-control.lisp</a>.
+
+<p><dt><img src="/cl-http/icons/check-yes.gif"> Conditional GET is implement so that
+caching proxy servers can merely check the headers of a document to see if it
+has changed rather than reloading it when its expiration time arrives. User
+control is available via the expiration arguments to <a
+href="/cl-http/show-documentation?HTTP:EXPORT-URL">HTTP:EXPORT-URL</a>.</p>
+
+<p><dt><img src="/cl-http/icons/check-yes.gif"> The server can export <a
+href="/cl-http/image-maps/image-maps.html">image maps</a> and supports both
+the NCSA and CERN file formats.</p>
+
+<p><dt><img src="/cl-http/icons/check-yes.gif"> Direct image searches allow a
+response function to invoke functionality based on the coordinates of a mouse
+click. See: <a href="/cl-http/show-documentation?HTML:IMAGE">HTML:IMAGE</a>
+and try clicking on:</p>
+
+<p><a href="/cl-http/yosemite-image-map.gif"><img
+src="/cl-http/yosemite-image-map.gif" ismap></a></p>
+
+<p><dt><img src="/cl-http/icons/check-yes.gif"> <a
+href="http://home.netscape.com/assist/net_sites/pushpull.html"> Netscape 1.1
+extensions to HTML 2.0</a> are implemented by <a
+href="/cl-http/sources/common-lisp/netscape-1-1.lisp">http:server;netscape-1-1.lisp</a>.
+The implementation includes <a
+href="/cl-http/show-documentation?NS1.1:WITH-SERVER-PUSH-RESPONSE">Server
+Push</a> and <a
+href="/cl-http/show-documentation?NS1.1:DECLARE-REFRESH-RATE">Client Pull</a>
+(see <a
+href="http://home.netscape.com/assist/net_sites/pushpull.html">discussion</a>).
+<b><font color="#FF1CAE"><a href="/cl-http/choose-color-scheme.html">Choose Color Schemes</a>
+illustrates server push, <a
+href="/cl-http/show-documentation?NS1.1:WITH-TABLE">tables</a>, and multipart
+MIME generation (see <a
+href="/cl-http/sources/examples/exports.lisp">http:examples;exports.lisp</a>).</font></b>
+
+<p><dt><img src="/cl-http/icons/check-yes.gif"> <a
+href="http://home.netscape.com/assist/net_sites/html_extensions_3.html">
+Netscape 2.0 HTML 3.0 extensions</a> include client-side images and <a
+href="http://home.netscape.com/assist/net_sites/frames.html">frames</a>.
+CL-HTTP writes client-side image maps from server-side image maps with <a
+href="/cl-http/show-documentation?NS2.0:WRITE-CLIENT-SIDE-IMAGE-MAP">ns2.0:with-client-image-map</a>.
+Direct control is available with <a href="/cl-http/show-documentation?NS2.0:
+WITH-CLIENT-IMAGE-MAP"> ns2.0:with-client-image-map</a>. Either way, the name
+client-side image maps can be invoked with <a
+href="/cl-http/show-documentation?NS2.0:IMAGE">ns2.0:image</a>.  <b><font color="#FF1CAE">Lisp examples
+that generate <a
+href="/cl-http/image-maps/show-client-side-image-map.html">client-side
+image maps</a> and <a href="/cl-http/show-frame-layout.html">frames</a> are
+available in <a
+href="/cl-http/sources/examples/exports.lisp">http:examples;exports.lisp</a>.</font></b>
+For further information, see the full set of <a
+href="/cl-http/find-documentation?NS2.0:">Netscape 2.0 HTML operators</a>.
+
+<p><dt><img src="/cl-http/icons/check-yes.gif"> HTML that invokes <a
+href="http://java.sun.com/products">Java</a> Applets can be synthesized with
+<a
+href="/cl-http/show-documentation?ns2.0:WITH-JAVA-APPLET">ns2.0:with-java-applet</a>,
+and <a href="/cl-http/show-documentation?HTTP:EXPORT-URL">http:export-url</a>
+knows how to export both Java source and byte code. The <a
+href="/cl-http/twistdown-tree/twistdown.html">TwistDown Tree Example</a>
+illustrates how Lisp can generate dynamic invocations of predeined Java
+classes.
+
+<p><dt><img src="/cl-http/icons/check-yes.gif"> <a
+href="http://home.netscape.com/comprod/products/navigator/version_2.0/script/script_info/index.html">
+JavaScript</a> scripts can be embedded in HTML streams for the <a
+href="http://home.netscape.com/comprod/products/navigator/version_2.0/index.html">Netscape
+2.0 Client</a> with <a
+href="/cl-http/show-documentation?ns2.0:WITH-EMBEDDED-SCRIPT">ns2.0:with-embedded-script</a>.
+CL-HTTP encapsulates scripts with <a
+href="/cl-http/show-documentation?NS2.0:DEFINE-SCRIPT">ns2.0:define-script</a>.
+Scripts can then be called by passing events constructed with <a
+href="/cl-http/show-documentation?HTML:WITH-EVENT-HANDLERS">ns2.0:with-event-handlers</a>.
+The <a href="/cl-http/marquee.html">marquee headers page</a> illustrates the
+use of these facilities. See <a
+href="/cl-http/sources/examples/exports.lisp">http:examples;exports.lisp</a>
+for example code.
+
+<p><dt><img src="/cl-http/icons/check-yes.gif"> A <a
+href="http://home.netscape.com/comprod/products/navigator/version_2.0/plugins/index.html">plug-in
+facility</a> (<a href="http://www.browserwatch.com">Latest Plug-ins</a>) is
+supported by the <a
+href="http://home.netscape.com/comprod/products/navigator/version_2.0/index.html">Netscape
+2.0 Client</a>. New export types and mime types are easily defined to allow
+CL-HTTP to serve data from files or computed on the fly for client-side
+plug-ins. One example is inline speech synthesis using the <a
+href="http://www.mvpsolutions.com/PlugInSite/Talker.html">Talker plug-in</a>
+for the Macintosh. See the example in <a
+href="/cl-http/sources/examples/exports.lisp">http:examples;exports.lisp</a>
+for example code.
+
+<p><dt><img src="/cl-http/icons/check-yes.gif"> <a
+href="/cl-http/find-documentation?VRML1.0:">VRML 1.0 Synthesis Tools</a>
+generate 3D scenes with the <a href="http://vag.vrml.org/">Virtual Reality
+Modeling Language</a>. VRML scenes can be viewed inline with a variety of
+plug-ins available for major browsers. The <a
+href="/cl-http/vrml/vrml.html">Introduction to VRML Generation</a> works
+through lisp examples in <a
+href="/cl-http/sources/examples/vrml/vrml.lisp">http:examples;vrml;</a>.
+
+<p><dt><img src="/cl-http/icons/check-yes.gif"> The <a
+href="/cl-http/w3p/w3p.html">W3P Presentation System</a> provides a portable
+and fast subset of functionality in <a
+href="http://www.harlequin.com/education/books/CLIM-2.0/GUIDE_1.htm">The
+Common Lisp Interface Manager, 2.0</a>. Now, all CL-HTTP platforms can use
+presentation types for presenting and accepting data via HTML fill-out forms,
+and thus, minimize code duplication while simplifying the coding associated
+with Web interfaces. The <font color="#FF1CAE"><a
+href="/cl-http/mix-colors.html">Color Mixer</a></font> in <a
+href="/cl-http/sources/examples/exports.lisp">http:examples;exports.lisp</a>
+illustrates the use of presentation types.
+
+<p><dt><img src="/cl-http/icons/check-yes.gif"><a
+href="/cl-http/maintenance/configure-server.html">Web-based server
+configuration</a> allows binary images containing the server to be configured
+by non-programmers. To use this, you need to set security policy for <a
+href="/cl-http/show-documentation?HTTP:EXPORT-WEB-CONFIGURATION-INTERFACE">
+http:export-web-configuration-interface</a>, which is called near the top of
+<a href="/cl-http/sources/examples/exports.lisp">http:examples;exports.lisp</a>.
+
+<p><dt><img src="/cl-http/icons/check-yes.gif"> The <a
+href="/cl-http/w4/w4.html">W4 Constraint-Guided Web Walker</a> provides a
+declarative architecture for control and action in a Web robot. After loading
+the system (see <a href="/cl-http/sources/w4/">http:w4;</a>), you can run the
+<a href="/cl-http/w4.html">example</a>. <a
+href="mailto:smishra@cc.gatech.edu">Sunil Mishra</a> has developed a <a
+href="/cl-http/sources/html-parser/html-parser.html">HTML streamed parser</a>
+for use with the web walker.  The current release of W4 is considered beta
+test, so please report any bugs, successes, or issues to <a
+href="mailto:bug-w4@ai.mit.edu">bug-w4@ai.mit.edu</a>.
+
+<p><dt><img src="/cl-http/icons/check-yes.gif"> <a name="hyperarchive">The
+CL-HTTP Mail <font color="#FF0000">HyperArchive</font></a> exports email
+message archives for public or personal use just as easily as exporting any
+file. For an example, see the hyperarchives for <a
+href="/cl-http/cl-http.html#discussion"> WWW-CL@ai.mit.edu</a>. Not only does
+the hyperarchive include conversation threading and cross references, but it
+also supports color schemes to make the synthesized pages conform to the look
+and feel of a site. The hyperarchive dynamically computes pages directly from
+a message archive created by an SMTP mailer. Because there is no batch
+processing like more primitive tools, Web pages are always current.
+Naturally, implementation using CLOS multimethods makes the facility easily
+extensible through method and class specialization.  When you load the
+hyperarchive facility from <a
+href="/cl-http/sources/examples/mail-archive.lisp">http:examples;mail-archive.lisp</a>,
+it adds the new export type :mail-archive to <a
+href="/cl-http/show-documentation?HTTP:EXPORT-URL">http:export-url</a>. (This
+is a good example of how to define complex export types and use direct file
+access for database purposes.) Full-text search over messages is available by
+loading <a href="#lambdavista">LambdaVista</a>.
+
+<p><dt><img src="/cl-http/icons/check-yes.gif"> Virtual Hosts are supported on
+a single IP address. Separate URL's are <a
+href="/cl-http/show-documentation?HTTP:EXPORT-URL">exported</a> for <a
+href="/cl-http/find-documentation?HTTP:VIRTUAL-HOST">virtual host</a> and
+port. HTTP 1.1 conformant clients are required, <i>e.g.</i> Netscape 2.0.2 or
+higher.
+
+<p><dt><img src="/cl-http/icons/check-yes.gif"> PUT &amp; DELETE Methods for
+HTTP 1.0 and 1.1 can now be used with clients other that the basic HTTP client
+that comes with the server. For example, Netscape 3.0 Gold and NaviPress
+support the PUT method. But first, the webmaster needs to select a <a
+href="/cl-http/authentication/authentication.html#security-policies"> security
+policy for side-effecting HTTP methods</a>.
+
+<p><dt><img src="/cl-http/icons/check-yes.gif"> Distributed AI applications
+are possible using HTTP to communicate between a CL-HTTP server and client.
+The standard HTTP POST method is <i>trivially</i> used for communication
+between remote Lisp processes. A simple example is available in <a
+href="/cl-http/sources/examples/client.lisp">http:examples;client.lisp</a>.
+
+<p><dt><img src="/cl-http/icons/check-yes.gif"> <a
+href="/cl-http/cookies.html">Client-side cookies</a> allow an application to
+maintain user state across HTTP transactions or user sessions.
+
+<p><dt><img src="/cl-http/icons/check-yes.gif"> Netscape 4.0 provides a
+sophisticated layering capability in the browser, which is accessible
+via <a
+href="/cl-http/show-documentation?NS4.0:WITH-LAYER">ns4.0:with-layer</a>.
+A <a href="/cl-http/layers.html">client-side form</a> illustrates simple
+use of layers and JavaScript.  See the source code in <a
+href="/cl-http/sources/examples/exports.lisp">http:examples;exports.lisp</a>.
+
+<p><dt><img src="/cl-http/icons/check-yes.gif"> <font color="#FF0000">Site
+Indexing &amp; Information Retrieval</font> is provided by <a
+name="lambdavista" href="/cl-http/lir/lir.html">LambdaVista</a>, a hybrid
+classification and retrieval system. It provides full-text retrieval for
+CL-HTTP sites, including email HyperArchives.
+
+<p><dt><img src="/cl-http/icons/check-yes.gif"> Meta-Content Format Generation
+Tools provide an easy way to create fly-through displays using the <a
+href="http://www.xspace.net/hotsauce/">HotSauce MCF</a> browser plugin from <a
+href="http://www.xspace.net/downloads/">X-Space Directory</a>. As an example,
+the directory writer <a
+href="/cl-http/show-documentation?HTTP-USER::WRITE-DIRECTORY-MCF">http-user::write-directory-mcf</a>
+generates fly-through displays like <a href="/mcf/cl-http/">CL-HTTP
+directory</a>. See <a
+href="/cl-http/sources/examples/mcf095/">http:examples;mcf095;</a> for the MCF
+generation code and other information.
+
+</dl>
+
+<p><img src="/cl-http/icons/line-rain.gif"></p>
+
+<address><a href="http://www.ai.mit.edu/people/jcma/jcma.html">John C. Mallery</a> -- <a
+href="mailto:jcma@ai.mit.edu">jcma@ai.mit.edu</a><br><a
+href="http://web.mit.edu/">M.I.T.</a> <a href="http://www.ai.mit.edu/">Artificial
+Intelligence Laboratory</a> </address>
+
+</body>
+</html>

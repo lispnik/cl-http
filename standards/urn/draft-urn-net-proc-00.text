@@ -1,0 +1,302 @@
+
+URN Working Group                                             M.Mealling
+INTERNET-DRAFT                                   Network Solutions, Inc.
+Expires six months from June 1998
+Intended category: Experimental
+draft-ietf-urn-net-procedures-00.txt
+
+     Assignment Procedures for the URI Resolution using DNS (RFC2168)
+
+Status of this Memo
+
+This document is an Internet-Draft. Internet-Drafts are working
+documents of the Internet Engineering Task Force (IETF), its areas,
+and its working groups. Note that other groups may also distribute
+working documents as Internet-Drafts.
+
+Internet-Drafts are draft documents valid for a maximum of six months
+and may be updated, replaced, or obsoleted by other documents at
+any time. It is inappropriate to use Internet-Drafts as reference
+material or to cite them other than as work in progress.
+
+To view the entire list of current Internet-Drafts, please check
+the "1id-abstracts.txt" listing contained in the Internet-Drafts
+Shadow Directories on ftp.is.co.za (Africa), ftp.nordu.net
+(Northern Europe), ftp.nis.garr.it (Southern Europe), munnari.oz.au
+(Pacific Rim), ftp.ietf.org (US East Coast), or ftp.isi.edu
+(US West Coast).
+
+Abstract
+
+RFC2168 defines a DNS resource record and an algorithm for using DNS
+as a registry for retrieving URN authority delegation rules (sometimes
+called resolution hints). That document specifies that the first step
+in that algorithm is to lookup the first NAPTR record for the namespace-
+id in the "urn.net" zone; i.e., the first step in resolving 
+"urn:ietf:rfc:2168" would be to lookup a NAPTR record for the domain
+"ietf.urn.net". This document describes the procedures for inserting
+a new rule into this DNS-based URI resolution registry.
+
+1. Introduction
+
+In the course of defining a resolution mechanism [RFC2168] according
+to the rules in RFC2276 [RFC2276] for Uniform Resource Names [RFC2141],
+it became apparent that the same system could be used to resolve 
+URIs [RFC1738] in the general case. Thus, RFC2168 was specified in 
+such a way as to be generic in its discussions of URNs vs URLs. The 
+end result of this is that RFC2168 defines two things: a Resolver 
+Discovery System registry for URNs and a resolver discovery system 
+for URLs. While this may not seem an important distinction to the 
+casual reader there are some important distinctions in terms of 
+creating new URN namespaces and new URI schemes. Thus, its 
+assignment procedures for the RFC2168 defines registry must adhere 
+to the procedures defined in the assignment documents of both systems. 
+
+At the same time this document must also define its own procedures,
+which will ensure its stability and impact on the Domain Name System.
+These include optimizations such as an extremely long time to live
+on the values in the urn.net zone and efficient uses of delegations
+to minimize delegation loops.
+
+
+Mealling                                                        [Page 1]
+
+draft-ietf-urn-urn.net-procedures-00.txt                       June 1998
+
+2. URL Resolution
+
+At this time there is no set procedure for registering new URL schemes
+other than a published RFC. Due to this lack and the existence of
+non-published schemes such as "about" and "res", there is an IETF
+working group discussing how to deal with this problem. Thus, at
+this time the only requirements for requesting an entry in the urn.net
+zone is that the URL scheme be published or in use somewhere and that
+it not conflict with an existing URL scheme. 
+
+When the IETF does standardize a set of procedures for vetting and
+registering new URL schemes, the urn.net registration procedures MUST
+adhere to those procedures for determining if the URL scheme in question
+is valid.
+
+3. URN Resolution
+
+RFCXXXX defines the procedures for assignment of new URN namespace-ids.
+Since the urn.net registration procedures only deal with the 
+namespace-id portion of the URN space, that document is the sole 
+determining document for what can be entered into the urn.net zone
+for a URN. 
+
+4. Delegation Requirements
+
+Delegation of a namespace can happen in two ways. In the case of 
+a URL where the entity being delegated to is hard-coded into the
+identifier itself, the syntax of where this is located is set.
+In the case where the entity being delegated to is set in the rule,
+that entity can change as the rule changes.
+
+One of the optimizations that the urn.net registry attempts to make
+is that any entry in that zone should have an extremely long 
+time to live. 'Extremely long' should be measured in years if possible.
+Thus, any rule that can change must be delegated out of the urn.net
+zone by a replacement rule in the NAPTR record.  For example, the 'foo'
+URN namespace has flexible rules for how delegation takes place. Instead
+of putting those rules in the urn.net zone, the entry instead punts
+those rules off to a nameserver that has a shorter time to live. The
+record in urn.net would look like this:
+
+foo     IN NAPTR 100 10  ""  "" "" urn-resolver.foo.com.
+
+Thus, when the client starts out in the resolution process, the second
+step is to begin asking 'urn-resolver.foo.com' for the NAPTR records
+that contain the resolution rules.
+
+Conversely, the 'http' URL scheme adheres to a particular syntax that
+specifies that the host to ask is specified in the URL in question.
+Since this syntax does not change, that rule can be specified in the
+urn.net zone. The record would look like this:
+
+http    IN NAPTR 100 100 "" ""  "/http:\\/\\/([^\\/:]+)/\\2/i" .
+
+
+
+Mealling                                                        [Page 2]
+
+draft-ietf-urn-urn.net-procedures-00.txt                       June 1998
+
+Thus, the second step of resolution is to attempt to contact the
+host contained in the URL itself.
+
+5. Submission Procedure
+
+Using the MIME Content-Type registration mechanism [RFC2048] as a
+model for a successful registration mechanism, the urn.net procedure
+consists of a request template submitted to a open mailing list
+made up of interested parties. If no objections are made within
+a two week period, a representative of the urn.net registration
+authority considers the submission to be accepted and enters
+that submission into the nameserver. 
+
+At this time the registration authority is expected to be the IANA.
+
+Objections are restricted to those that point out impacts on
+the urn.net zone itself or to DNS in general. Objections to the URL
+scheme or to the URN namespace-id are not allowed, as these should
+be raised in their respective forums. The logical conclusion of
+this is that ANY sanctioned URL scheme or URN namespace MUST
+be allowed to be registered if it meets the requirements specified 
+in this document as regards times to live and general impact
+to the DNS.
+
+Updating a record in the urn.net zone also requires that the same
+process to be followed. Since urn.net is designed with a long time to
+live, changes to records in that zone are discouraged. Thus updates
+must follow the same procedures as a new request. Changes will
+be given a higher level of scrutiny, as they may represent 
+potential problems with a specific delegation.
+
+6. Registration Template
+
+The template to be sent to the list MUST contain the following
+values:
+
+6.1 Type
+
+Either SCHEME or NID. SCHEME specifies that the record being registered
+represents a URL scheme. NID specifies that it is a URN namespace-id.
+
+6.2 Key
+
+This is the domain portion. It must be valid according to the
+procedures specified in the URN namespace-id assignment document
+and any future standards for registering new URL schemes.
+
+6.3 Authority
+
+This is the authority doing the registration of the record. It must
+be an authority recognized as either the IESG or an authority
+specified in the documents submitted for approval by any URN or URL
+registration mechanism.
+
+
+
+Mealling                                                        [Page 3]
+
+draft-ietf-urn-urn.net-procedures-00.txt                       June 1998
+
+6.4 Records
+
+One or more records representing the rule set for the key. The required
+values are Preference, Order, Flags, Services, Regex, and Replacement
+as defined by RFC2168.
+
+7. Example Template
+
+To: register@urn.net
+From: joe@foo.com
+
+Type: NID
+Key: foo
+Authority: Foo Technology, Inc as specified in RFCFOO
+Record: foo	IN NAPTR 100 100 "" "" "" urn.foo.com.
+
+8. IANA Considerations
+
+This document describes a mechanism for registering representations of
+protocol items that have already been registered with some IETF
+sanctioned agency (probably the IANA as well). This means that the IANA
+need not determine appropriateness of the underlying namespaces,
+since that is determined by another process.
+
+The only real impact on the IANA will be:
+
+    to maintain (or designate some other entity to maintain) a primary
+    nameserver for the urn.net zone; 
+
+    to maintain the mailing list "register@urn.net" as the forum for
+    discussions of submissions; and
+
+    to act as the party that determines if all objections have been
+    noted and accommodated.
+
+7. References
+
+  [RFC2168] Ron Daniel & Michael Mealling, "Resolution of Uniform
+      Resource Identifiers using the Domain Name System", RFC 2168,
+      June 1997.
+
+  [RFC2276] K. Sollins, "Architectural Principles of Uniform Resource
+      Name Resolution", RFC 2276, January 1998.
+
+  [RFC2141] Ryan Moats, "URN Syntax", RFC 2141, May 1997.
+
+  [RFC1738] T. Berners-Lee, L. Masinter and M. McCahill,
+      "Uniform Resource Locators (URL)" RFC 1738, December 1994.
+      <URL:ftp://ftp.internic.net/rfc/rfc1738.txt>
+
+  [RFC2048] N. Freed, J. Klensin, J. Postel, "Multipurpose Internet
+      Mail Extensions (MIME) Part Four: Registration Procedures", 
+      RFC 2048, November 1996.
+
+
+
+Mealling                                                        [Page 4]
+
+draft-ietf-urn-urn.net-procedures-00.txt                       June 1998
+
+8. Author Contact Information
+
+Michael Mealling
+Network Solutions
+505 Huntmar Park Drive
+Herndon, VA 22070
+voice: (703) 742-0400
+fax: (703) 742-9552
+email: michaelm@rwhois.net
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+             This document expires 6 months from June, 1997
+
+Mealling                                                        [Page 5]

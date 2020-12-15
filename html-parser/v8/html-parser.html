@@ -1,0 +1,748 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+
+<html>
+
+<HEAD>
+<TITLE>HTML Parser Documentation</TITLE>
+<link rev=made href="mailto:smishra@cc.gatech.edu">
+</HEAD>
+
+<body>
+
+<h1>The HTML Parser Generator</h1>
+
+<pre>
+<strong>
+(c) Copyright 1996-97, Sunil Mishra (smishra@cc.gatech.edu)
+    All Rights Reserved
+</strong>
+</pre>
+
+<h2> Contents </h2>
+
+<ol>
+  <li> <a href="#features">Features</a>
+  <li> <a href="#components">Parser Components</a>
+      <ol>
+	<li> <a href="#compiler">DTD Compiler</a>
+	<li> <a href="#lexer">Lexer</a>
+	<li> <a href="#parser">Parser Generator</a>
+      </ol>
+  <li> <a href="#interface">Parser Interface</a>
+      <ol>
+	<li> <a href="#data-structures">Data Structures</a>
+	<li> <a href="#variables">Variables</a>
+	<li> <a href="#macros">Macros</a>
+	<li> <a href="#functions">Functions</a>
+      </ol>
+  <li> <a href="#examples">Examples</a>
+      <ol>
+	<li> <a href="#simple-parser">Simple Parser</a>
+	<li> <a href="#handler">Parser with Handler Call-back</a>
+	<li> <a href="#link-collector">Parser for Collecting Links</a>
+      </ol>
+</ol>
+
+<hr>
+
+<h2><a name="features">Features</a></h2>
+
+<p> The HTML Parser Generator is a semi-SGML compliant framework for
+generating customized HTML parsers. It comes with source code and a couple
+of examples that demonstrate its flexibility. Some of the major features
+are listed below: </p>
+
+<ul>
+  <li>Modular and extensible design maximizes flexibility.
+  <li>Explicit representation of the DTD allows a new DTD to be easily
+      substituted.
+  <li>Includes DTD's for HTML 2.0 and HTML 3.2.
+  <li>Thread safe, which allows multiple parsers to run simultaneously.
+  <li>Can be used independently or in conjunction with CL-HTTP.
+  <li>Allows partial and selective parsing of HTML documents for improved
+      efficiency.
+  <li>Portable across several flavors of LISP in a variety of environments.
+</ul>
+
+<p> The parsers generated are string based. If this is inconvenient, a
+considerably older, less powerful and <strong>unsupported</strong> stream
+based parser is available. </p>
+
+<hr>
+
+<h2><a name="components">Parser Components</a></h2>
+
+<p>The parser has been divided into three distinct modules. This approach
+should simplify the process of modifying and adapting the parser to a new
+purpose. A more detailed description of the parser components follows. </p>
+
+<h3><a name="compiler">DTD Compiler</a></h3>
+
+<p> The DTD compiler provides a means for translating a lispified DTD into
+a form usable by the parser. The input, in the form of a lispified DTD, is
+augmented with additional information that is required for additional fault
+tolerance. The output is a set of data structures that contain the
+relationships specified in the DTD. As long as these constraints on the
+input and output are obeyed, this module may be safely replaced with
+another mechanism without interfering with the other components. </p>
+
+<p> The parameter entity definitions in the DTD can be ignored once the DTD
+has been compiled. The compilation process directly substitutes the values
+of these entities where they are used. Ordinary entity definitions are
+simply noted. </p>
+
+<h3><a name="lexer">Lexer</a></h3>
+
+<p>This parser is designed to handle HTML as it commonly appears, rather
+than to produce a parser that is fully SGML compliant. Consequently, this
+lexer does not implement all the constructs SGML specifies. Extending the
+lexer to deal with other SGML constructs (such as marked sections and the
+full parsing of declarations) should involve relatively straightforward
+extensions to the existing code. </p>
+
+<p> The lexer is based on Dan Connoly's
+<a href="http://www.w3.org/pub/WWW/MarkUp/SGML/sgml-lex/sgml-lex">
+flex specification</a>. Error reporting has been replaced by reasonable
+workarounds, and the additional SGML constructs mentioned have been
+ignored. Comments too are currently ignored, though all the code for
+reporting them is present in the lexer. The lexer and the parser always
+preserve spaces. It is up to the system using them to deal with whitespace
+appropriately. </p>
+
+<p> The lexer is fully contained in the file <tt>html-reader.lisp</tt>,
+except for some references to the tag definitions, and to the constant
+<tt>*eof*</tt>. (In MCL <tt>*eof*</tt> is a variable.) The function
+<tt>next-html-token</tt> takes an input a parser structure, which contains
+the state of a parse process. Encapsulating the state into a structure
+allows a program to run multiple instances of the parser simultaneously. A
+call to <tt>next-html-token</tt> returns the next token in the remaining
+unprocessed HTML. A token may be a string, an entity, a tag open or tag
+close marker, or a comment. So long as these constraints are satisfied, the
+lexer may be modified in any manner. </p>
+
+<h3><a name="parser">Parser Generator</a></h3>
+
+<p> The parser generator provides a flexible framework for defining a
+customized HTML parser. The parser defined is in the form of a DFA. It
+consists of a set of contexts and conditions for making context
+transitions. The transitions are defined in a highly constrained language
+that allows for testing arbitrary conditions. The contexts are where the
+actual parsing takes place. They employ a language that can be used to
+specify LISP code to execute when various parse events are encountered. The
+events of interest are the opening and closing of an HTML tag, and parsing
+of PCDATA. Along with arbitrary LISP code, special forms for performing
+specific functions are available. </p>
+
+<p>The parser generator is built around two macros. The first,
+<tt>define-html-parser</tt>, defines a function that handles the parser's
+context transitions. Each context is embodied within a function defined
+using the macro <tt>define-html-parser-context</tt>. The context function
+should not be called directly, but only through the parser
+function. Given below is the relationship between the parser definitions
+and the functions they turn into. Further details of the syntax are
+discussed under the <a href="#macros">macro descriptions</a>. </p>
+
+<p> The two macros are designed to resemble LISP function definition macros
+(such as <tt>defun</tt>). The macros augment the lambda list with some
+standard arguments, which will be discussed below.</p>
+
+<p> The primary parser function (defined through
+<tt>define-html-parser</tt>) has relatively little functionality. It is
+intended to hand control over to some context, or end the parse process if
+necessary. The macro's syntax limits the parser function to testing the
+return value from the last context, and selecting the next context to
+execute. Four paramters are added to the argument list the macro
+receives. The exact form of the resulting argument list is presented under
+the <a href="#macros">macro descriptions</a>. </p>
+
+<dl>
+  <dt><tt>input</tt>
+  <dd>This is the HTML string input for parsing.
+  <dt><tt>:save-fragments</tt>
+  <dd>If this keyword argument is set, the part of the input string
+      corresponding to each HTML tag parsed is saved. Note that this string
+      shares its structure with the original input string, so modifying it
+      is not advisable.
+  <dt><tt>:html-tag-instance-class</tt>
+  <dd>The value of this keyword argument determines the class of the tag
+      instances the parser creates. The default value is
+      <tt>html-tag-instance</tt>. Any value given to this argument should
+      be a subclass of <tt>html-tag-instance</tt>.
+  <dt><tt>:unknown-tag-instance-class</tt>
+  <dd>As with <tt>html-tag-instance</tt>, this keyword argument determines
+      the class of the tag instances created for those tags that are not
+      present in the DTD. Again, any value this argument receives be a
+      subclass of <tt>unknown-tag-instance</tt>.
+</dl>
+
+<p>The input string is parsed entirely within the various parser contexts
+used. The syntax provided allows the user to embed arbitrary LISP code in
+places where an event might be expected. An event in the course of parsing
+HTML is opening a tag, closing a tag, or reading some data. Event
+processing can be conditionalized by the name of the tag parsed. All PCDATA
+however is passed through the same LISP code. Each context is allowed to
+return a single value, which may be used by the parser to select the next
+context to execute. The context's function thus is to correctly order the
+various HTML tags extracted, for processing by the user defined LISP
+code. This process is complicated by the presence of implicit tag opens and
+closes, and incorrect HTML.</p>
+
+<p>Each context provides two special forms for handling HTML data that is
+automatically bound to some variables. Both the variables and the forms
+have a syntax identical to ordinary LISP functions and variables. All of
+these are described below.</p>
+
+<dl>
+  <dt><tt>parser</tt>
+  <dd>This variable is bound to a data structure that describes the
+      parse process, including the input string, the stack of open tags,
+      and the current state of the input. This data should be treated as
+      read only information.
+  <dt><tt>it</tt>
+  <dd>This variable is bound to the current structure being processed. The
+      structure may be explicitly present in the HTML, or its existence may
+      be inferred from the input context. It can be either a tag or PCDATA.
+  <dt><tt>start</tt>
+  <dd>This variable holds the start position of the current token in the
+      input string. For an open tag, it tells where the open tag token
+      begins. For a close tag, it tells where the close tag token begins.
+  <dt><tt>end</tt>
+  <dd>This variable stores the end position of the current token in the
+      input string. Like <tt>start</tt>, it is relative to the token, and
+      not the tag as a whole.
+  <dt><tt>(save <i>data</i>)</tt>
+  <dd>Calling this special form tells the parser to save the indicated
+      <tt><i>data</i></tt>, which can either be PCDATA or a tag. Only the
+      first call on a tag is effective. All subsequent
+      calls are ignored. Although the structure saved can be something
+      other than the last token read, doing so with tags can involve
+      playing with the internals of the parser. A far better method for
+      saving customized structures is to subclass
+      <tt>html-tag-instance</tt> and <tt>uknown-tag-instance</tt>, and
+      include in them special purpose slots. Saving involves linking the
+      structure to the last surrounding tag that was saved. Saving a tag
+      when it is opened enables all the children of the tag to be saved
+      under it. On the other hand, saving a tag when it is closed results
+      in a situation where any children saved are linked to the parent of
+      the tag, altering the structure of the HTML in a possibly undesirable
+      manner.
+  <dt><tt>(exit-context <i>value</i>)</tt>
+  <dd>This special form tells the context to exit as soon as possible,
+      returning the value <tt><i>value</i></tt>. Once
+      seen, all code that follows it is ignored. Only clean-up operations,
+      such as processing the implied opening and closing of tags, are
+      performed. The function takes an optional argument that acts as a
+      return value from the context.
+</dl>
+
+<p>Using such a defined parser is quite straightforward. The function
+<tt>initialize-parser</tt> may optionally be called if a DTD other than the
+default DTD is to be used. The parser function can then be called
+with the input, the other arguments required, and the optional keyword
+arguments. Some optional initialization code is executed, then the start
+context is called. Its return value is tested to determine the next context
+to execute. This cycle continues until either the input is exhausted, or an
+end transition is encountered. An unaccounted transition results in an
+error. The return value of the parser is the return value of the last
+context executed.</p>
+
+<p>When a context is first entered, all the open tags on the parse stack
+are tested against the conditionals defined for open tags. A tag is
+processed no more than one time in any given context. Once the tags on the
+stack have been processed, the next token is taken from the input
+string. The context continues to extract tokens so long as the
+<tt>exit-context</tt> special form is not encountered, and some input
+remains to be processed.</p>
+
+<p>The parser does not enforce or consider the many ordering or repetition
+rules that the DTD defines. It only deals with inclusion, exclusion and
+containement constraints. So, one might be able to have two bodies within a
+single HTML document. Although broken, it allows the parser to recover a
+parse of all the parts of the document. This amounts to handing over other
+decisions to whatever program is using the parser.</p>
+
+<p>It is somewhat more difficult to produce a reasonable parse of a
+document while ignoring containment rules. The following rules describe how
+the parser deals with out of context tags: </p>
+
+<ol>
+  <li>Search the stack of open HTML tags to find a tag that may contain 
+      the out of place tag.
+  <li>If there is no such tag on the stack, recursively apply this rule to 
+      the tag that is the most likely container of this tag.
+  <li>If the tag is an unknown, it can fall under any tag with a non-empty
+      content, and can include any tag.
+</ol>
+
+<p> For example, if a lone <tt>&lt;li&gt;</tt> is found immediately inside 
+a <tt>&lt;body&gt;</tt>, the the parser shall check the stack to see if 
+there is a tag on the stack that can contain the <tt>&lt;li&gt;</tt>. 
+Since its immediate container is <tt>&lt;body&gt;</tt>, no such tag is 
+present. The most likely container for an <tt>&lt;li&gt;</tt> is defined to 
+be a <tt>&lt;ul&gt;</tt>, which is then put on the stack as the container 
+of the <tt>&lt;li&gt;</tt>. </p>
+
+<p> These are often not the right heuristics to apply while parsing a
+page. Instances of input that would break the parser include <tt>&lt;a
+...&gt;&lt;h1&gt;foo&lt;/h1&lt;/a&gt;</tt>, a relatively common
+construct.  The parse result would look like <tt>&lt;a
+...&gt;&lt;/a&gt;&lt;h1&gt;foo&lt;/h1&gt;</tt>, which is certainly
+undesirable. Another place where this breaks is if the document begins 
+with an incorrectly defined comment. Such a comment is treated as 
+<tt>PCDATA</tt>. Consequently, the start of the <tt>&lt;body&gt;</tt> is 
+assumed to be at this point. Ignoring ordering and numerical constraints 
+allows us to proceed to parse the entire document, and then let the larger 
+application decide how to treat the entire document. Though not ideal, this 
+solution does leave us with the ability to recover. </p>
+
+<hr>
+
+<h2><a name="interface">Parser Interface</a></h2>
+
+<p>This section walks through the interface functions and some utilities
+that the HTML parser system provides. The description is in terms of the
+role each individual piece plays, rather than how they connect to one
+another. Please look at the <a href="#components">parser components
+overview</a> for the big picture.</p>
+
+<h3><a name="data-structures">Data Structures</a></h3>
+
+<p><strong><tt>html-parser-token</tt></strong> [class]<br>
+These are defined based on the tokenizer from
+<a href="http://wilson.ai.mit.edu/">CL-HTTP</a>. They are used to name
+various objects. <tt>html-parser-token</tt> is an abstract class, of which
+no instances are contructed. It's subclasses are <tt>html-name-token</tt>
+and <tt>html-entity-token</tt>.</p>
+
+<p><strong><tt>html-name-token</tt></strong> [class]<br>
+<tt>html-name-token</tt> is the subclass of <tt>html-parser-token</tt> used
+for defining names in HTML. These names can be tag names and attribute
+names, both of which are case insensitive. They are constructed by
+attaching a <tt>#t</tt> in front of the string form of the token name. For
+instance, <tt>#t"ul"</tt> corresponds to the name token for UL.</p>
+
+<p><strong><tt>html-entity-token</tt></strong> [class]<br>
+<tt>html-entity-token</tt> is the subclass of <tt>html-parser-token</tt>
+used for representing HTML entities. These tokens are case sensitive, and
+are constructed by prefixing a <tt>#e</tt> to the string name of the
+entity. For instance, <tt>#e"uuml"</tt> is the name token for the HTML
+entity &amp;uuml.</p>
+
+<p><strong><tt>html-tag</tt></strong> [class]<br>
+The data read from the lispified version of the DTD about HTML tags is
+stored in instances of this class. These are likely to be of limited value
+when parsing an HTML document.</p>
+
+<p><strong><tt>html-attribute</tt></strong> [class]<br>
+Instances of this class are used to store information about the attributes
+of the various tags. They are also used to index the tag attributes parsed
+from an HTML document.</p>
+
+<p><strong><tt>abstract-tag-instance</tt></strong> [class]<br>
+This is the class of all the instantiated tags. Its subclasses, rather than
+it, should be instantiated. The class has slots for the tag it
+instantiates, the HTML parts (tags and PCDATA) within the tag instance, the
+tag it is a part of, the attribute values defined for the tag, and the part
+of the HTML document this tag represents. The attribute values are stored
+as an association list, indexed on the attribute structure in the tag
+definition. If the attribute is not defined in the DTD, the
+<tt>html-name-token</tt> corresponding to the attribute name is used.</p>
+
+<p><strong><tt>html-tag-instance</tt></strong> [class]<br>
+This subclass of <tt>abstract-tag-instance</tt>, is for representing
+instances of tags defined in the DTD. It, or any of its subclasses, can be
+used for this purpose. More information on this can be found in the
+<a href="#macro">macro definition</a> for <tt>define-html-parser</tt>. </p>
+
+<p><strong><tt>unknown-tag-instance</tt></strong> [class]<br>
+This subclass of <tt>abstract-tag-instance</tt> is used for representing
+instances of tags that are not defined in the DTD. It can be substituted
+with any other of its subclasses. For more information, please refer to the
+<a href="#macro">macro definition</a> for <tt>define-html-parser</tt>.</p>
+
+<p><strong><tt>parser</tt></strong> [structure]<br>
+This is a transient structure for storing information about the particular
+parse process. It contains the input string, the current state of the input
+string, a stack containing the open tags the parser has seen, etc. This
+data should only be modified by the internals of the parser.</p>
+
+<p><strong><tt>tag-parser-data</tt></strong> [structure]<br>
+This structure stores transient information about HTML tags as they are
+parsed. These structures, rather than tag instances themselves, are stored
+on the parser stack mentioned above.</p>
+  
+<h3><a name="variables">Variables and Constants</a></h3>
+
+<p><strong><tt>*html-dtd-list*</tt></strong> [constant]<br>
+This association list translates an HTML <TT>DOCTYPE</TT> to a lispified
+DTD filename. It is not currenly used.</p>
+
+<p><strong><tt>*current-dtd*</tt></strong> [variable]<br>
+This variable stores the DTD loaded while initializing the parser. If
+<tt>nil</tt>, the parser is not initialized.</p>
+
+<p><strong><tt>*html-tags*</tt></strong> [variable]<br>
+This is a list of all the tags read from the DTD file.</p>
+
+<p><strong><tt>*html-root*</tt></strong> [variable]<br>
+This variable contains the root tag for the DTD. The root tag is the
+only tag that does not have a container. It is calculated, rather than
+arbitrary set to the HTML tag.</p>
+
+<p><strong><tt>*html-characters*</tt></strong> [variable]<br>
+This variable enumerates the HTML character entities defined in the
+DTD.</p>
+
+<h3><a name="macros">Macros</a></h3>
+
+<p><strong><tt>define-html-parser</tt></strong> [macro] (name args &rest
+forms)<br>
+The more elaborated syntax and description of this macro is given
+below:</p>
+
+<pre>
+define-html-parser <i>parser-name</i> ({<i>arg</i>}* [&key {<i>keyword-arg</i>}*]
+                                {<i>other-arg-form</i>}*)
+                   [:initialization {<i>form</i>}*]
+                   :transitions <i>transition-list</i>
+    <i>arg-separator</i> ::= &key | &rest | &aux
+    <i>transition-list</i> ::= [[ (:start <i>context</i>) |
+                           {(<i>last-context-name</i> <i>transition-test</i> <i>context</i>)}* |
+                           {(<i>last-context-name</i> <i>transition-test</i> :end)}* ]]
+    <i>transition-test</i> ::= t | <i>symbol</i> | <i>string</i> | <i>html-name-token</i> | <i>function</i> |
+                        (:eval {<i>form</i>}*)
+</pre>
+
+<p>This macro expands into a function named <tt><i>parser-name</i></tt>
+that executes some initialization code, followed by a series of context
+transitions. The optional initialization code is executed as an implicit
+<tt>progn</tt>. The lambda list of the generated function takes as input a
+combination of some pre-defined parameters and those provided in
+<tt><i>lambda-list</i></tt>. The generated function has a lambda list of
+the form</p>
+
+<pre>
+(<i>input-string</i> {<i>arg</i>}* &key :save-fragments :html-tag-instance-class
+                          :unknown-tag-instance-class {<i>keyword-arg</i>}*
+                     {<i>other-arg-form</i>}*)
+</pre>
+
+<p>The macro expansion, in other words, adds some arguments to the lambda
+list given to the macro. These arguments have the following roles:</p>
+
+<dl>
+  <dt><tt><i>input-string</i></tt>
+  <dd>This is the HTML string input for parsing.
+  <dt><tt>:save-fragments</tt>
+  <dd>If this keyword argument is set, the part of the input string
+      corresponding to each HTML tag parsed is saved. Note that this string
+      shares its structure with the original input string, so modifying it
+      is not advisable.
+  <dt><tt>:html-tag-instance-class</tt>
+  <dd> The value of this keyword argument determines the class of the tag
+      instances the parser creates. The default value is
+      <tt>html-tag-instance</tt>. Any value given to this argument should
+      be a subclass of <tt>html-tag-instance</tt>.
+  <dt><tt>:unknown-tag-instance-class</tt>
+  <dd>As with <tt>html-tag-instance</tt>, this keyword argument determines
+      the class of the tag instances created for those tags that are not
+      present in the DTD. Again, any value this argument receives be a
+      subclass of <tt>unknown-tag-instance</tt>.
+</dl>
+
+<p>The transitions list defines the desired context transitions. The first
+context executed is the one headed by <tt>:start</tt>. Each
+<tt><i>context</i></tt> is a function call to a parser context that returns
+a two values - the name of the context and a second arbitrary
+value. <tt><i>context</i></tt> may be replaced by <tt>:end</tt>, in which
+case the parse process is terminated. An ordinary context transition is
+headed by the name of the last context executed, and a test on the return
+value of the context. The test is interpreted as follows:</p>
+
+<dl>
+  <dt><tt>t</tt>
+  <dd>The transition is made without performing any tests.
+  <dt><tt><i>symbol</i> | <i>string</i> | <i>html-name-token</i></tt>
+  <dd>If not already an <tt>html-name-token</tt>, the test object is
+      translated to one. This value is then compared using <tt>eq</tt> with
+      the generic function <tt>name</tt> applied to the return value of the
+      last context. (<tt>name</tt> tries to coerce its input to an
+      <tt>html-name-token</tt>.) The format for specifying an
+      <tt>html-name-token</tt> is <tt>#t"<i>tag-name</i>"</tt>, where
+      <tt><i>tag-name</i></tt> is a case insensitive name for the tag. For
+      instance, <tt>#t"img"</tt> is the token for the HTML tag img.
+  <dt><tt><i>function</i></tt>
+  <dd>The return value of the last context is passed as an argument to the
+      specified function. The transition is made if the function does not
+      return <tt>nil</tt>.
+  <dt>(:eval {<i>form*</i>})
+  <dd>{<i>form*</i>} is evaluated as an implicit <tt>progn</tt>. The return
+      value is compared via <tt>eq</tt> to the result of calling the
+      generic function <tt>name</tt> on the return value of the last
+      context.
+</dl>
+
+<p>Parsing terminates automatically when the input string is exhausted.</p>
+
+<p><strong><tt>define-html-parser-context</tt></strong> [macro] (name
+arguments &rest forms)<br>
+The full syntax and description of the macro is given below.</p>
+
+<pre>
+define-html-parser-context <i>name</i> ({<i>arg</i>}* [&aux {<i>aux-arg</i>}*])
+                           [:use-variables {<i>use-variable</i>}*]
+                           [:on-open-tag {<i>tag-conditional-form</i>}*]
+                           [:on-close-tag {<i>tag-conditional-form</i>}*]
+                           [:on-pcdata {<i>form</i>}*]
+    <i>tag-conditional-form</i> ::= (<i>tag-condition</i> {<i>form</i>}*)
+    <i>tag-condition</i> ::= :any | <i>tag-name</i> | ({<i>tag-name</i>}*)
+    <i>tag-name</i> ::= <i>symbol</i> | <i>string</i> | <i>html-name-token</i>
+</pre>
+
+<p>This macro defines a function for an HTML parser context. The function
+named <tt><i>name</i></tt> has the following lambda list:</p>
+
+<pre>
+(parser {<i>arg</i>}* &aux {<i>aux-arg</i>}* {<i>use-variable</i>}* <i>exitp</i> <i>exit-var</i>)
+</pre>
+
+<p>The <tt>{<i>form</i>}*</tt> found in
+<tt><i>tag-conditional-form</i></tt> constitute an implicit <tt>progn</tt>
+composed of arbitrary LISP expressions. They can include references to the
+following special forms and variables:</p>
+
+<dl>
+  <dt><tt>parser</tt>
+  <dd>This variable is bound to a data structure that describes the
+      parse process, including the input string, the stack of open tags,
+      and the current state of the input. This data should be treated as
+      read only information.
+  <dt><tt>it</tt>
+  <dd>This variable is bound to the current structure being processed. The
+      structure may be explicitly present in the HTML, or its existence may
+      be inferred from the input context. It can be either a tag or PCDATA.
+  <dt><tt>start</tt>
+  <dd>This variable holds the start position of the current token in the
+      input string. For an open tag, it tells where the open tag token
+      begins. For a close tag, it tells where the close tag token begins.
+  <dt><tt>end</tt>
+  <dd>This variable stores the end position of the current token in the
+      input string. Like <tt>start</tt>, it is relative to the token, and
+      not the tag as a whole.
+  <dt><tt>(save <i>data</i>)</tt>
+  <dd>Calling this special form tells the parser to save the indicated
+      <tt><i>data</i></tt>, which can either be PCDATA or a tag. Only the
+      first call on a tag is effective. All subsequent
+      calls are ignored. Although the structure saved can be something
+      other than the last token read, doing so with tags can involve
+      playing with the internals of the parser. A far better method for
+      saving customized structures is to subclass
+      <tt>html-tag-instance</tt> and <tt>uknown-tag-instance</tt>, and
+      include in them special purpose slots. Saving involves linking the
+      structure to the last surrounding tag that was saved. Saving a tag
+      when it is opened enables all the children of the tag to be saved
+      under it. On the other hand, saving a tag when it is closed results
+      in a situation where any children saved are linked to the parent of
+      the tag, altering the structure of the HTML in a possibly undesirable
+      manner.
+  <dt><tt>(exit-context <i>value</i>)</tt>
+  <dd>This special form tells the context to exit as soon as possible,
+      returning the value <tt><i>value</i></tt>. Once
+      seen, all code that follows it is ignored. Only clean-up operations,
+      such as processing the implied opening and closing of tags, are
+      performed. The function takes an optional argument that acts as a
+      return value from the context.
+</dl>
+
+<p>Each <tt><i>tag-conditional-form</i></tt> that matches the current tag
+is executed. Matching is limited to testing the name of the tag. The name
+can be specified as a symbol, a string or an <tt>html-name-token</tt>. A
+list of tags can be specified in place of a single tag. Alternatively, the
+keyword <tt>:any</tt> can be used to define some code to execute for any
+tag encountered.</p>
+
+<h3><a name="functions">Functions</a></h3>
+
+<p><strong><tt>initialize-parser</tt></strong> [function] (&optional doctype)<br>
+This function loads and initializes a DTD for use with the parser. The
+default DTD is that for HTML 3.2. The only other option currently available
+is loading the one for HTML 2.0. This function <strong>must</strong> be
+called before a parser is invoked.</p>
+
+<p><strong><tt>file->string</tt></strong> [function] (path)<br>
+Returns the contents of the file indicated by <tt><i>path</i></tt> as a
+string.</p>
+
+<p><strong><tt>stream->string</tt></strong> [function] (stream)<br>
+Returns the contents of <tt><i>stream</i></tt> as a string.</p>
+
+<p><strong><tt>name</tt></strong> [function] (object)<br>
+Returns the name of the <tt>html-tag</tt> indicated by
+<tt><i>object</i></tt>, or <tt>nil</tt> if the object cannot correspoond to
+an <tt>html-tag</tt>. </p>
+
+<p><strong><tt>parts</tt></strong> [function] (tag-instance)<br>
+Returns the parts of <tt><i>tag-instance</i></tt>.</p>
+
+<p><strong><tt>part-of</tt></strong> [function] (tag-instance)<br>
+Returns the tag that <tt><i>tag-instance</i></tt> is a part of.</p>
+
+<p><strong><tt>html-fragment</tt></strong> [function] (tag-instance)<br>
+Returns the string fragment corresponding to
+<tt><i>tag-instance</i></tt> in the input string.</p>
+
+<p><strong><tt>attr-values</tt></strong> [function] (tag-instance)<br>
+Returns all the attribute-value pairs for the given
+<tt><i>tag-instance</i></tt>.</p>
+
+<p><strong><tt>attr-val</tt></strong> [function] (attribute tag-data &optional default-value error-if-not-found)<br>
+Tries to look for a value corresponding to <tt><i>attribute</i></tt> in
+<tt><i>tag-data</i></tt>. <tt><i>attribute</i></tt> can be specified as a
+<tt>string</tt>, <tt>symbol</tt> or an <tt>html-name-token</tt>. If not
+found, <tt><i>default-value</i></tt> is returned, unless
+<tt><i>error-if-not-found</i></tt> is set. Otherwise an error is
+signalled.</p>
+
+<p><strong><tt>parser-input</tt></strong> [function] (parser)<br>
+Returns the input string for a particular instance of
+<tt><i>parser</i></tt>.</p>
+
+<p><strong><tt>parser-stack</tt></strong> [function] (parser)<br>
+Returns the parser stack for a particular instance of
+<tt><i>parser</i></tt>.</p>
+
+<p><strong><tt>make-pcdata-string</i></tt></strong> [function] (parts &optional collect-alt-p)<br>
+Constructs a string out of the PCDATA contained in the
+<tt><i>parts</i></tt> given to the function. If
+<tt><i>collect-alt-p</i></tt> is set, each tag encountered is tested for an
+<tt>ALT</tt> attribute. If found, the value of the attribute is collected,
+otherwise the PCDATA contained within the tag is used. </p>
+
+<p><strong><tt>html-whitespace-p</tt></strong> [function] (char)<br>
+Tests if the <tt><i>char</i></tt> is whitespace by HTML standards.</p>
+
+<p><strong><tt>tokenize-name</tt></strong> [function] (string)<br>
+Constructs an instance of <tt>html-name-token</tt> from
+<tt><i>string</i></tt>. </p>
+
+<p><strong><tt>tokenize-entity</tt></strong> [function] (string) <br>
+Constructs an instance of <tt>html-entity-token</tt> from
+<tt><i>string</i></tt>.</p>
+
+<p><strong><tt>ensure-html-parser-tokens</tt></strong> [function] (tree &key ignore-if (destructive t))<br>
+Attempts to translate all items found in <tt><i>tree</i></tt> to an
+<tt>html-name-token</tt>. All items that satisfy the predicate
+<tt>ignore-if</tt> are skipped. If <tt>destructive</tt> is set, the tree is
+modified destructively. Otherwise, parts of the tree that can be safely
+reused shall not be duplicated while constructing a result tree.</p>
+
+<hr>
+
+<h2><a name="examples">Examples</a></h2>
+
+<h3><a name="simple-parser">Simple Parser</a></h3>
+
+<p>As the name suggests, this parser does very little. It parses the HTML
+document, and returns the parsed structure. The code for the parser is in
+<tt>HTML-PARSER:html-utilities.lisp</tt>. The parser has one context that
+runs until the input is exhausted, or an HTML close tag token is
+encountered.</p>
+
+<p>The syntax for calling the parser is</p>
+
+<pre>
+(simple-parser <i>html-document</i>
+               &key :save-fragments :html-tag-instance-class
+                                    :unknown-tag-instance-class)
+</pre>
+
+<p>where <tt><i>html-document</i></tt> is the HTML document stored in a
+string. The keyword arguments play the same role as in the description of
+the macro <a href="#macros"><tt>define-html-parser</tt></a>. </p>
+
+<h3><a name="handler">Parser with Handler Call-back</a></h3>
+
+<p>This is a more extended example demonstrating some of the additional
+flexibility that may be gained by defining a parser as a series of
+transitions in a DFA. The code for the parser is contained in
+<tt>HTML-PARSER:examples;handler.lisp</tt>, and needs to be loaded as an
+optional package.</p>
+
+<p> The main parser function is <tt>parse-with-handler</tt>. It should be
+called in a context defined by the macro <tt>with-tag-handler</tt>. This
+macro establishes a call back condition. If on parsing some HTML tag the
+conditions defined by the macro are satisfied, the specified handler is
+called. These contexts may be nested to form a hierarchy. Without a
+context, the parser shall parse the document but never process any of the
+data generated from the parse. </p>
+
+<p>
+<tt>with-tag-handler</tt> has the following lambda list:
+</p>
+
+<pre>
+	(with-tag-handler (&lt;tags&gt; &lt;handler-function&gt; &amp;key &lt;with-attributes&gt;
+			   &lt;without-attributes&gt; &lt;test&gt;)
+	  &lt;body&gt;)
+</pre>
+
+<p> <tt>tags</tt> is the list of tags for which a context should be
+established. This may be a symbol, list of symbols or strings, or the value
+<tt>t</tt> which stands for all tags. The symbols or strings should be
+names of tags for which to establish contexts, or <tt>PCDATA</tt>, or
+<tt>UNKNOWN</tt>. <tt>handler-function</tt> is the call-back function for
+the context. <tt>with-attributes</tt> is a list of attributes that must be
+present in the open tag markup, and <tt>without-attributes</tt> is a list
+of tags that should not be present in the open tag markup. <tt>test</tt> is
+an arbitrary lisp predicate that determines if the desired context is
+present. A context is said to be present only if the conjuction of all the
+above conditions holds. <tt>body</tt> is executed within the established
+handler. It may be any lisp form, including other <tt>with-tag-handler</tt>
+specifications (which provides a mechanism for specifying multiple
+handlers), and one or more calls to <tt>parse-html</tt>. </p>
+
+<p>
+<tt>parse-html</tt> has the lambda list
+</p>
+
+<pre>
+	(parse-html input &amp;key tags save-fragments html-tag-instance-class
+                               unknown-tag-instance-class)
+</pre>
+
+<p> <tt>tags</tt> is the list of tags which have to be present in the
+resulting parse structure. It too can be a list of symbols or strings,
+including <tt>PCDATA</tt> and <tt>UNKNOWN</tt>. (I had considered including
+the specification for <tt>tags</tt> in <tt>with-tag-handler</tt>, but could
+not guage how valuable this would be.) <tt>save-instance-fragments</tt>,
+<tt>html-tag-instance-class</tt> and <tt>unknown-tag-instance-class</tt>
+have their usual function.</p>
+
+<p>The function <tt>html-parse-result</tt> is a simple example of how the
+handler call-back mechanism is supposed to be used. It takes an input path
+as a string or a pathname, and invokes the parser on the specified
+file. The return value is a parse of the HTML document rooted in an
+instance of the <tt>HTML</tt> tag.</p>
+
+<h3><a name="link-collector">Parser for Collecting Links</a></h3>
+
+<p>This example demonstrates how the parser may be linked in with the World
+Wide Web Walker (w4) in the CL-HTTP system. It takes one of the examples in
+the CL-HTTP package, <tt>show-web-link-map</tt>, and redefines it to use
+the parser to collect all links in the document. For this example to work,
+it is necessary to first load the CL-HTTP system, then the HTML Parser
+Generator. Then, the W4-WEB-WALKER and the W4-WEB-WALKER-DEMOS need to be
+loaded. Finally, the parser definition and additional functions the example
+needs are in the file <tt>HTML-PARSER:examples;parser-show-link-map</tt>.
+</p>
+
+<p>When this is done, the example should work as before, collecting links
+from not only the <tt>a</tt> tag, but also from the <tt>img</tt> and
+<tt>link</tt> tags. Access the page <tt>/cl-http/w4.html</tt> relative to
+the CL-HTTP server, and follow the link to the show-web-link-map
+example. Use the form to generate the trace for all nodes starting from a
+WWW page.</p>
+
+</body>
+
+</html>

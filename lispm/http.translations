@@ -1,0 +1,61 @@
+;;;-*- Syntax: Ansi-Common-Lisp; Base: 10; Mode: lisp; Package: common-lisp-user -*-
+;;;
+;;; Copyright John C. Mallery,  1994-1996
+;;; All rights reserved.
+;;;------------------------------------------------------------------- 
+;;;
+;;; LOGICAL PATHNAME HOST FOR HTTP
+
+;; don't forget to update http:cl-http;translations.lisp for other platforms
+
+(flet ((directory-pathname (host property components)
+         ;; Use the host-specific property for log directories so that
+         ;; Virtual Lisp Machines don't lose because they have no LMFS.
+         (let* ((host (net:parse-host host))
+                (p (pathname (or (scl:send host :user-get property)
+                                 (make-pathname :host host :directory '(:absolute "CL-HTTP"))))))
+           (make-pathname :defaults p
+                          :directory `(,@(pathname-directory p)
+                                       ,@components
+                                       :wild-inferiors)))))
+  (cond ((neti:ns-eq neti:*local-site* neti:*distribution-site*)
+	 (setf (logical-pathname-translations "http")
+	       `(("http;"          "dis-w-host:>http>")
+		 ("client;**;"     "dis-w-host:>http>client>**>")
+		 ("docs;**;"       "dis-w-host:>http>docs>**>")
+		 ("examples;**;"   "dis-w-host:>http>examples>**>")
+		 ("df;**;"         "dis-w-host:>http>df>**>")
+		 ("lispm;**;"      "dis-w-host:>http>lispm>**>")
+		 ("logs;**;"        ,(directory-pathname
+				       neti:*local-host* :cl-http-log-directory '("log")))
+		 ("mac;**;"        "dis-w-host:>http>mac>**>")
+		 ("old;**;"        "dis-w-host:>http>old>**>")
+		 ("proxy-cache;**;" ,(directory-pathname
+				       neti:*local-host* :cl-http-log-directory '("cache")))
+		 ("pw;**;"         ,(directory-pathname
+				      neti:*local-host* :cl-http-log-directory '("pw")))
+		 ("server;**;"     "dis-w-host:>http>server>**>")
+		 ("standards;**;"  "dis-w-host:>http>standards>**>")
+		 ("www;**;"        "dis-w-host:>http>www>**>") 
+		 ("**;"            "dis-w-host:>http>**>")
+		 ("**;**;"         "dis-w-host:>http>**>"))))
+	(t (setf (logical-pathname-translations "http")
+		 `(("http;"          "wilson.ai.mit.edu:>http>")
+		   ("client;**;"     "wilson.ai.mit.edu:>http>client>**>")
+		   ("docs;**;"       "wilson.ai.mit.edu:>http>docs>**>")
+		   ("examples;**;"   "wilson.ai.mit.edu:>http>examples>**>")
+		   ("df;**;"         "wilson.ai.mit.edu:>http>df>**>")
+		   ("lispm;**;"      "wilson.ai.mit.edu:>http>lispm>**>")
+		   ("logs;**;"        ,(directory-pathname
+					 neti:*local-host* :cl-http-log-directory '("log")))
+		   ("mac;**;"        "wilson.ai.mit.edu:>http>mac>**>")
+		   ("old;**;"        "wilson.ai.mit.edu:>http>old>**>")
+		   ("proxy-cache;**;" ,(directory-pathname
+					 neti:*local-host* :cl-http-log-directory '("cache")))
+		   ("pw;**;"         ,(directory-pathname
+					neti:*local-host* :cl-http-log-directory '("pw")))
+		   ("server;**;"     "wilson.ai.mit.edu:>http>server>**>")
+		   ("standards;**;"  "wilson.ai.mit.edu:>http>standards>**>")
+		   ("www;**;"        "wilson.ai.mit.edu:>http>www>**>") 
+		   ("**;"            "wilson.ai.mit.edu:>http>**>")
+		   ("**;**;"         "wilson.ai.mit.edu:>http>**>"))))))

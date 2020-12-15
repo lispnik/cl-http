@@ -1,0 +1,80 @@
+<html>
+
+<head>
+
+<title>Automatic Site Indexing &amp; Information Retrieval</title>
+
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+
+<P><A HREF="/cl-http/lir/lir.html">Overview</A> | </P>
+
+<h1 align="center">Automatic Site Indexing &amp; Information Retrieval</h1>
+
+<hr>
+
+<h2>Lambda-IR Overview <font color=#FF0000>Alpha</font></h2>
+
+<p>Lambda-IR is a set of tools to facilitate the creation of informational
+retrieval applications for use with the web server.  The tools are designed to
+support information retrieval through integration of arbitrarily complicated
+lexical features with hybrid classification and learning algorithms.  This
+release contains two example applications:
+
+<ul>
+
+<li> <font
+color=#FF0000><i>LambdaVista<sup><font size=1>TM</font></sup></i></font>,
+automatically indexes CL-HTTP sites.
+
+<li> An <a href="/cl-http/features.html#hyperarchive">Email HyperArchive</a>
+extension incrementally indexes all mail messages.
+
+</ul>
+
+</p>
+
+<p> When loaded, <font color=#FF0000><i>LambdaVista<sup><font
+size=1>TM</font></sup></i></font> modifies <a
+href="/cl-http/show-documentation?HTTP:EXPORT-URL">http:export-url</a> so that
+all URLs containing static HTML or text are indexed at export time.  A <a
+href="/cl-http/lambdavista.html">standard form</a> allows users to search the
+Web site and retrieve URLs using a boolean syntax.  Please look at the source
+code to understand how to use the application. <a
+href="/cl-http/sources/lambda-ir/">http:lambda-ir;</a> and the <font
+color=#FF0000><i>LambdaVista<sup><font size=1>TM</font></sup></i></font>
+example in <a
+href="/cl-http/sources/lambda-ir/examples/">http:lambda-ir;examples;</a></p>
+
+<p> The <a href="/cl-http/features.html#hyperarchive">Email HyperArchive</a>
+supports full-text search provided that you load the file <a
+href="/cl-http/sources/examples/mail-archive-index.lisp">http:examples;mail-archive-index.lisp</a>.
+After this, all archives exported with keywords setting the archive type to
+"indexing-mail-archive" will automatically provide full-text search
+facilities. </p>
+
+<p> Building indices is quite rapid; the process requires about 8 minutes on a
+MacIvory (XL1200 equivalent) to index all the CL-HTTP documents (including the
+standards) and about 7 minutes to index all of the mailing list archive for
+"WWW-CL" (with approximately 300 messages).  And once indexed, full-text
+search process is blazingly fast; the major limitation is network latency.</p>
+
+<p> At present, the Lambda-IR tools have been tested on the Lisp Machine and
+under MCL.  The code is portable and should run on other platforms.  However,
+some platform-specific efficiency tuning, particularly in the bit-vector code
+(in the file <a
+href="/cl-http/sources/lambda-ir/bit-vectors.lisp">http:lambda-ir;bit-vectors.lisp</a>)
+may prove helpful.
+
+<p>
+<hr>
+<address>
+<a href="http://www.ai.mit.edu/people/blumberg/ajb.html">Andrew J. Blumberg</a>
+(<a href="mailto:blumberg@ai.mit.edu">blumberg@ai.mit.edu</a>)
+</address>
+</p>
+
+</body>
+
+</html>

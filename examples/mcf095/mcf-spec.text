@@ -1,0 +1,316 @@
+;;;-*- Mode: text;  -*- 
+
+-- JCMa 7/5/1997.
+---------------
+http://mcf.research.apple.com/hs/mcf.html#ff
+
+MCF Syntax 
+
+An MCF file contains a set of headers followed by a list of mcf object descriptions.
+The headers may specify other mcf files that are logically included within that
+file. This is useful where a single (set of) files defines the predicates and units
+commonly used across a set of MCF files. 
+
+Each object description starts on a new line with the token "unit:". An object
+description ends either when a new object description is encountered or when the
+end of the file is reached. The end of the file may be the end of the physical file or
+the end of the logical file. The logical end of the file is specified by the token
+end-file: appearing on a new line. 
+
+An mcf object description has the following syntax. 
+unit: < unit identifier > 
+< slot-name > : < value 1 > < value 2 >...
+< slot-name > : < value 1 > < value 2 >... 
+.
+.
+.
+
+Lines starting with the character ';' are comment lines. 
+
+In this document, we will use the notation s(u, v1) to refer to the assertion
+denoted by the entry v1 occuring on the slot s of the unit u. 
+
+Unit Identifiers 
+
+Unit identifiers are strings. Identifiers for content objects (such as web pages)
+are their urls. The identifier for a unit is not necceserily the same as its name.
+Different units (i.e., units with different identifiers) may have the same name. The
+only exception to this rule are predicates, whose names are the same as their
+identifiers. 
+
+The unit identifier for non-content objects (such as subject categories) can be
+pretty much any string. However, if you want to refer to them outside of the file
+they are defined in, the identifier also needs to specify the location of the
+definition. In this case, you can use segmented identifiers (with segments
+separated by the character '#' : such as
+"http://www.foo.com/another-taxonomy.mcf#baz") where the entire string is
+the identifier of an object that is defined in the file
+http://www.foo.com/another-taxonomy.mcf. 
+
+Slots 
+
+Slot names are restricted to non-white space characters. A list of slot values is
+semantically equivalent to a set. So, the order of values and the number of times a
+value occurs does not carry any significance. 
+
+It is further assumed that the unit for a predicate appears before the first use of
+the predicate. Of course, we have to start somewhere, and so we will have a use a
+base set of predicates as being predefined. These predicates are described here. 
+
+Object References 
+
+#"id" is a reference to the object whose unique identifier is id. In some cases, we
+can get away by just using "id" because we are expecting references to objects
+(and not strings). However, to avoid future cases of potential ambiguity between
+the string "id" and a reference to the object whose identifier is "id", we introduce
+this syntax. MCF parsers are free to tolerate and resolve this kind of ambiguity. 
+
+If the identifier does not have any whitespace character, the quotation marks can
+be dropped so that we can write just #id instead of #"id". A longer term, better
+solution for object references is described here. 
+
+Headers 
+
+Headers are similar to meta-content object descriptions in that they are a
+sequence of slots and values. Headers really provide meta-meta-content. The
+header slots currently used are, 
+
+       MCFVersion: a decimal number. 
+       fileLayer: the layer that the contents of this file belong to. Defaults to the most local layer. 
+       include: a list of urls for the other mcf files that are logically included in this file. 
+       tocOf: of the file is a table of contents for a web site, then this slot contains the url for that site. 
+
+In addition, the headers can include any of the slots (and values) for the object
+corresponding to that file. e.g., the slots name and description . 
+
+The headers begin with the token begin-headers: and end with the token
+end-headers:. If the token unit: is encountered before the token end-headers: is
+encountered, an end-headers: token is assumed. Any characters appearing before
+a begin-headers: token or unit: token are ignored.
+
+-----------------------
+http://mcf.research.apple.com/hs/hsspecific.html
+
+Meta Content Framework : HotSauce Specific Slots 
+
+The following slots are directly recognized by HotSauce. This is in addition to the builtin vocabulary. 
+
+       name : the name of the object. A string.
+
+       parent : parents of the object. Note that an object may have multiple parents. Also note that cycles are allowed. A synonym for parent is
+       genls. 
+       The notion of parents is very very generic and corresponds to the concept of a directed arc. More specific slots (such as subTopic) may
+       be prefered sometimes. Such more specific slots may be specified as being specializations of parent/child. 
+
+       child : identifiers of the children of the object. Note that every spec: entry implies a genls entry and vice versa. So, it is neccesary to
+       use only one, typically, genls. A synonym for child is spec.
+
+       default_genl_x and default_genl_y : an integer that provides HotSauce a hint about where the node should be placed relative to its
+       parent.
+
+       genls_pos : [ parent_identifier x_coordinate y_coordinate]. genls_pos implies a genls: relationship. The coordinates are relative to the
+       parent. Please note that coordinates should be treated as relative measures and not as absolute locations. As the number of children
+       increases/decreases, the space contracts/expands. 
+
+       description: a string describing the object.
+
+       genlSlot : this is a relation between slots (binary predicates.) genlSlot(subTopic, parent) means that if we have subTopic(A, B), then
+       also implies parent(A, B). This allows the user to possibly invent the most appropriate relation and still have the effects of the parent
+       relation. 
+
+       contentFrame : a string specifying the name of the browser frame that the content should be directed to. 
+
+
+Appendix A: BNF for the MCF file format 
+
+< mcf file > -> < headers > < unit list > end-file: 
+< headers > -> begin-headers: < linebreak > < slots > end-headers: < linebreak >
+< unit list > -> < unit > < unit list > | < unit > 
+< unit > -> unit: < unit identifier > < linebreak > < slots > 
+
+< slots > -> < slot > < slots > | < slot > 
+< slot > -> < slot name > : < slot values > < linebreak > 
+< slot values> -> < white space > < slot value > | < slot values > | < t-value > | < q-value > 
+
+< slot name > -> < symbol >: 
+< slot value > -> < unit reference > | < string > | < number > | < symbol >
+
+< t-value > -> [ < slot value > < slot value > ] 
+< q-value > -> [ < slot value > < slot value > < slot value > ] 
+< unit identifier > -> < string > 
+
+< unit reference > -> # < unit identifier >
+< linebreak > -> any sequence of standard linebreak characters (including '\r' and '\n')
+< white space > -> any sequence of standard white space characters (including '\t' and ' ')
+< string > -> character sequence starting and ending with '"'
+< symbol > -> any sequence of characters without any intervening whitespace characters. 
+
+-------------------
+
+http://mcf.research.apple.com/hs/BasicSlots.html
+
+Basic MCF Slots 
+
+Here is a list of slots that are assumed to exist in MCF. Since the definition of a
+slot has to preceed its first use, we need a basic set of slots and terms to get the
+bootstrapping process started. 
+
+We will use the following conventions for ease of readability. 
+
+       Predicate names/identifiers start with lower case alphabets. 
+       Category names will start with upper case alphabets. 
+       The names of builtin categories will be the same as their identifiers. This is only by convention. The names of predicates have to be
+       the same as their identifiers by definition. 
+
+Builtin Predicates
+
+    1.typeOf 
+       The first argument is any object and the second object is a category. This is the relation we use to say that a certain object is a Person or
+       an HTML document. 
+    2.superType 
+       Both arguments are categories. This is the relation we use to say that cats are animals. 
+    3.argumentOneType 
+       The first argument is a predicate and second argument is a category. argumentOneType(p, A) means that if we have p(g, ...), then
+       elementOf(g, A). 
+    4.argumentTwoType 
+       Same as argumentOneType, except it applies to the second argument. 
+    5.argumentThreeType 
+       Same as argumentOneType, except it applies to the third argument. 
+    6.argumentFourType 
+       Same as argumentOneType, except it applies to the fourth argument. 
+    7.genlSlots: 
+       genlSlots(p1, p2) and p1(a, b) implies p2(a, b). So, if we have genlSlots(subTopic, parent) and subTopic(Yahoo-Architecture,
+       Yahoo-Arts), then this implies parent(Yahoo-Architecture, Yahoo-Arts). 
+    8.parent 
+       parent(A, B) means that there a directed arc/relation from A to B. The inverse of parent is child so that parent(A, B) is semantically
+       equivalent to child(B, A). 
+    9.name 
+       The first argument is any object and the second argument is a string. Each object can have only one name. 
+   10.superLayer 
+       Both the arguments are Layers. The second argument is the layer which inherits everything from the first argument. superLayer(A, B)
+       means that everything in A goes into B as a default. 
+
+Builtin Categories
+
+    1.Category - #"Category" refers to the object whose elements are what are what are typically refered to as types or categories or sets or
+       collections. Examples include people, slots, web pages, etc. As a convention, Categories (aka sets, types, classes) have identifiers that
+       end with "Category". 
+    2.Slot - The category of binary relations. 
+    3.SingleEntrySlot - The category of binary relations that has at most one value. e.g., age, height, name. 
+    4.TernaryPredicate - The category of ternary relations, i.e. predicates which take 3 arguments. 
+    5.QuaternaryPredicate - The category of quaternary relations, i.e. predicates which take 4 arguments. 
+    6.Layer - The categories of layers. 
+
+Other Reserved Terms
+
+    1.BaseLayer 
+       The BaseLayer is the bottom most layer and also the layer which holds the assertions about layers (specifically, the superLayer
+       assertions). 
+
+--------------------
+http://mcf.research.apple.com/hs/vocab.html
+
+Basic MCF Vocabulary 
+
+Here is some basic vocabulary for describing content. Though it is certainly possible for anyone to invent their own vocabulary,
+it would be be highly preferred if we can all use the same terms to refer to the same things. The MCF definitions of the units
+described on this page will soon be found here. 
+
+Categories 
+
+As a convention, Categories (aka sets, types, classes) are in the singular. So, the category of all people is called Person and of
+all organizations is called Organization. 
+
+Also, as a convention, categories start with a capital letter. 
+
+The identifier and names of these categories are the same. 
+
+    1.SubjectCategory 
+       The category of subjects. An example is the Arts category in Yahoo! (whose idenitifer is http://mcf.yahoo.com/mcf/arts/index.mcf). 
+    2.SubjectCategorization
+       Categorizations such as Yahoo! or Excite. Note that Yahoo! itself is not a SubjectCategory but a SubjectCategorizationCategory. The
+       relation between Yahoo! (http://mcf.research.apple.com/Yahoo.mcf) and Yahoo! Arts is the relation categorizationType. 
+    3.Content 
+       Examples include this web page or the home page for Apple Computer. Subtypes include Web Pages, Databases, etc. 
+    4.Organization 
+       Examples include Apple Computer, United States and the Peace Corps. Organizations are mutually disjoint with people. 
+       Coming soon : a list of kinds of organizations. 
+    5.Person 
+       The category of people. 
+    6.AgentCategory 
+       A supertype of both PersonCategory and OrganizationCategory. 
+    7.NaturalLanguage 
+       Examples include English, French, etc. Coming soon : a more complete list of content categories. 
+    8.ContentGenre 
+       subtypes include Poem, PersonalHomePage, CorporateHomePage, Thesis. Note that each of these is a category. 
+       Coming soon : a more complete list of content categories. 
+    9.TableOfContents 
+       Examples include the table of contents of a book or of a website (such as http://mcf.research.apple.com/ProjectX/FullApple.mcf). 
+
+Predicates 
+
+As a convention, predicates start with a lower case letter. The identifier and names of all predicates are the same. 
+
+    1.authorIndividual 
+       The individual person(s) who is(are) the authors of the content object. The entries are not names of the authors but references to
+       objects corresponding to the authors. The name, email address, etc. of the author can be specified on this object. 
+    2.authorOrganization 
+       The organization which is the author of the content object. For example, Apple Computer is the authorOrganization of this page. 
+    3.author 
+       The generalization of the previous 2 slots. The is a genlSlot of both of them. 
+    4.name 
+       The name of a thing. Names are represented using strings. Pretty much anything, subject categories, people, organizations, content
+       objects, etc. can have a name. 
+    5.emailAddress 
+       A string representing the email address of an agent. 
+    6.homePage 
+       The url of the home page(s) of an agent. 
+    7.size 
+       The size of a content object in bytes. Represented using an integer. 
+    8.loadSize 
+       The total number of bytes, including inline images, plugins, etc. of a content object. 
+    9.firstPublicationDate 
+       The date on which a content object was first published. Dates are represented using strings. Dates follow the month-day-year model,
+       though the interface may present this anyhow. We will soon have some scheme for allowing different syntaxes for dates. 
+   10.lastRevisionDate
+       The date on which the content object was last modified. 
+   11.validUntilDate 
+       The date until the information in this content object is valid. 
+   12.versionNumber 
+       The version number of this content object or subject category. A string. 
+   13.description 
+       A natural language string describing the object. 
+   14.subject 
+       The subject categories that this content object falls under. parent is a genlSlot of subject. 
+   15.publisher 
+       The organization that is the publisher of the content object. 
+   16.editor 
+       The person or organization that is the editor of the content object. 
+   17.language 
+       The language (typically a natural language such as English or French) in which the content is primarily encoded. 
+   18.toc 
+       One or more tables of contents of which this content object is a part. 
+   19.tocOf 
+       This slot is the inverse of toc. It typically appears in headers of mcf files that are the tables of contents of web sites. 
+   20.siteHomePage 
+       The home page for the site of which this content object is a part. 
+   21.helpPage 
+       The page at which help can be found regarding this content object. 
+   22.mirrors 
+       Mirror urls for this content object. Urls are just strings and need not be preceeded with # symbols. 
+   23.contentGenre 
+       The kind of content that is this content object (poem, personal home page, etc.) Of course, a content object can be both a poem and a
+       personal home page (though more likely, the home page includesContent a poem.) 
+   24.linksTo 
+       The content objects that a content object has hyperlinks to. parent is a genlSlot of linksTo. 
+   25.includesContent 
+       To be used when one content object includes another (such as an HTML page including an image or a poem). 
+   26.categorizationType 
+       The relation between a subjectCategory (such as Yahoo! Arts) and the categorization family it belongs to (such as Yahoo!). 
+   27.subTopic 
+       A relational between two subject categories such as Yahoo Arts and Yahoo Arts Museums which states that the later is a more specific
+       subject category of the former. 
+   28.objectIcon 
+       An icon that can be used to represent the object. The value is typically the object corresponding to a GIF or JPEG, but could also be a
+       platform specific encoding. Preferably, it will be one object with several different encodings being available. 
+

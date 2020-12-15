@@ -1,0 +1,893 @@
+<!-- -*- Mode: Text -*- -->
+<html>
+<head>
+<TITLE>A Constraint-Guided Web Walker</TITLE>
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+
+<center>
+<h1>A Constraint-Guided Web Walker<br>for Specialized Activities</h1>
+
+<b><A HREF="http://www.ai.mit.edu/people/jcma/jcma.html">John C.
+Mallery</A>, Andrew J. Blumberg &amp; <a href="http://web.mit.edu/cvince/">Christopher R. Vincent</a></b><br>
+
+<A HREF="http://www.ai.mit.edu/iiip/home-page.html">Intelligent Information Infrastructure Project</A><br>
+<A HREF="http://www.ai.mit.edu/index.html">Artificial Intelligence Laboratory</A><br>
+<A HREF="http://web.mit.edu/">Massachusetts Institute of Technology</A>
+
+<p><i><a
+href="http://www.ai.mit.edu/org/alu/dow96/program.html">Proceedings</a> of the
+<a href="http://www.omg.org/ow/cbcoloc.htm">Dynamic Objects Workshop</a></i>
+at <a href="http://www.omg.org:80/ow/oweast.htm">Object World East</a>, <A
+href="http://www-astro.phast.umass.edu/misc/boston.html">Boston</A>, <a
+href="http://WWW.magnet.state.ma.us/">Massachusetts</a>, May 5-6, 1996</p>
+
+</center>
+
+<abstract><p><b>Abstract:</b> A Web walker for the Hypertext Transfer Protocol
+(HTTP) implements a constraint posting control architecture. The Web walker
+uses a declarative and extensible vocabulary of <i>constraints</i> to
+characterize traversals of Web structures.  Starting from a root resource, the
+walker recursively follows all hyperlinks whose associated resource satisfies
+the constraints guiding the walk.  Constraints are sorted according to
+efficiency class before application to candidate resources. This constraint
+ordering conserves computational and network resources.    As the walker
+traverses the structure it performs operations that are specified in a
+declarative and extensible <i>action</i> vocabulary.  Taken together, a set of
+constraints and a set of actions comprise an <i>activity</i>, which can be
+named and reused.</p>
+
+<p>Several Web-accessible applications use this constraint-guided framework:
+
+<ul>
+
+<p><li><b>Web Mapper:</b> Hyperlinks from a root uniform resource indicator (URI)
+are followed and displayed in Hypertext Markup Language (HTML).</p>
+
+<p><li><b>Web Document Locator:</b> A Salton-style statistical retrieval
+algorithm is applied to TEXT or HTML documents, which are reported to the user
+when their score exceeds a threshold.</p>
+
+<p><li><b>Web Archiver:</b> Regions of Web structure are traversed and
+transferred to a local disk drive. Hyperlinks within the structure are
+remapped to preserve link structure in the new location.</p>
+
+</ul>
+
+The Web walker was implemented in Common Lisp as a facility for the <a
+href="http://www.ai.mit.edu/projects/iiip/doc/CL-HTTP/home-page.html">Common
+Lisp HTTP Server</a>.</p> </ABSTRACT>
+
+<P><B>Keywords:</B> Actions, Common Lisp, Constraints, Constraint Posting,
+HTML, HTTP, Intelligent Agents, Internet, Resource Discovery, Technology,
+Servers, Web Robot, Web Walker, World Wide Web.
+
+<P><b>Hypertext:</B> <A
+href="http://www.ai.mit.edu/projects/iiip/doc/CL-HTTP/w4/w4.html">http://www.ai.mit.edu/projects/iiip/doc/CL-HTTP/w4/w4.html</A>
+<br><b>Postscript:</B> <A
+href="http://www.ai.mit.edu/projects/iiip/doc/CL-HTTP/w4/w4.html">http://www.ai.mit.edu/projects/iiip/doc/CL-HTTP/w4/w4.ps</A>
+
+
+<p><HR></p>
+<ol>
+
+<h2><li><A name="introduction">Introduction</A></h2>
+
+<p>As the World Wide Web has grown, Web walkers have settled into two general
+applications: site maintenance and high-volume indexing.  In these roles, the
+walkers have been tuned for specific activities that are applied uniformly
+over Web regions. This paper introduces a new constraint-posting architecture
+for Web walkers that yields greater flexibility as it decouples control of Web
+traversals from actions applied to Web regions. The goal is to facilitate
+reuse and sharing of both control and action abstractions, and thus, to open
+the way for a new generation of reconfigurable Web walkers that allow people
+or intelligent agents to ``power browse'' the Web.</p>
+
+<p>The W4 Constraint-Guided Web Walker is a second generation Web walker
+intended for traversing well-specified regions of the World Wide Web and
+performing any variety of actions. Control of the walk is specified with an
+extensible vocabulary of constraints that limit enumeration of Web resources.
+Actions applied to each accepted resource are specified by an extensible
+action vocabulary.  Conditional branching in constraints and actions makes
+possible adaptive responses to Web topology. Most importantly,
+<i>constraint</i> and <i>action</i> abstractions enforce a separation of
+control from action as they encourage reuse of control and action
+abstractions. The W4 Web walker employs an architecture isomorphic to one
+originally developed for a graph walking system for knowledge representation
+in the RELATUS Natural Language System (Mallery, 1991). W4 builds on a basic
+HTTP client that is distributed with the Common Lisp Hypermedia Server
+(Mallery, 1994). W4 extends the abstractions of this server and basic client
+to accessing Web resources and walking Web structures.</p>
+
+<h2><li>Control</h2>
+
+<p>
+
+
+The W4 Web walker is an interpreter for graph structures comprised by
+resources accessible via the Hypertext Transfer Protocol (Berners-Lee, <i>et
+alia,</i> 1996).  A web traversal corresponds to the application of an
+activity to a root uniform resource indicator (URI) (Berners-Lee, 1994;
+Berners-Lee <i>et alia</i>, 1994).  As hyperlinks are extracted from resources
+with relevant content types -- such as documents using the Hypertext Markup
+Language (Berners-Lee, <i>et alia</i>, 1995) -- a filtering process prunes out
+all candidates that do not satisfy formulae in the constraint language.
+<i>Actions</i> are then performed on successful candidates.  All the
+information required to guide a particular traversal and perform actions is
+stored in a named <i>activity</i> object.</p>
+
+<ol type="A">
+
+<h3><li> Interpreter</h3>
+
+<p>An activity executes the following loop at each step in the traversal of a
+structure:
+
+<p><ol>
+
+<p><b><li> Enumerate URIs:</b> The body of an HTTP resource is scanned for
+URIs and these are returned.</p>
+
+<p><b><li> Apply Constraints:</b> Constraints are applied to filter enumerated
+URIs and produce candidate URIs for actions.</p>
+
+<p><b><li> Order Candidates:</b> URIs satisfying the constraints are inserted
+into a task queue, possibly prioritize according to an application-defined
+predicate.</p>
+
+<p><b><li> Perform Actions:</b> Actions receive the opportunity to apply
+themselves to each URI in the task queue.</p>
+
+</ol></p></p>
+
+<h3><li> Computational Complexity</h3>
+
+<P>Walking a Web structure is a graph walk in Web space.  A Web walk is
+isomorphic to a tree descent, where starting from an initial node, inferiors
+are recursively enumerated (steps 1 and 2), and possibly visited (step 4).
+Although tree descent algorithms are exponential in form, here constraints may
+bound the absolute number of URIs enumerated and visited.  Thus, the
+computational work required to complete a walk is given by the guiding
+constraint formula and the actual topology of the region traversed.  In
+practice, network factors like HTTP response latency and transfer rates will
+contribute significant constant factors to the time required to execute an
+activity at each visited node.</p>
+
+<p>A good set of constraints narrows the scope of the Web walk to the URI's of
+interest and produces a more tractable walk than might otherwise be achieved
+using conventional Web walkers.  Thus, the goal of constraint-guided Web
+walking is to devise a constraint formula that generates the smallest, but
+compete, set of candidate URIs, and so, performs its activity using the
+minimum computational and network resources.</p>
+
+<p>As discussed below, declarative constraints can be ordered for application
+in ways that also conserve computational and network resources as each ply
+selects candidate URIs
+
+<h3><li> Constraint Types</h3>
+
+<p>Constraints are instances of <i>constraint types</i>. Constraint types
+serve as templates governing the behavior of constraint instances.  They hold
+general-purpose functionality governing their instances while their instances
+store specializing parameters.</p>
+
+<p>There are two general classes of constraint types:
+
+<p><ul>
+
+<p><li><b>Ordinary Constraint Types</b> are the standard class of constraint
+type.  They accept arguments but none of their arguments can be other
+constraints.</p>
+
+<p><li><b>Circumstance Constraint Types</b> are special constraints that
+operate on collections of constraints, and thus, they accept arguments which
+are constraint structures. Among other things, these constraint types
+implement logical operations and conditional branching over constraint
+structures.</p>
+
+</ul></p>
+
+<h4><li> Constraint Instances</h4>
+
+<p>Constraint instances are specialized into subclasses according to
+computational efficiency. A sort based on efficiency subclass serves as a
+first-pass for ordering constraints.  The ordering is intended both to prune
+candidate URIs as fast as possible and to do so with minimum computation and
+network access. The current set of efficiency classes for constraints appear
+below in decreasing order of efficiency.
+
+<p><ul>
+
+<p><li><b>Context Constraints</b> select a URI based on state information in
+the Web walker without the need to first generate URI candidates. No network
+access is required. The current depth of the walk is an example.</p>
+
+<p><li><b>URI Constraints</b> involve comparisons between components of URIs
+or predicates on their identity. These require generating URI candidates but
+they do not involve further network access. In particular, they do not require
+lookups in the Domain Name System. Constraints on the subdirectory of URIs are
+examples.</p>
+
+<p><li><b>DNS Constraints</b> require lookups in the Domain Name System for
+their resolution. Constraints that limit the URIs explored to specific hosts
+are examples because canonical host names are required to make reliable host
+comparisons.</p>
+
+<p><li><b>Header Constraints</b> require application of the HTTP HEAD method
+to the resource for their resolution. Constraints on the content type of a
+resource are examples.</p>
+
+<p><li><b>Resource Constraints</b> require the application of HTTP GET method
+to obtain the content of the resource. Searching the body of a document for a
+substring is an example.</p>
+
+</ul></p>
+
+<h4><li> Ordering and Applying Constraints</h4>
+
+<p><i>Constraint sets</i> bundle collections of constraints. Operations on
+constraints are typically done via operations on constraint sets.  Before a
+set of candidate URIs can be filtered by the constraints of a constraint set,
+those constraints need to be ordered for computational efficiency.  Constraint
+sets filter URIs as follows:
+
+<p><ul>
+
+<p><b><li> Order Constraints:</b> Sort all first level constraints in the
+constraint set so that the most efficient constraints will be applied first.
+Ordinary constraints provide an efficiency sort key directly. Circumstance
+constraints recursively examine the constraints they contain to compute an
+efficiency sort key, which is the most expensive constraint they scope.</p>
+
+<p><b><li> Apply Constraints:</b> Once constraints are ordered from most
+efficient to least efficient, they can be applied to filter enumerated URIs.
+By the time more costly constraints are reached, more efficient ones have
+reduced the number of URIs remaining under consideration.</p>
+
+</ul></p>
+
+<p>Constraint sets are ordered only once; thereafter they can be applied to
+enumerated URIs without further reordering because the efficiency
+characterization is independent of the actual resources. Of course, if new
+constraints are added to a constraint set, it requires reordering.
+
+<p>With the exception of resource constraints, constraint classes should
+almost always involve algorithms with good complexity properties, typically
+algorithms linear in the number of URIs, or better. In contrast, resource
+constraints may apply <i>any</i> algorithm to the resource body, and
+consequently, may require secondary ordering to ensure that cheap resource
+constraints prune down the candidate URIs to a minimum before more expensive
+ones are applied.  Additionally, the computational cost of resource
+constraints may depend on the actual content of the resource. Neither
+secondary ordering of resource constraints nor constraint ordering informed by
+their content has been implemented.
+
+<h3><li> Search Process</h3>
+
+<p>Web walking is a search process. The current W4 implementation examines a
+Web region depth first with sorting of candidate URIs at each level, but not
+globally. Extensions for breadth-first, best-first, and other global search
+options are in progress.</p>
+
+<p>The current implementation runs in a single thread.  Multiple cooperating
+threads exploring different parts of the search space is also under
+consideration.</p>
+
+<h3><li> Defining Constraint Types</h3>
+
+<p> New constraint types are defined with <code>DEFINE-CONSTRAINT-TYPE</code>.
+In <a href="#definition-1">Definition 1</a>, the second argument provides the
+constraint efficiency class and the documentation for the constraint.  The
+third argument is the lambda list passed to the body during constraint
+application.
+
+<p><center>
+<a name="definition-1">
+<table cellpadding=5 border=1>
+<tr><td>
+<code>
+<pre>(define-constraint-type
+  <b>header-robots-allowed</b>
+  (:header
+    :documentation <i>"Succeeds when robots are allowed on the URI host."</i>)
+  (constraint activity url)
+  (ecase (robot-exclusion-status activity url)
+    (:excluded nil)
+    (:allowed t)
+    (:unknown
+      (let ((exclusion-url (robot-exclusion-url url)))
+        (multiple-value-bind (headers status-code)
+            (get-resource-headers activity exclusion-url)
+          (case status-code
+            (404 (note-robot-exclusion-status
+		   activity (host-object url) :allowed)
+                 t)
+            (t (note-robot-exclusion-status
+		 activity (host-object url) :excluded)
+               nil)))))))
+</pre></code></td></tr>
+
+<CAPTION ALIGN="top"><b>Definition 1:</b> Defining a header constraint
+that only passes a URI when Web robots are allowed on the site.</caption>
+</table>
+</center></p>
+
+</ol>
+
+<h2><li>Actions</h2>
+
+<p>Each activity contains a set of actions that are applied to URIs that have
+passed its associated constraint set. <i>Actions</i> are instances of
+<i>action types</i>, whose behavior is parameterized by their arguments.  Two
+general classes of <i>action types</i> are currently defined:</p>
+
+<p><ul>
+
+<p><li><b>Primary Actions</b> are the basic kind of action.  These perform
+some operation on a URI. An example is an action that writes HTML describing
+the current URI to the client stream.</p>
+
+<p><li><b>Encapsulating Actions</b> surround primary actions and allow the
+action to specify when and whether the encapsulated actions run. Examples
+include actions that wrap an HTML environment around primary actions that
+generate HTML output for the client (<i>e.g.,</i> enumerations, tables).</p>
+
+</ul></p>
+
+<ol type="A">
+
+<h3><li> Defining Action Types</h3>
+
+<p> Action types are defined using <code>DEFINE-ACTION-TYPE</code>.  In <a
+href="#definition-2">Definition 2</a>, the second argument specifies whether
+the action is a primary or encapsulating action. The third argument is the
+lambda list passed into the body during action execution.
+
+<p><center>
+<a name="definition-2">
+<table cellpadding=5 border=1>
+<tr><td>
+<code>
+<pre>(define-action-type
+  <b>trace-headers</b>
+  (:standard
+    :documentation <i>"Traces the headers of accessed URIs."</i>)
+  (action activity url)
+  (let ((*headers* (get-resource-headers activity url))
+	(stream (report-stream activity)))
+    (when *headers*
+      (fresh-line stream)
+      (print-headers stream))))
+</pre></code></td></tr>
+
+<CAPTION ALIGN="top"><b>Definition 2:</b> Defining an action that writes the headers of the URI.</caption>
+</table>
+</center></p>
+
+<p>Although the constraints used by the activity to enumerate the Web region
+may cover the correct resources, it may not make sense to apply actions to
+each URI. Consequently, actions will often test the URI against their own set
+of constraints to select the correct action to apply to a URI, or to take no
+action at all. In these cases, the scope of the Web walk can be wider than the
+scope of particular actions.</p>
+
+</ol>
+
+<h2><li> Activities</h2>
+
+<p><i>Activities</i> collect a set of constraints to guide a Web walk and a
+set of actions that are performed on visited URIs. A Web walk is initiated by
+applying the generic function <code>WALK</code> to a URI and an activity.  One
+can think of an <i>activity</i> as a complex argument to a function,
+containing a number of interrelated parameters that are invoked in different
+ways during a recursive process. Rather than pass all these arguments
+separately, here they are bundled into named objects that can be reused.
+
+<ol type="A">
+
+<h3><li>Defining Activities</h3>
+
+<p>Activities can be defined with <code>DEFINE-ACTIVITY</code> or they can be
+created on the fly with the macro <code>WITH-ACTIVITY</code>. In each case,
+textual specifications for constraints and actions are passed to routines that
+allocate corresponding objects used during the walk. <a
+href="#definition-3">Definition 3</a> shows how an activity is defined to
+display the headers of all resources within two hyperlinks from a root URI.
+The action <code>WALK-INFERIORS</code> is a built-in action that reinvokes the
+interpreter on the current URI to explore the next level of the search space.
+
+<p><center>
+<a name="definition-3">
+<table cellpadding=5 border=1>
+<tr><td>
+<pre>(define-activity
+  <b>trace-walk</b>
+  :documentation <i>"Traces the Web Walking activity."</i>
+  :constraint-set ((no-cycles) (depth 2)
+                   (header-robots-allowed))
+  :operator "JCMa@ai.mit.edu"
+  :actions ((trace) (trace-headers) (walk-inferiors))
+  :report-stream *standard-output*)
+</pre></td></tr>
+<CAPTION ALIGN="top"><b>Definition 3:</b> Defining an activity to trace resources 
+headers to a depth of 2.</caption>
+</table>
+</center></p>
+
+</ol>
+
+<h2><li>Applications</h2>
+
+<p> Several simple applications were implemented to test the W4 framework for
+constraint-guided Web walking.  These applications are independently useful
+and comprise a start on a library of actions.
+
+<ol type="A">
+
+<h3><li> Web Mapper</h3>
+
+<p>A simple application walks Web structures under a set of constraints and
+displays the resources traversed. This Web mapper is useful for viewing the
+link branching structure associated with a Web document and for testing
+constraint formulae to see what web region they select. This link mapper is
+invoked via a form over HTTP and reports its results back to the Web Client. <a
+href="#figure-1">Figure 1</a> shows the form that invokes the Web mapper. Some
+parameters for several standard constraints are captured via form input
+fields, whereas more specialized constraints are passed in via the constraints
+field.  In <a href="#figure-1">Figure 1</a>, a conditional constraint is used
+to suppress any HTML resources which were created before January 1, 1996
+(specified in seconds since 1900). Consequently, the
+results shown in <a href="#figure-2">Figure 2</a> contain no HTML resources
+modified less recently than January 1, 1996.
+
+<p><center>
+<a name="figure-1">
+<table>
+<tr><td><img src="map-form.gif" BORDER=3></td></tr>
+<CAPTION ALIGN="top"><b>Figure 1:</b> Form to specify mapping a Web region.</caption>
+</table>
+</center></p>
+
+<p><center>
+<a name="figure-2">
+<table>
+<tr><td><img src="map-links.gif" BORDER=3></td></tr>
+<CAPTION ALIGN="top"><b>Figure 2: Client displays results of mapping a Web region.</caption>
+</table>
+</center></p>
+
+
+<h3><li> Web Document Locator</h3>
+
+<p>As an example of the kind of application that can be rapidly developed
+using this web-walker, we developed a constraint-guided search tool.  This
+tool performs a local best-first search on the area of the Web satisfying the
+specified constraints.  The search employs the Salton (1980; 1991) algorithm
+for classifying documents according to keywords; a document score is computed
+by summing normalized frequency counts for the keywords.  The algorithm is
+quite simple, as follows:  given a URI, the corresponding document is scored
+(if text) and returned if the score is above a threshold.  Then, a score is
+computed for all of the documents pointed to by links in the current document.
+These scores are used to order the links for traversal.  The process then
+continues until the applicable section of Web-space is exhausted (typically by
+a constraint on the depth of the search).</p>
+
+<center>
+<a name="figure-3">
+<table>
+<tr><td><img src="search-form.gif" BORDER=3></td></tr>
+<CAPTION ALIGN="top"><b>Figure 3:</b> Form to specify a Salton-style search over a Web region.</caption>
+</table>
+</center>
+
+<p>One of the most important aspects to note about this application is the
+relative ease with which it was developed.  Leveraging the substrate provided
+by the CL-HTTP server and the elegant constraint structure of the walker
+described herein, the code for this application is minimal beyond the actual
+scoring code and some pretty-printing to provide a forms interface (see
+figures below).  Using this substrate, it should be clear that arbitrary
+search methodologies employing arbitrary document scoring algorithms can be
+implemented rapidly and easily.</p>
+
+
+<center>
+<a name="figure-4">
+<table>
+<tr><td><img src="search-results.gif" BORDER=3></td></tr>
+<CAPTION ALIGN="top"><b>Figure 4:</b> Client displays results of a Salton-style search over a Web region.</caption>
+</table>
+</center>
+
+<p>Later improvements to this application will enable better scoring
+techniques than the Salton algorithm as well as improving on the search
+control; because the descent sorting is local, the current algorithm presumes
+a fairly high degree of informational coherence on the site(s) being walked.
+It would be better to sort the links for descent based on the score of the
+branch of the walk tree that link belongs to; a global best-first search.</p>
+
+
+<h3><li> Web Archiver</h3>
+
+<p>The W4 Constraint-Guided Web-Walker can be configured for use as a
+World-Wide Web archiving tool.  When the walker processes a node, the archiver
+stores the URI content on the local file-system, creating directories that
+mirror the URI hierarchy.  HTML documents are passed through a parser that
+remaps hyperlink information to the file-system, allowing the user to navigate
+the structure with a conventional web browser.  Hyperlinks pointing to URIs on
+other hosts are preserved, allowing a seamless transition back to the web when
+a resource is not mirrored locally.</p>
+
+<p>The archiver activity is guided by a fairly simple set of constraints,
+consisting of a URI-host, allowed content-types and a maximum depth.  When
+mirroring a subtree on a large site, a maximum depth setting is important
+since documents often reference the top node of a site.  Given an initial
+pathname on the local file-system, the archiver creates a directory whose name
+is a unique representation for the target host.  The URI hierarchy is then
+mirrored beneath this directory.</p>
+
+<p>The data from a cached HTML document is passed through a stream-based
+parser/remapper before being output to disk.  If a BASE element is found, its
+original value is stored and a local file pathname put in its place.  If no
+BASE reference exists, one is created.  Since most browsers fail to correctly
+parse a file reference in a BASE element, the pathname can only be specified
+up to the directory representing the remote host.  Any path information from
+the original BASE element must be added to each individual hyperlink
+reference.  If an absolute URI reference points to a location on the host
+being walked, it is parsed to a relative URI.  If it points to a location on
+another host, the full URI is retained.  Once the BASE element and all
+hyperlink references have been remapped in this manner, an HTTP browser can
+successfully navigate the file structure on disk.</p>
+
+<p>An archiving walker has several immediate applications:</p>
+
+<p><ul>
+
+<p><li><b>Resource Retrieval:</b>The archiver can be configured to fetch
+particular types of resources from a host, such as images or audio files.</p>
+
+<p><li><b>Disconnected Web for Mobile Computing:</b> The archiver provides the
+ability to archive a region of the web, and then, browse it while disconnected
+from the network.The archiver maintains a hash-table of document headers, so
+that individual documents can be refreshed as needed when a network connection
+is reestablished.</p>
+
+<p><li><b>Historical Snapshots:</b> Another application is historical
+archiving of web sites.  This is especially important for transient sites,
+such as those containing political information or pertaining to a particular
+event, as well as sites with a high turn-over.</p>
+
+<p><li><b>Asynchronous Notification:</b> By observing changes in resource
+modification dates and comparing sources to an archived copy, the archiver
+could also provide an altering service for resources of interest.
+
+</ul></p>
+
+</ol>
+
+<h2><li>Future Work</h2>
+
+<p>The present implementation lacks a number of desirable features that will
+be incorporated over the coming months.</p>
+
+<p><ul>
+
+<p><li> <b>Search Control:</b> Activities will be able to select and fully
+customize the search process used to expand the Web structure.</p>
+
+<p><li> <b>HTTP 1.1 Compatibility:</b> The base client will be enhanced to
+support persistent connections and other aspects of HTTP 1.1 that improve
+performance and reduce consumption of network resources.</p>
+
+<p><li> <b>Multi-Threading:</b> Activities will be able to specify regimes to
+partition the search space among several cooperating threads.</p>
+
+<p><li> <b>Robust Operation:</b> The network is an unreliable place and there
+are many HTTP implementations of dubious quality, not to mention bad HTML.
+Exception handling will be extended to make W4 robust in the face of
+ubiquitous error.</p>
+
+<p><li> <b>Libraries:</b> As the user community develops, we hope that shared
+constraints and actions can be collected and distributed with W4.</p>
+
+</ul></p>
+
+<h2><li>Conclusions</h2>
+
+<p>A flexible constraint-posting architecture for graph walking from the field
+of knowledge representation has been transferred to the domain of Web walking.
+The architecture defines an interpreter that accepts declarative constraint
+formulae which it uses to filter URIs to which declarative actions are
+applied. The constraint abstraction makes possible sorting of constraints
+according to their computational efficiency. This not only allows the Web
+walker to proceed at a faster pace, but more importantly, it allows irrelevant
+structure to be ignored.  Declarative actions allow multiple tasks to be
+performed in single walks, which thereby reduces utilization of network
+resources. Both constraints and actions can be collected in named activities
+that can be recalled when needed again.
+
+<p>W4 provides an environment for creating and reusing abstractions that
+describe regions of the World Wide Web and perform actions over them.  The
+initial vocabulary provided with W4 can be extended to support intelligent
+agents performing resource discovery on the Web.
+
+<h2><li> Availability</h2>
+
+<p>The present implementation is about 3000 lines of Common Lisp code, not
+including the applications.  It runs on the same platforms as the Common Lisp
+Web Server.  The source code will be distributed with the web server in future
+releases.
+
+<h2><li><A name="acknowledgments">Acknowledgments</A></h2>
+
+<p>This paper was improved by comments from Sue Felshin, and Mark Nahabedian.
+The Web walker was designed and implemented by John C. Mallery.  Andrew
+Blumberg designed and implemented the Salton-style search application.
+Christopher R.  Vincent designed and implemented the Web Archiving
+application.
+
+<p>This paper describes research done at the Artificial Intelligence Laboratory
+of the Massachusetts Institute of Technology.  Support for the M.I.T.
+Artificial Intelligence Laboratory's artificial intelligence research is
+provided in part by the <A HREF="http://www.darpa.mil/">Defense Advanced
+Research Projects Agency</A> of the Department of Defense under contract
+number MDA972-93-1-003N7.
+
+<h2><li>References</h2>
+
+<p>Berners-Lee, T., ``Universal Resource Identifiers in WWW: A Unifying
+Syntax for the Expression of Names and Addresses of Objects on the Network as
+used in the World-Wide Web,'' IETF RFC 1630, CERN, June 1994.
+
+<p>Berners-Lee, T., D. Connelly, ``<a
+href="http://www.w3.org/pub/WWW/MarkUp/Bibliography">Hypertext Markup Language
+- 2.0</a>,'' draft IETF RFC, M.I.T. Laboratory for Computer Science, September
+22, 1995.
+
+<p>Berners-Lee, T., L. Masinter, M. McCahill, ``Uniform Resource Locators
+(URL),'' IETF RFC 1738, CERN, Xerox PARC, University of Minnesota, December
+1994.
+
+<p>Fielding, R., H. Frystyk, T. Berners-Lee, J. Gettys, J. C. Mogul, ``<a
+href="http://www.w3.org/pub/WWW/Protocols/">Hypertext Transfer Protocol --
+HTTP/1.1</a>,'' draft IETF RFC, M.I.T. Laboratory for Computer Science, April 22,
+1996.
+
+<p>Koster, Martijn, ``World Wide Web Robots, Wanderers, and Spiders,''
+hypertext page on Web walkers at: <a
+href="http://info.webcrawler.com/mak/projects/robots.html">http://info.webcrawler.com/mak/projects/robots.html</a>.
+
+<p>Mallery, J. C., ``<a
+href="http://www.ai.mit.edu/people/jcma/papers/1991-aiip/raiip3.html">
+Semantic Content Analysis: A New Methodolology for the RELATUS Natural
+Language Environment</a>,'' in V. M. Hudson, ed., <i>Artificial Intelligence
+and International Politics</i>, Boulder: Westview Press, 1991:  347-385.</p>
+
+<p>Mallery, J. C., ``<a
+href="http://www.ai.mit.edu/projects/iiip/doc/CL-HTTP/server-abstract.html"> A
+Common Lisp Hypermedia Server</a>,'' <I><A
+href="http://www1.cern.ch/WWW94/finalProgramme.html">Proceedings of The First
+International Conference on The World-Wide Web</A></I>, Geneva:  CERN, May 25,
+1994.
+
+<p> Salton, G., ``Automatic Information Retrieval,'' <i>Computer</i>, 1980, 13
+(5): 41-57.</p>
+
+<p>Salton, G., ``Developments in Automatic Text Retrieval,'' <i>Science</i>,
+1991, 253: 974-980.</p>
+
+<h2><li>Appendices</h2>
+
+<p>These appendices describe the series of constraints and actions that have
+been defined for W4 and used in some examples described in this paper. Each
+entry gives the name of the constraint or action, its type in square brackets,
+and any arguments that it accepts.</p>
+
+<dl>
+
+<h3>A. Predefined Constraints</h3>
+
+<dl>
+
+<dt><B>And</B> <i>[Circumstance-Constraint]:</i> <code>(&amp;REST CONSTRAINTS)</code>
+<dd>Succeeds if all of its arguments succeed, otherwise fails.
+The arguments are any number of constraints or constraint sets and are
+evaluated left to right.
+
+
+<dt><B>Depth</B> <i>[Context-Constraint]:</i> <code>(DEPTH)</code>
+<dd>Succeeds while recursive Web walking is less than or equal to DEPTH.
+
+<dt><B>Header-Content-Length</B> <i>[Header-Constraint]:</i> <code>(COMPARATOR SIZE)</code>
+<dd>Applies COMPARATOR to the CONTENT-LENGTH and SIZE.
+COMPARATOR must be prepared to handle a null CONTENT-LENGTH.
+
+
+<dt><B>Header-Content-Length-Upto</B> <i>[Header-Constraint]:</i> <code>(SIZE &amp;OPTIONAL (DEFAULT T))</code>
+<dd>Succeeds if the content-length is less than or equal to SIZE.
+When content-length is unavailable, it succeeds when DEFAULT is non-null, otherwise fails.
+
+
+<dt><B>Header-Content-Type</B> <i>[Header-Constraint]:</i> <code>(CONTENT-TYPE-SPEC)</code>
+<dd>Succeeds when the content type for the resource matches CONTENT-TYPE-SPEC.
+Returns NIL if the CONTENT-TYPE is not available.
+
+<dt><B>Header-Expires</B> <i>[Header-Constraint]:</i> <code>(COMPARATOR UNIVERSAL-TIME)</code>
+<dd>Applies COMPARATOR to the EXPIRES date and UNIVERSAL-TIME.
+Returns NIL if the EXPIRES is not available.
+
+
+<dt><B>Header-Last-Modified</B> <i>[Header-Constraint]:</i> <code>(COMPARATOR UNIVERSAL-TIME)</code>
+<dd>Applies COMPARATOR to the LAST-MODIFIED date and UNIVERSAL-TIME.
+Returns NIL if LAST-MODIFIED is not available. COMPARATOR is a Lisp function.
+
+
+<dt><B>Header-Satisfies</B> <i>[Header-Constraint]:</i> <code>(HEADER-KEYWORD PREDICATE)</code>
+<dd>Applies PREDICATE to the parsed value of header-keyword
+and whether the header was available.
+
+
+<dt><B>Header-Resource-Age</B> <i>[Header-Constraint]:</i> <code>(MINIMUM MAXIMUM)</code>
+<dd>Succeeds when the resource age is between <code>(or equal to)</code> MINIMUM and MAXIMUM.
+Fails if LAST-MODIFIED header is not available. MINIMUM and MAXIMUM are universal times.
+
+
+<dt><B>Header-Robots-Allowed</B> <i>[Header-Constraint]:</i> <code>()</code>
+<dd>Succeeds when robots are allowed on the host in URI.
+
+
+<dt><B>Header-Server</B> <i>[Header-Constraint]:</i> <code>(PREDICATE)</code>
+<dd>Applies PREDICATE to the SERVER header.
+Returns NIL if the SERVER is not available.
+
+
+<dt><B>If</B> <i>[Circumstance-Constraint]:</i> <code>(ANTECEDENT CONSEQUENT ALTERNATE)</code>
+<dd>This constraint allows conditional branching
+in the constraint structure. If ANTECEDENT succeeds, CONSEQUENT is applied,
+otherwise ALTERNATE is applied. The success or failure of CONSEQUENT or
+ALTERNATE determine the overall success or failure of the expression.
+Each of these components can be either a single constraint or a constraint set.
+
+
+<dt><B>No-Cycles</B> <i>[URI-Constraint]:</i> <code>()</code> <dd>Succeeds for
+URIs that have not been walked during the current activity.
+
+
+<dt><B>Not</B> <i>[Circumstance-Constraint]:</i> <code>(CONSTRAINT-SET-OR-CONSTRAINT)</code>
+<dd>Succeeds if its argument, a constraint or constraint-set, fails.
+
+<dt><B>Or</B> <i>[Circumstance-Constraint]:</i> <code>(&amp;REST CONSTRAINTS)</code>
+<dd>Succeeds if any of its arguments succeed, otherwise fails.
+The arguments are any combination of constraints or constraint sets. They are
+evaluated left to right.
+
+
+<dt><B>Resource-Satisfies</B> <i>[HTML-Body-Constraint]:</i> <code>(PREDICATE)</code>
+<dd>Applies PREDICATE to the body of an HTML resource.
+
+<dt><B>Resource-Search</B> <i>[HTML-Body-Constraint]:</i> <code>(SUBSTRING)</code>
+<dd>Succeeds when SUBSTRING is found in the content of resource.
+Fails if the content is not text. This is case insensitive.
+
+
+<dt><B>URI-Class</B> <i>[URI-Constraint]:</i> <code>(CLASS)</code>
+<dd>Succeeds when the URI is of class of a URI. Class is the object class for
+the URI scheme.
+
+<dt><B>URI-Directory-Path</B> <i>[URI-Constraint]:</i>
+<code>(DIRECTORY-PATH)</code> <dd>Succeeds when the URI directory components
+are exactly the same as DIRECTORY-PATH.  DIRECTORY-PATH is a list of directory
+components.  This is case insensitive.
+
+
+<dt><B>URI-Extension</B> <i>[URI-Constraint]:</i> <code>(EXTENSION)</code>
+<dd>Succeeds when extension component of URI is EXTENSION.
+Fails for URIs that are not objects, e.g., paths.  This is case insensitive.
+
+
+<dt><B>URI-Host</B> <i>[DNS-URI-Constraint]:</i> <code>(HOST)</code>
+<dd>Succeeds when the URI refers to the host HOST.
+HOST can be a list of primary HOST domain names.
+
+
+<dt><B>URI-Name</B> <i>[URI-Constraint]:</i> <code>(NAME)</code> <dd>Succeeds
+when name component of URI is NAME.  Fails for URIs that are not objects,
+e.g., paths.  This is case insensitive.
+
+
+<dt><B>URI-Parent-Subsumed-By-Directory-Path</B> <i>[URI-Constraint]:</i> <code>(DIRECTORY-PATH)</code>
+<dd>Succeeds when the directory components of the URI's parent are subsumed by DIRECTORY-PATH.
+DIRECTORY-PATH is a list of directory components.
+
+
+<dt><B>URI-Port</B> <i>[URI-Constraint]:</i> <code>(PORT)</code> <dd>Succeeds
+when the URI refers to the port PORT.  PORT can be a list of port numbers.
+
+
+<dt><B>URI-Referrer-Host</B> <i>[Dns-URI-Constraint]:</i> <code>(HOST)</code>
+<dd>Succeeds when the parent URI that refers to URI refers to the host HOST.
+HOST can be a list of primary HOST domain names.
+
+
+<dt><B>URI-Satisfies</B> <i>[URI-Constraint]:</i> <code>(PREDICATE)</code>
+<dd>Applies PREDICATE to the URI object.
+
+
+<dt><B>URI-Scheme</B> <i>[URI-Constraint]:</i> <code>(SCHEME)</code>
+<dd>Succeeds when the URI refers to the scheme SCHEME.  SCHEME can be a list
+of URI schemes.
+
+
+<dt><B>URI-Search</B> <i>[URI-Constraint]:</i> <code>(SUBSTRING)</code>
+<dd>Succeeds when SUBSTRING is found anywhere 
+in the fully qualified URI namestring. This is case insensitive.
+
+
+<dt><B>URI-Subsumed-By-Directory-Path</B> <i>[URI-Constraint]:</i> <code>(DIRECTORY-PATH)</code>
+<dd>Succeeds when the URI directory components are subsumed by DIRECTORY-PATH.
+DIRECTORY-PATH is a list of directory components.  This is case insensitive.
+
+</dl>
+
+<h3>B. Predefined Actions</h3>
+
+<dl>
+
+
+<dt><B>HTML-Enumerating-Item</B> <i>[Encapsulating-Action]:</i> <code>(STREAM)</code>
+<dd>An action that wraps a single enumeration of an item on STREAM.
+
+
+<dt><B>HTML-Force-Output</B> <i>[Action]:</i> <code>(STREAM)</code>
+<dd>Forces output on an HTML stream.
+
+
+<dt><B>HTML-Show-URI-Overview</B> <i>[Action]:</i> <code>(STREAM)</code>
+<dd>An action that overviews the URI in HTML on STREAM.
+
+
+<dt><B>HTML-Trace</B> <i>[Action]:</i> <code>(STREAM)</code>
+<dd>An action that traces the activity of the Web walker 
+and outputs HTML on STREAM.
+
+
+<dt><B>HTML-With-Enumeration</B> <i>[Encapsulating-Action]:</i> <code>(STREAM STYLE)</code>
+<dd>An action that wraps the enumeration of items on STREAM according to STYLE.
+STYLE can be :ENUMERATE :ITEMIZE :PLAIN :MENU :DIRECTORY :DEFINITION
+
+
+<dt><B>HTML-With-Paragraph</B> <i>[Encapsulating-Action]:</i> <code>(STREAM)</code>
+<dd>An action that delimits the output of actions it surrounds as a paragraph.
+
+<dt><B>HTML-Write-Headers</B> <i>[Action]:</i> <code>(STREAM)</code>
+<dd>Write the headers formatted verbatim.
+
+
+<dt><B>Salton-Check-URI</B> <i>[Action]:</i> <code>(THRESHOLD WORDS WEIGHTS STREAM)</code>
+<dd>Action for returning a node if its score is above the threshold.
+
+
+<dt><B>Trace</B> <i>[Action]:</i> <code>()</code>
+<dd>An action that traces the activity of the Web walker.
+
+
+<dt><B>Trace-Headers</B> <i>[Action]:</i> <code>()</code>
+<dd>An action that traces the headers of URI accessed by the Web walker.
+
+
+<dt><B>Walk-Inferiors</B> <i>[Action]:</i> <code>()</code>
+<dd>Primary action for walking the inferiors of a URI.
+
+
+<dt><B>Walk-Salton-Sorted-Inferiors</B> <i>[Action]:</i> <code>(WORDS WEIGHTS)</code>
+<dd>Walks sorted inferiors.
+
+
+<dt><B>Walk-Sorted-Inferiors</B> <i>[Action]:</i> <code>(PREDICATE)</code>
+<dd>Primary action for walking the inferiors of a URI.
+
+</dl>
+</dl>
+</ol>
+
+</body></html>

@@ -1,0 +1,159 @@
+<html>
+
+<head>
+
+<title> Basic Authentication Example </title>
+
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+
+<h1> Basic Authentication Example </h1>
+
+<p><img src="/cl-http/icons/line-rain.gif"></p>
+
+<p>
+
+This example defines users, groups, and realms within the basic authentication
+scheme for HTTP.  Read the code below before trying this examples so that you
+will know the necessary users, passwords, and groups.
+
+<ul>
+<li><a href= "/cl-http/authentication/minimum.html">minimum.html</a>
+    is available to the :users group in the :minimum-security realm.
+
+<li><a href= "/cl-http/authentication/minimum-developers.html">minimum-developers.html</a>
+    is available to the :developers group in the :minimum-security realm.
+
+<li><a href= "/cl-http/authentication/minimum-frank.html">minimum-frank.html</a>
+    is available to the user "frank" in the :minimum-security realm.
+
+<li><a href= "/cl-http/authentication/system-hackers.html">system-hackers.html</a>
+    is available to the :system-hackers group in the :system-admin realm.
+
+</ul>
+
+</p>
+
+<hr>
+
+<p>
+
+<b> The above example is defined in <a href="/cl-http/sources/examples/exports.lisp">
+http:examples;exports.lisp</a> by the following LISP code: </b>
+
+<code><pre>(in-package :http-user)
+
+;; Call DEFINE-ACCESS-CONTROL-REALMS in your configuration.lisp file.
+;; ADD-REALM is used here to avoid clobbering existing authentication realms
+
+(add-realm :minimum-security  :basic)
+(add-realm :system-admin  :basic)
+
+;; Some groups within realms must be created before references are made to
+;; them in user objects.
+
+(add-groups :minimum-security :users :developers)
+(add-group :system-admin :system-hackers)
+
+;; Set up a number of users, assigning realms and groups
+(add-user "ernest" :minimum-security
+          :password "ernest-foo"
+          :groups '(:users)
+          :personal-name "Ernest Jones"
+          :email-address "ernest@foo.com")
+
+(add-user "jim" :minimum-security
+          :password "jim-foo"
+          :groups '(:developers :users)
+          :personal-name "Jim Thompson"
+          :email-address "jim@foo.com")
+
+(add-user "frank" :minimum-security
+          :password "frank-foo"
+          :groups '(:developers :users)
+          :personal-name "Frank Smith"
+          :email-address "frank@foo.com")
+
+(add-user "luke" :system-admin
+          :password "luke-foo"
+          :groups '(:system-hackers)
+          :personal-name "Luke Miller"
+          :email-address "luke@foo.com")
+
+;; Define some capabilities
+
+;; A set of capabilities giving the :developers group basic access
+(add-access-control-group :minimum-security-developers
+		 :minimum-security
+		 :capabilities '((:get :developers)
+				 (:head :developers)
+				 (:post :developers)))
+  
+
+;; A set of capabilities allowing anyone named "frank" to do everything but delete or unlink. 
+(add-access-control-group :minimum-security-frank-capabilities
+		 :minimum-security
+		 :capabilities '((:delete)	;frank can't delete URLs
+				 (:default "frank")))
+
+;; Export some access-controlled urls
+(export-url #u"/cl-http/authentication/minimum.html"
+            :html-computed
+            :response-function #'display-url-authentication-status
+            :authentication-realm :minimum-security
+            :capabilities nil   ;;no capabilities means anyone in the realm has access
+            :expiration '(:no-expiration-header)
+            :keywords '(:cl-http :authentication :demo))
+
+(export-url #u"/cl-http/authentication/minimum-developers.html"
+            :html-computed
+            :response-function #'display-url-authentication-status
+            :authentication-realm :minimum-security
+	    ;; the keyword denotes a access-control group created earlier
+            :capabilities :minimum-security-developers
+            :expiration '(:no-expiration-header)
+            :keywords '(:cl-http :authentication :demo))
+
+(export-url #u"/cl-http/authentication/minimum-frank.html"
+            :html-computed
+            :response-function #'display-url-authentication-status
+            :authentication-realm :minimum-security
+	    ;; the keyword denotes a access-control group created earlier
+            :capabilities :minimum-security-frank-capabilities
+            :expiration '(:no-expiration-header)
+            :keywords '(:cl-http :authentication :demo))
+
+(export-url #u"/cl-http/authentication/system-hackers.html"
+            :html-computed
+            :response-function #'display-url-authentication-status
+            :authentication-realm :system-admin
+	    ;; Method capabilties suitable for add-access-control-group are
+	    ;; passed in directly.
+            :capabilities '((:default :system-hackers))  ;;system-hackers do everything
+            :expiration '(:no-expiration-header)
+            :keywords '(:cl-http :authentication :demo))
+</pre></code>
+
+</p>
+
+<p>
+<a href= "/cl-http/authentication/authentication.html">Back to CL-HTTP Authentication</a>
+</p>
+
+
+<p><img src="/cl-http/icons/line-rain.gif"></p>
+
+<address>
+
+<a href= "http://web.mit.edu/cvince/"> Christopher R. Vincent </a> --
+<a href= "mailto:cvince@ai.mit.edu"> cvince@ai.mit.edu </a> <br>
+<a href= "http://web.mit.edu/"> M.I.T. </a> 
+<a href= "http://www.ai.mit.edu/"> Artificial Intelligence Laboratory </a> 
+
+</address>
+
+
+</body>
+
+</html>

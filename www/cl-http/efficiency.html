@@ -1,0 +1,129 @@
+<html>
+<head>
+<title>Heuristics for Efficiently Computing HTTP Responses</title>
+
+</head>
+<body bgcolor="#FFFFFF" text="#000000">
+
+<h1><img src="/cl-http/icons/construction.gif" align="left"> Heuristics for Efficiently Computing HTTP Responses</h1>
+
+<p><img src="/cl-http/icons/line-rain.gif"></p>
+
+<p> The efficiency of your Common Lisp Web application depends on how
+you write the functions that compute responses to HTTP requests.
+CL-HTTP has been designed to run efficiently even as it preserves
+abstractions that enhance intelligibility and extensibility.  But, this
+cannot compensate for how you compute responses or generate HTML on the
+fly. Below are a series of heuristics that will help you write Lisp code
+that runs fast without sacrificing the power and flexibility of
+LISP.</p>
+
+<p>In general, there is a trade off between program abstraction,
+efficiency, and portability across hardware platforms as well as LISP
+releases. For this reason, one must always weigh whether a small
+increment in performance today is worth the price of undoing it later
+when you want to run the code under different circumstances. Always
+prefer abstraction and portability, unless efficiency needs are
+paramount and optimizations are true.</p>
+
+<p>These heuristics are arranged in descending order of importance.</p>
+
+<b>
+<ol>
+
+<p><li> Come up with efficient algorithms (logarithmic or better) in
+the first place.</p>
+
+<p><li> Minimize unnecessary consing by using destructive operators
+and copying datastructures only when necessary.</p>
+
+<p><li> Meter your code because this is the only way to really find
+out where it is spending its time.  (See the Common Lisp TIME
+function)</p>
+
+<p><li> Understand what your program is actually computing based on your
+reading of the LISP manual.</p>
+
+<p><li> Avoid serializing threads responding to requests because of a
+shared resource.</p>
+
+<p><li> Avoid unnecessary disk accesses because moving parts are slow,
+which means get lots of physical memory and turn off virtual memory
+where possible.</p>
+
+<p><li> Turn on the ephemeral garbage collector so that short-lived
+garbage is reclaimed before being swapped out to disk.</p>
+
+<p><li> Use the LOOP iteration macro and especially the iteration
+paths like COLLECT, APPEND, NCONC because these expand into very
+efficient code. </p>
+
+<p><li> Declare all numeric operations to death so that you don't wind
+up doing bignum arithmetic all the time (not necessary on a Lisp
+Machine).</p>
+
+<p><li> Don't use FORMAT because it incurs to much overhead parsing the
+control string.</p>
+
+<p><li> Use resources to recycle datastructures rather than consing new ones,
+unless the allocation/deallocation overhead is more expensive than merely
+creating new structures each time.</p>
+
+<p><li> Minimize calls to generic functions in the critical path,
+except where method specialization enhances abstraction.</p>
+
+<p><li> Maybe prefer WITH-SLOTS and SLOT-VALUE over slot accessors which
+are generic functions and use fast slot accessors when available.
+Beware that in some implementations, the situation is reversed and
+generic function accessors wind up faster than WITH-SLOTS or
+SLOT-VALUE.</p>
+
+<p><li> Reduce the number of function calls by inlining small abstractions in
+the inner most loop, but avoid bloating the working set.  In general, one
+needs metering tools to determine when this is appropriate because it is
+usually not intuitive.  </p>
+
+<p><li> Prefer iteration over recursion, except when a computation is
+inherently recursive, because it reduces the number of function
+calls.</p>
+
+<p><li> Use the DYNAMIC-EXTENT declaration on local variables bound by
+a LET to inform the compiler that temporary datastructures can be
+deallocated on exit from the scope of the LET (stack consing).</p>
+
+<p><li> Prefer FLETed local functions to anonymous LAMBDAs which can
+refer to lexical variables yet allow the closure to be consed on the
+stack rather than the heap.
+
+<p> <li> Map functions over sequences or lists rather than creating a
+new list. Either explicitly pass in all arguments to the LAMBDA or make
+it an FLETed named function with DYNAMIC-EXTENT declared.</p>
+
+<p><li> Inline local functions like those defined by FLET in order to
+eliminate excess function calls while capturing a local cliche.</p>
+
+<p><li> Pass in positional arguments to sequence operations when
+available in the local context rather than forcing their recomputation
+as default values are assigned.
+
+<p><li> Minimize use of keyword arguments in frequently called functions (but
+not macros or inline functions) in order to avoid the runtime overhead of
+processing the keyword arguments.</p>
+
+<p><li> Keep the numbers of arguments passed to inner loop functions
+down in order to reduce overhead of pushing them onto the stack. Many
+Common Lisps handle the first four arguments very efficiently.</p>
+
+</ol>
+
+</b>
+
+<p>If you have comments on these heuristics or reorderings, please let us know
+at <a href="mailto:bug-cl-http@ai.mit.edu">bug-cl-http@ai.mit.edu</a></p>
+
+<p><img src="/cl-http/icons/line-rain.gif"></p>
+<address><a href="http://www.ai.mit.edu/people/jcma/jcma.html">John C. Mallery</a> -- <a
+href="mailto:jcma@ai.mit.edu">jcma@ai.mit.edu</a><br><a
+href="http://web.mit.edu/">M.I.T.</a> <a href="http://www.ai.mit.edu/">Artificial
+Intelligence Laboratory</a> </address>
+ </body> </html>

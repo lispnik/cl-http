@@ -1,0 +1,52 @@
+
+== Building and running cl-http on acl 5.0.1 ==
+
+Instructions for building cl-http on acl5.0.1 can now be
+found in  ../www/cl-http/configure-acl501.html
+
+
+
+
+
+================= patches =============
+
+We've tried to put all the acl501 changes in one directory but
+there is one change to the common source which should be done:
+
+
+
+---- Change 1:
+ why: if an error (such as a tcp disconnect) occurs before 
+      the request is read the server request time won't be set in the
+      object, so it's important to use a function (server-request-time)
+      that knows how to deal with a time not yet given.
+
+ note: this change was submitted for consideration on 10/8/99 so it
+      (or a better fix) may already be in the source.
+
+in server/server.lisp
+
+change this:
+
+(defun %server-write-common-logfile-entry (server log-stream gmt-p delimiter)
+  (with-slots (host request request-time status stream) server
+    (let ((bytes (www-utils:bytes-transmitted stream))  ;total bytes (not number of bytes in a document)
+          (host-name (host-log-name server))
+          (user-name (%server-user-qualified-name server)))
+      (%write-common-logfile-entry host-name request request-time status bytes user-name gmt-p log-stream delimiter))))
+
+
+to this:
+
+(defun %server-write-common-logfile-entry (server log-stream gmt-p delimiter)
+  (with-slots (host request status stream) server
+    (let ((bytes (www-utils:bytes-transmitted stream))  ;total bytes (not number of bytes in a document)
+          (host-name (host-log-name server))
+          (user-name (%server-user-qualified-name server)))
+      (%write-common-logfile-entry host-name request 
+                                (server-request-time server)
+				status bytes user-name gmt-p log-stream delimiter))))
+    
+
+    
+

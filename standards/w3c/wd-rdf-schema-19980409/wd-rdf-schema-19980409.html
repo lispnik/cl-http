@@ -1,0 +1,1149 @@
+<HTML>
+<HEAD>
+   <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+   <META NAME="Author" CONTENT="Dan Brickley, R.V. Guha, Andrew Layman">
+   <META NAME="GENERATOR" CONTENT="Mozilla/4.05 (Macintosh; I; PPC) [Netscape]">
+   <TITLE>Resource Description Framework (RDF) Schemas</TITLE>
+</HEAD>
+<BODY>
+
+<DIV ALIGN=right>
+<H2>
+<A HREF="http://www.w3.org/"><IMG SRC="w3c_home.gif" ALT="W3C" BORDER=0  ALIGN=LEFT></A>
+WD-rdf-schema-19980409</H2></DIV>
+&nbsp;
+<CENTER>
+<H1>
+Resource Description Framework<BR>
+(RDF) Schemas</H1></CENTER>
+
+<CENTER>
+<H3>
+W3C Working Draft 9 April 1998</H3></CENTER>
+
+<DL>
+<DT>
+This Version:</DT>
+
+<DD>
+<A HREF="http://www.w3.org/TR/1998/WD-rdf-schema-19980409">http://www.w3.org/TR/1998/WD-rdf-schema-19980409</A></DD>
+
+<DT>
+Latest Version:</DT>
+
+<DD>
+<A HREF="http://www.w3.org/TR/WD-rdf-schema">http://www.w3.org/TR/WD-rdf-schema</A></DD>
+
+<DT>
+Previous Version:</DT>
+
+<DD>
+(none)</DD>
+
+<DT>
+Editors:</DT>
+
+<DD>
+Dan Brickley, University of Bristol</DD>
+
+<DD>
+R.V. Guha, Netscape</DD>
+
+<DD>
+Andrew Layman, Microsoft</DD>
+</DL>
+<A HREF="#ack">Acknowledgements</A>
+<BR><FONT SIZE=-1><A HREF="http://www.w3.org/Consortium/Legal/ipr-notice.html#Copyright">Copyright</A>
+&copy;1998 <A HREF="http://www.w3.org">W3C</A> (<A HREF="http://www.lcs.mit.edu">MIT</A>,
+<A HREF="http://www.inria.fr/">INRIA</A>, <A HREF="http://www.keio.ac.jp/">Keio</A>)
+, All Rights Reserved. W3C <A HREF="http://www.w3.org/Consortium/Legal/ipr-notice.html#LegalDisclaimer">liability,</A>
+<A HREF="http://www.w3.org/Consortium/Legal/ipr-notice.html#W3CTrademarks">trademark</A>,
+<A HREF="http://www.w3.org/Consortium/Legal/copyright-documents.html">document
+use</A> and <A HREF="http://www.w3.org/Consortium/Legal/copyright-software.html">software
+licensing</A> rules apply.</FONT>
+<H2>
+Status of this document</H2>
+This draft document is a work in progress. It represents the deliberations
+of the W3C RDF Schema Working Group as of the date it was issued. The Working
+Group has not reached full consensus on all parts of this draft and is
+continuing to refine this document; we are issuing this document to solicit
+comments on our progress. We especially call the reader's attention to
+Appendix C ("Open Issues").
+
+<P>The Resource Description Framework is part of the <A HREF="http://www.w3.org/Metadata/">W3C
+Metadata Activity</A>. The goal of this activity, and of RDF specifically,
+is to produce a language for the exchange of machine-understandable descriptions
+of resources on the Web. A separate specification describes the <A HREF="http://www.w3.org/TR/WD-rdf-syntax">data
+model and syntax</A> for the interchange of metadata using RDF.
+
+<P>Comments may be sent to <A HREF="mailto:www-rdf-comments@w3.org">www-rdf-comments@w3.org</A>.
+The public archive of these comments is available at <A HREF="http://lists.w3.org/Archives/Public/www-rdf-comments/">http://lists.w3.org/Archives/Public/www-rdf-comments/</A>
+
+<P><B>We strongly recommend that only experimental software be implemented
+to this document. It is our belief that this document does not sufficiently
+constrain implementations to guarantee interoperability. This Working Group
+will not allow early implementations to affect their ability to make substantial
+changes to future versions of this document.</B>
+
+<P>This is a draft document and may be updated, replaced or obsoleted by
+other documents at any time. It is inappropriate to use W3C Working Drafts
+as reference material or to cite them as other than "work in progress".
+
+<P><B>Note:</B> As working drafts are subject to frequent change, you are
+advised to reference the above URL for "Latest version" rather than the
+URLs for working draft versions themselves. The latest version URL will
+always point to the most current version of this draft.
+<BR>
+<HR WIDTH="100%">
+<H2>
+RDF Schemas</H2>
+
+<H3>
+1. Motivation and Scope</H3>
+The model described by this document uses RDF concepts to provide a basic
+schema for RDF.
+
+<P>An RDF schema is a collection of information about classes of RDF nodes,
+including properties and relations. This paper supplements the RDF Model
+and Syntax [<A HREF="#refs">RDFMS</A>] specification by providing a typing
+system: informally, it is a basic set of nodes and relations that can be
+used to express properties of classes of RDF nodes. It includes a facility
+to indicate that certain classes are subclasses of others, and provides
+a small number of basic classes. Finally, it contains a facility for specifying
+a small number of constraints such as the cardinality (number of occurences)
+required and permitted of properties of instances of classes.
+
+<P>This document does not define classes applying to specific application
+domains. For example, it does not define classes such as "Author" or "DigitalSignature."
+Instead, it provides a mechanism that can be used to define characteristics
+of such classes.
+
+<P>RDF schemas are specified using a declarative representation language
+influenced by ideas from knowledge representation, e.g., semantic nets,
+frames, and predicate logic, as well as database schema representation
+models such as binary relational models ([<A HREF="#refs">NIAM</A>], etc.)
+and graph data models. The RDF schema specification language is less expressive,
+but simpler, than full predicate calculus languages such as CycL [<A HREF="#refs">CycL</A>]
+and KIF [<A HREF="#refs">KIF</A>].
+<H4>
+1.1 The Scope</H4>
+RDF Schemas aim, not at theoretical issues, but at solving a small number
+of immediate problems. Its creators expect that other problems (listed
+in the appendix) will share similar characteristics and that they also
+may be able to use the basic classes described in this paper.
+
+<P>This paper was directly influenced by consideration of the following
+problems:
+<DL>
+<DT>
+1. <B>PICS</B></DT>
+
+
+<P>The RDF Model and Syntax is adequate to represent most of PICS [<A HREF="#refs">PICS</A>],
+however, it requires augmentation by features such as the ability to specify
+a default rating for any page with a certain URL prefix. This draft does
+not yet provide such a mechanism.
+<DT>
+2. <B>Simple Web Metadata</B></DT>
+
+
+<P>One obvious application for RDF is in the description of web pages.
+This is one of the basic functions of the Dublin Core [<A HREF="#refs">DC</A>]
+initiative. The Dublin Core is a set of 15 elements believed to be broadly
+applicable to describing web resources to enable their discovery. The Dublin
+Core has been a major influence on the development of RDF. An important
+consideration in the development of the Dublin Core was to allow simple
+descriptions, but also to provide the ability to qualify descriptions in
+order to provide both domain specific elaboration and descriptive precision.
+
+<P>The RDF Schema mechanism proposed in this paper provides a machine-understandable
+system for defining 'schemas' for descriptive vocabularies like the Dublin
+Core. It allows designers to specify classes of Resource types, property
+types to convey descriptions of those classes, and constraints on the allowed
+combinations of classes, property types, and values.
+
+<P>An initial schema for the simple Dublin Core is provided in Appendix
+D. This schema defines the 15 elements as property types, and gives a description
+of their purpose. Despite the simplicity of the definition, it is believed
+that this schema serves as the foundation for more elaborate definitions.
+Future extensions are likely to specify the structure of the values of
+the properties, which will involve defining classes, the property types
+that apply to those classes, and some constraints on the property values.
+In order for browsers and authoring tools to understand and enforce these
+constraints, this information should be machine understandable. This document
+provides a machine understandable schema language for expressing such definitions
+and constraints.
+<DT>
+3. <B>Sitemaps and other such Navigation Tools</B></DT>
+
+
+<P>A sitemap is some kind of hierarchical description of a site. A subject
+taxonomy is a taxonomy such as that used by Yahoo!, Excite, etc. RDF Schemas
+aims to provide a mechanism by which sitemaps and taxonomies using the
+RDF Model can express the classes of nodes, properties, relations etc.
+they use.
+<DT>
+4. <B>P3P</B></DT>
+
+
+<P>The W3C Platform for Privacy Preferences Project (P3P) requires a grammar
+for constructing statements about a site's data collection practices, personal
+preferences as exercised over those practices, as well as a syntax for
+exchanging structured data. The ability for third party assurances (signed
+statements) regarding P3P practices is also important. For instance, entities
+may wish to certify that P3P practice statements were properly generated
+in accordance with industry guidelines, have been audited, or are compliant
+with the relevant privacy regulations.</DL>
+These problems have influenced the design of this first version of the
+RDF Schema. RDF is tailored for easy extensibility. If RDF succeeds, we
+expect that future versions of RDF will be more ambitious and include more
+problems in their design space.
+<H4>
+1.2 Specifying the Schema</H4>
+An RDF Schema can be expressed by the data model described in the RDF Model
+and Syntax [<A HREF="#refs">RDFMS</A>] document. The schema description
+language is simply a set of resources and property types defined by this
+paper and implicitly part of every RDF graph using this schema machinery.
+
+<P>For this release of the document, we have concentrated on identifying
+the set of RDF resources and property types and their relationships. We
+especially solicit comment on the understandability of the names we have
+chosen for these.
+<H3>
+2. The RDF Schema Core</H3>
+The following resources belong to the Core RDF Schema. We first define
+the type system and then introduce property types for expressing various
+kinds of constraints.
+<H4>
+2.1 The Type System</H4>
+The RDF Schema defined in this paper is a set of RDF resources and property
+types that can be used to describe classes of RDF nodes, including properties
+and relations. They are defined in a namespace informally called 'RDFS'
+here and which will be more formally defined and given a URI in the future.
+
+<P>As described in the RDF Model and Syntax paper, nodes may be RDF:instanceOf
+one or more classes. However, classes themselves are often used in a hierarchical
+fashion, for example considering the class 'dog' to be a subclass of 'animal,'
+which is a subclass of 'organism' etc., meaning that any node which is
+an RDF:instanceOf 'dog' is <I>ipso facto</I> an RDF:instanceOf 'animal'
+and so on. This paper describes a property type, RDFS:subClassOf, indicating
+such a relationship.
+
+<P>In addition to describing the RDFS:subClassOf relation between classes,
+this paper defines a small number of other resources and properties that
+express constraints on instances of classes, such things as statements
+that all instances of a class have certain properties or relations, limitations
+on the types of values that are valid for a property or relation, as well
+as the cardinality of those properties and relations. This paper gives
+a mechanism for describing such constraints, but does not say whether or
+how an application must process the constraint information. For example,
+while an RDF schema may express that a 'Book' may have an 'author' property,
+it does not say whether or how an application should act in processing
+that information. We expect that different applications will use these
+constraints in different ways. e.g., a validator will look for errors,
+an editor might suggest legal values.
+
+<P>We anticipate the development of a set of classes corresponding to a
+set of "datatypes." This paper does not define datatypes, but does note
+that datatypes may be used as the value of the RDFS:range property.
+<H4>
+2.2 Core Classes</H4>
+The following resources are core classes that are defined as part of the
+RDF Schema machinery. Every RDF graph (implicitly) includes these.
+
+<P><I>2.2.1 RDF:Resource</I>
+<BR>All resources, i.e., all the elements of the set N defined in section
+2.1 of the RDF Model and Syntax document, are instances of RDF:Resource.
+This roughly corresponds to the concept of <I>Object</I> in Java.
+
+<P><I>2.2.2 RDF:PropertyType</I>
+<BR>All the property types, i.e., all the elements of the set P defined
+in section 2.1 of the RDF Model and Syntax document, are instances of RDF:PropertyType.
+Conversely, every instance of RDF:PropertyType is an element of P.
+
+<P><I>2.2.3 RDFS:Class</I>
+<BR>This corresponds to the generic concept of a <I>Type</I> or <I>Category</I>.
+When a schema defines a new class, the node representing that class must
+have an RDF:instanceOf arc to this node. Classes can be defined to represent
+almost anything, such as web pages, people, cars, rabbits, and animals.
+<H4>
+2.3 Core PropertyTypes</H4>
+Every RDF graph also (implicitly) includes the following core property
+types. These are instances of the <I>PropertyType</I> class and provide
+a mechanism for expressing relationships between classes and their instances
+or superclasses.
+
+<P><I>2.3.1 RDF:instanceOf</I>
+<BR>This indicates that a resource is a member of a class, and thus has
+all the characteristics that are to be expected of a member of that class.
+It is a relation between a resource and another resource which must be
+an instance of <I>Class</I>. A resource may be an instance of more than
+one class.
+
+<P><I>2.2.2 RDFS:subClassOf</I>
+<BR>This indicates the subset/superset relation between classes. <I>RDFS:subClassOf</I>
+is transitive. If B is a sub-class of A and X is an instance of B, then
+X is also an instance of A. Only instances of <I>Class</I> can have this
+property type and the property value is always an <I>instanceOf</I> <I>Class</I>.
+A <I>Class</I> may be a <I>subClassOf</I> more than one <I>Class</I>.
+<H2>
+3. Constraints</H2>
+An RDF schema can declare constraints associated with classes and property
+types. Some examples of constraints include:
+<OL>
+<LI>
+That the value of a property should be a resource of a designated class.
+This is expressed by the <I>range</I> property type. For example, a range
+constraint applying to the 'author' property type may express that the
+value of an 'author' property must be a resource of class 'Person'.</LI>
+
+<LI>
+That the resource may have properties of a given property type. For example,
+that a resource of class 'Book' may have a property of type 'author'. This
+is expressed using the <I>allowedPropertyType</I> property type. This constraint
+allows one -- in effect -- to implement domain-constraints for property
+types.</LI>
+
+<LI>
+The cardinality of a property type, that is, the number of properties of
+a given type that a resource may have. This is described by the <I>necessity</I>
+property type. For example, it may express that any given resource may
+have at most one property of type 'age'.</LI>
+</OL>
+
+<H4>
+3.1 Core Constraints</H4>
+<I>3.1.1 RDFS:ConstraintPropertyType</I>
+<BR>This resource defines a subclass of the PropertyTypes, all of whose
+instances are property types used to specify constraints. The rest of the
+property types defined in section 3 are instances of this class.
+
+<P><I>3.1.2 RDFS:range</I>
+<BR>An instance of <I>ConstraintPropertyType</I> that is used to constrain
+property values. The value of a <I>range</I> property is always a <I>Class</I>.
+The property value of a property type whose range is A is constrained to
+be an instanceOf A. A property type can have at most one <I>range</I> property.
+It is possible for it to have <I>no</I> range, in which case, the property
+value could be anything.
+
+<P><I>3.1.3 RDFS:allowedPropertyType</I>
+<BR>An instance of <I>ConstraintPropertyType</I> that is used to specify
+the properties that the instances of a Class may have.
+
+<P><I>3.1.4 RDFS:necessity</I>
+<BR>An instance of <I>ConstraintPropertyType</I> that is used to constrain
+the cardinality of a property type. <I>RDFS:necessity</I> has a range of
+<I>RDFS:NecessityValue</I> (defined below).
+<H4>
+3.2 Cardinality Constraints</H4>
+The property <I>necessity</I> is used to specify whether a certain property
+type is
+<UL>
+<LI>
+<I>3.2.1</I> Necessary and may occur only once : <I>RDFS:ExactlyOne</I></LI>
+
+<LI>
+<I>3.2.2</I> Necessary and may occur any number of times : <I>RDFS:OneOrMore</I></LI>
+
+<LI>
+<I>3.2.3</I> Optional and may occur at most once : <I>RDFS:ZeroOrOne</I></LI>
+
+<LI>
+<I>3.2.4</I> Optional and may occur any number of times : <I>RDFS:ZeroOrMore</I></LI>
+</UL>
+<I>3.2.5 RDFS:NecessityValue</I>
+<BR>RDFS:ExactlyOne, RDFS:OneOrMore, RDFS:ZeroOrOne and RDFS:ZeroOrMore
+are all instances of the class RDFS:NecessityValue.
+<H4>
+3.3 Miscellaneous</H4>
+<I>3.3.1 RDFS:comment</I>
+<BR>This is used to provide a human readable natural language description
+of a resource.
+
+<P>The Model and Syntax specification introduces certain concepts. Here
+we define resources corresponding to these concepts.
+<UL>
+<LI>
+<I>3.3.2 RDFS:Collection</I></LI>
+
+<LI>
+<I>3.3.3 RDF:Bag</I></LI>
+
+<LI>
+<I>3.3.4 RDF:Seq</I></LI>
+
+<LI>
+<I>3.3.5 RDF:Alt</I></LI>
+</UL>
+<I>3.3.6: RDFS:String</I>
+<BR>This corresponds to the definition of a String in the Model and Syntax
+document [<A HREF="#refs">RDFMS</A>].
+<H2>
+4. Figures</H2>
+<B>Figure 1</B> illustrates the concepts of Class, subClass, and Resource.
+A Class is depicted by a rounded rectangle, a Resource is depicted by a
+large dot. In the figure below, arrows are drawn from a Resource to the
+Class it defines. A subClass is shown by having a rounded rectangle (the
+subclass) completely enclosed by another (the superclass). If a Resource
+is inside a Class, then there exists either an explicit or implicit "RDF:instanceOf"
+arc from the Resource to the Resource that defines the Class. (Those arcs
+are shown in figure 2).
+<CENTER><IMG SRC="sets.gif" ALT="Figure 1: Classes and Resources as Sets and Elements" ></CENTER>
+
+<CENTER><B>Figure 1</B>: Classes and Resources as Sets and Elements</CENTER>
+
+
+<P><B>Figure 2</B> shows the same information about the class hierarchy
+as in figure 1, but does so in terms of the RDF data model. If a class
+is a subset of another, then there is a RDFS:subClassOf arc from the node
+representing the first class to the node representing the second. Similarly,
+if a Resource was an instance of a Class, then there is an RDF:instanceOf
+arc from the resource to the node representing the class. (Not all such
+arcs are shown. We only show the arc to the most tightly encompassing class,
+and rely on the transitivity of the 'subClassOf' relation to provide the
+rest).
+<CENTER><IMG SRC="hierarchy.gif" ALT="Figure 2: Class Hierarchy for the RDF Schema" ></CENTER>
+
+<CENTER><B>Figure 2</B>: Class Hierarchy for the RDF Schema</CENTER>
+&nbsp;
+
+<P>The RDF Schema uses the constraint property types to constrain how its
+own PropertyTypes can be used. These constraints are shown below in <B>figure
+3</B>.
+<CENTER><IMG SRC="constraints.gif" ALT="Figure 3:  Constraints in the RDF Schema" ></CENTER>
+
+<CENTER><B>Figure 3</B>: Constraints in the RDF Schema</CENTER>
+
+
+<P><A NAME="ack"></A>
+<H2>
+5. Acknowledgements</H2>
+Note: This document was prepared and approved for publication by the W3C
+RDF Schema Working Group (WG). WG approval of this document does not necessarily
+imply that all WG members voted for its approval.
+
+<P>David Singer of IBM is the chair of the group; we thank David for his
+efforts and thank IBM for supporting him and us in this endeavor.
+
+<P>Ron Daniel produced all the graphics for this document.
+
+<P>The working group membership has included:
+
+<P>Nick Arnett (Verity), Dan Brickley (ILRT/University of Bristol), Walter
+Chang (Adobe), Sailesh Chutani (Oracle), Ron Daniel (Los Alamos National
+Laboratory), Joe Lapp (webMethods Inc.), Patrick Gannon (CommerceNet),
+RV Guha (Netscape), Tom Hill (Apple Computer), Renato Iannella (DSTC),
+Sandeep Jain (Oracle), Kevin Jones, (InterMind), Emiko Kezuka (Digital
+Vision Laboratories), Ora Lassila (Nokia Research Center), Andrew Layman
+(Microsoft), John McCarthy (Lawrence Berkeley National Laboratory), Norbert
+Mikula (DataChannel), Eric Miller (OCLC), Frank Olken (Lawrence Berkeley
+National Laboratory), Sri Raghavan (Digital), Lisa Rein (webMethods Inc.),
+Tsuyoshi Sakata (Digital Vision Laboratories), Leon Shklar (Pencom Web
+Works), David Singer (IBM), Wei (William) Song (SISU), Neel Sundaresan
+(IBM), Ralph Swick (W3C), Naohiko Uramoto (IBM), Charles Wicksteed (Reuters
+Ltd.), Misha Wolf (Reuters Ltd.)
+
+<P>Not all of the people listed above have been members throughout the
+entire duration of the working group, but all have contributed to the evolution
+of this document.
+<BR>
+<HR>
+<H2>
+Appendix A: XML serialization of the core RDF Schema graph</H2>
+The RDF specification of the above is given below in the serialization
+syntax. Please note that the namespace URIs listed are examples only; formal
+identifiers have not yet been assigned for these schemas.
+<PRE>
+&lt;?xml:namespace ns='http://www.w3.org/TR/WD-rdf-syntax/' prefix='RDF' ?>
+&lt;?xml:namespace ns='http://www.w3.org/TR/WD-rdf-schema/' prefix='RDFS' ?>
+
+
+&lt;RDF:RDF>
+
+&lt;RDF:Description ID="Resource">
+&nbsp;&lt;RDF:instanceOf RDF:HREF="#Class"/>
+&nbsp; &lt;RDFS:comment>The most general class&lt;/RDFS:comment>
+&nbsp; &lt;RDFS:allowedPropertyType>
+&nbsp;&nbsp;&nbsp; &lt;RDF:Description ID="instanceOf">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;RDF:instanceOf RDF:HREF="#PropertyType"/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;RDFS:comment>The basic instanceOf property&lt;/RDFS:comment>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;RDFS:range&nbsp;&nbsp;&nbsp;&nbsp; RDF:HREF="#Class"/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;RDFS:necessity RDF:HREF="#OneOrMore"/>
+&nbsp;&nbsp;&nbsp; &lt;/RDF:Description>
+&nbsp; &lt;/RDFS:allowedPropertyType>
+&nbsp; &lt;RDFS:allowedPropertyType>
+&nbsp;&nbsp;&nbsp; &lt;RDF:Description ID="comment">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;RDF:instanceOf RDF:HREF="#PropertyType"/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;RDFS:comment>Use this for descriptions&lt;/RDFS:comment>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;RDFS:range&nbsp;&nbsp;&nbsp;&nbsp; RDF:HREF="#String"/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;RDFS:necessity RDF:HREF="#ZeroOrMore"/>
+&nbsp;&nbsp;&nbsp; &lt;/RDF:Description>
+&nbsp; &lt;/RDFS:allowedPropertyType>
+&lt;/RDF:Description>
+
+
+&lt;RDF:Description ID="Class">
+&nbsp;&nbsp; &lt;RDF:instanceOf RDF:HREF="#Class"/>
+&nbsp;&nbsp; &lt;RDFS:comment>The concept of Class&lt;/RDFS:comment>
+&nbsp;&nbsp; &lt;RDFS:subClassOf RDF:HREF="#Resource"/>
+&nbsp;&nbsp; &lt;RDFS:allowedPropertyType>
+&nbsp;&nbsp;&nbsp;&nbsp; &lt;RDF:Description ID="subClassOf">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;RDF:instanceOf RDF:HREF="#PropertyType"/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;RDFS:comment>The basic SubClassOf property&lt;/RDFS:comment>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;RDFS:range&nbsp;&nbsp;&nbsp;&nbsp; RDF:HREF="#Class"/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;RDFS:necessity&nbsp;&nbsp;&nbsp;&nbsp; RDF:HREF="#ZeroOrMore"/>
+&nbsp;&nbsp;&nbsp; &lt;/RDF:Description>
+&nbsp;&nbsp; &lt;/RDFS:allowedPropertyType>
+&nbsp;&nbsp; &lt;RDFS:allowedPropertyType>
+&nbsp;&nbsp;&nbsp;&nbsp; &lt;RDF:Description ID="allowedPropertyType">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;RDF:instanceOf RDF:HREF="#ConstraintPropertyType"/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;RDFS:comment>This is how we associate a class to properties that its instances can have&lt;/RDFS:comment>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;RDFS:range&nbsp;&nbsp;&nbsp;&nbsp; RDF:HREF="#PropertyType"/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/RDF:Description>
+&nbsp;&nbsp; &lt;/RDFS:allowedPropertyType>
+&lt;/RDF:Description>
+
+&lt;RDF:Description ID="ConstraintPropertyType">
+&nbsp; &lt;RDF:instanceOf RDF:HREF="#Class"/>
+&nbsp; &lt;RDFS:subClassOf RDF:HREF="#PropertyType"/>
+&lt;/RDF:Description>
+
+&lt;RDF:Description ID="PropertyType">
+&nbsp;&nbsp; &lt;RDFS:comment>The concept of a property type.&lt;/RDFS:comment>
+&nbsp;&nbsp; &lt;RDFS:subClassOf RDF:HREF="#Resource"/>
+&nbsp;&nbsp; &lt;RDFS:allowedPropertyType>
+&nbsp;&nbsp;&nbsp;&nbsp; &lt;RDF:Description ID="range">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;RDF:instanceOf RDF:HREF="#ConstraintPropertyType"/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;RDFS:comment>Property types that can be used in a schema to provide constraints&lt;/RDFS:comment>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;RDFS:range&nbsp;&nbsp;&nbsp;&nbsp; RDF:HREF="#Class"/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;RDFS:necessity RDF:HREF="#ZeroOrOne"/>
+&nbsp;&nbsp;&nbsp;&nbsp; &lt;/RDF:Description>
+&nbsp;&nbsp; &lt;/RDFS:allowedPropertyType>
+&nbsp;&nbsp; &lt;RDFS:allowedPropertyType>
+&nbsp;&nbsp;&nbsp;&nbsp; &lt;RDF:Description ID="necessity">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;RDF:instanceOf RDF:HREF="#ConstraintPropertyType"/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;RDFS:comment>Used to constrain the cardinality of a property type.&lt;/RDFS:comment>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;RDFS:range href="#NecessityValue"/>
+&nbsp;&nbsp;&nbsp;&nbsp; &lt;/RDF:Description>
+&nbsp;&nbsp; &lt;/RDFS:allowedPropertyType>
+&lt;/RDF:Description>
+
+&lt;RDF:Description ID="NecessityValue">
+&nbsp;&nbsp;&nbsp; &lt;RDF:instanceOf RDF:HREF="#Class"/>
+&nbsp;&nbsp;&nbsp; &lt;RDFS:subClassOf RDF:HREF="#Resource"/>
+&lt;/RDF:Description>
+
+&lt;RDF:Description ID="OneOrMore">
+&nbsp;&nbsp;&nbsp; &lt;RDF:instanceOf RDF:HREF="#NecessityValue"/>
+&lt;/RDF:Description>
+
+&lt;RDF:Description ID="ZeroOrMore">
+&nbsp;&nbsp;&nbsp; &lt;RDF:instanceOf RDF:HREF="#NecessityValue"/>
+&lt;/RDF:Description>
+
+&lt;RDF:Description ID="ZeroOrOne">
+&nbsp;&nbsp;&nbsp; &lt;RDF:instanceOf RDF:HREF="#NecessityValue"/>
+&lt;/RDF:Description>
+
+&lt;RDF:Description ID="ExactlyOne">
+&nbsp;&nbsp;&nbsp; &lt;RDF:instanceOf RDF:HREF="#NecessityValue"/>
+&lt;/RDF:Description>
+
+&lt;RDF:Description ID="String">
+&nbsp;&nbsp;&nbsp; &lt;RDF:instanceOf RDF:HREF="#Resource"/>
+&lt;/RDF:Description>
+
+&lt;/RDF:RDF></PRE>
+&nbsp;
+
+<P>The following is the same specification, using the abbreviated syntax.
+Please note that the namespace URIs listed are examples only; formal identifiers
+have not yet been assigned for these schemas.
+<PRE>
+&lt;?xml:namespace ns='http://www.w3.org/TR/WD-rdf-syntax/' prefix='RDF' ?>
+&lt;?xml:namespace ns='http://www.w3.org/TR/WD-rdf-schema/' prefix='RDFS' ?>
+
+&lt;RDF:RDF>
+
+&lt;RDFS:Class ID="Resource">
+&lt;RDFS:comment>The most general class&lt;/RDFS:comment>
+&lt;RDFS:allowedPropertyType>
+&nbsp; &lt;RDF:PropertyType ID="instanceOf">
+&nbsp;&nbsp;&nbsp;&nbsp; &lt;RDFS:comment>The basic instanceOf property&lt;/RDFS:comment>
+&nbsp;&nbsp;&nbsp;&nbsp; &lt;RDFS:range&nbsp;&nbsp; RDF:HREF="#Class"/>
+&nbsp;&nbsp;&nbsp;&nbsp; &lt;RDFS:necessity RDF:HREF="#OneOrMore"/>
+&nbsp; &lt;/RDF:PropertyType>
+&lt;/RDFS:allowedPropertyType>
+
+&lt;RDFS:allowedPropertyType>
+&nbsp; &lt;RDF:PropertyType ID="comment">
+&nbsp;&nbsp;&nbsp;&nbsp; &lt;RDFS:comment>Use this for comments&lt;/RDFS:comment>
+&nbsp;&nbsp;&nbsp;&nbsp; &lt;RDFS:range&nbsp;&nbsp; RDF:HREF="#String"/>
+&nbsp; &lt;/RDF:PropertyType>
+&lt;/RDFS:allowedPropertyType>
+&lt;/RDFS:Class>
+
+
+&lt;RDFS:Class ID="ConstraintPropertyType">
+&lt;RDFS:subClassOf RDF:HREF="#PropertyType"/>
+&lt;/RDFS:Class>
+
+&lt;RDFS:Class ID="Class">
+&nbsp;&lt;RDFS:comment>The concept of Class&lt;/RDFS:comment>
+&nbsp;&lt;RDFS:subClassOf RDF:HREF="#Resource"/>
+&nbsp;&lt;RDFS:allowedPropertyType>
+&nbsp;&nbsp; &lt;RDF:PropertyType ID="subClassOf">
+&nbsp;&nbsp;&nbsp;&nbsp; &lt;RDFS:comment>The basic SubClassOf property&lt;/RDFS:comment>
+&nbsp;&nbsp;&nbsp;&nbsp; &lt;RDFS:range&nbsp;&nbsp; RDF:HREF="#Class"/>
+&nbsp;&nbsp;&nbsp;&nbsp; &lt;RDFS:necessity RDF:HREF="#ZeroOrMore"/>
+&nbsp; &lt;/RDF:PropertyType>
+&nbsp;&lt;/RDFS:allowedPropertyType>
+&nbsp;&lt;RDFS:allowedPropertyType>
+&nbsp;&nbsp;&nbsp;&nbsp; &lt;RDFS:ConstraintPropertyType ID="allowedPropertyType">
+&nbsp;&nbsp;&nbsp;&nbsp; &lt;RDFS:comment>This is how we associate a class to properties that its instances can have.&lt;/RDFS:comment>
+&nbsp;&nbsp;&nbsp;&nbsp; &lt;RDFS:range&nbsp;&nbsp; RDF:HREF="#PropertyType"/>
+&nbsp;&nbsp;&nbsp;&nbsp; &lt;/RDFS:ConstraintPropertyType>
+&nbsp;&lt;/RDFS:allowedPropertyType>
+&lt;/RDFS:Class>
+
+&lt;RDFS:Class ID="PropertyType">
+&nbsp;&lt;RDFS:comment>Used to constrain the cardinality of a property type.&lt;/RDFS:comment>
+&nbsp;&lt;RDFS:subClassOf RDF:HREF="#Resource"/>
+&nbsp;&lt;RDFS:allowedPropertyType>
+&nbsp;&nbsp; &lt;RDFS:ConstraintPropertyType ID="range">
+&nbsp;&nbsp;&nbsp;&nbsp; &lt;RDFS:comment>...&lt;/RDFS:comment>
+&nbsp;&nbsp;&nbsp;&nbsp; &lt;RDFS:range&nbsp;&nbsp; RDF:HREF="#Class"/>
+&nbsp;&nbsp;&nbsp;&nbsp; &lt;RDFS:necessity RDF:HREF="#ZeroOrOne"/>
+&nbsp;&nbsp; &lt;/RDFS:ConstraintPropertyType>
+&nbsp;&lt;/RDFS:allowedPropertyType>
+&nbsp;&lt;RDFS:allowedPropertyType>
+&nbsp;&nbsp; &lt;RDFS:ConstraintPropertyType ID="necessity">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;RDFS:comment>...&lt;/RDFS:comment>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;RDFS:range&nbsp; href="#NecessityValue"/>
+&nbsp;&nbsp; &lt;/RDFS:ConstraintPropertyType>
+&nbsp;&lt;/RDFS:allowedPropertyType>
+&lt;/RDFS:Class>
+
+&lt;RDFS:Class ID="NecessityValue">
+&nbsp;&lt;RDFS:subClassOf RDF:HREF="#Resource"/>
+&lt;/RDFS:Class>
+
+&lt;RDFS:NecessityValue ID="OneOrMore"/>
+&lt;RDFS:NecessityValue ID="ZeroOrMore"/>
+&lt;RDFS:NecessityValue ID="ZeroOrOne"/>
+&lt;RDFS:NecessityValue ID="ExactlyOne"/>
+
+&lt;RDF:Resource ID="String"/>
+
+
+&lt;/RDF:RDF></PRE>
+
+<HR>
+<H2>
+Appendix B: Further Examples</H2>
+This section gives some brief examples of using the RDF Schema machinery
+to define classes and property types for some likely purposes.
+<H4>
+Example 1</H4>
+Person is a class.
+<BR>Person's comment is "Class for representing people. Instances correspond
+to a single person."
+<BR>Person is a subclass of Animal.
+<BR>Person may have an age with value integer.
+<BR>Person must have an ssn ("Social Security Number") with value integer.
+<BR>Person's marital status is one of {Married, Divorced, Single, Widowed}
+<PRE>
+&lt;?xml:namespace ns='http://www.w3.org/TR/WD-rdf-syntax/' prefix='RDF' ?>
+&lt;?xml:namespace ns='http://www.w3.org/TR/WD-rdf-schema/' prefix='RDFS' ?>
+
+&lt;RDF:RDF>
+
+&lt;RDFS:Class ID="Person">
+&nbsp; &lt;RDFS:comment>Class for representing people. Instances correspond to a single
+&nbsp;person.&lt;/RDFS:comment>
+&nbsp; &lt;RDFS:subClassOf RDF:HREF="#Animal"/>
+&nbsp; &lt;RDFS:allowedPropertyType>
+&nbsp;&nbsp;&nbsp; &lt;RDF:PropertyType ID="age">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;RDFS:range RDF:HREF="http://www.w3.org/FictionalSchemas/useful_types#Integer"/>
+&nbsp;&nbsp;&nbsp; &lt;/RDF:PropertyType>
+&nbsp; &lt;/RDFS:allowedPropertyType>
+&nbsp; &lt;RDFS:allowedPropertyType>
+&nbsp;&nbsp;&nbsp; &lt;RDF:PropertyType ID="ssn">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;RDFS:comment>Social Security Number&lt;/RDFS:comment>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;RDFS:range RDF:HREF="http://www.w3.org/FictionalSchemas/useful_types#Integer"/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;RDFS:necessity RDF:HREF="http://www.w3.org/TR/WD-rdf-schema#ExactlyOne"/>
+&nbsp;&nbsp;&nbsp; &lt;/RDF:PropertyType>
+&nbsp; &lt;/RDFS:allowedPropertyType>
+&nbsp; &lt;RDFS:allowedPropertyType>
+&nbsp;&nbsp;&nbsp;&nbsp; &lt;RDF:PropertyType ID="maritalStatus">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;RDFS:necessity RDF:HREF="http://www.w3.org/TR/WD-rdf-schema#ZeroOrOne" />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;RDFS:range href="#MaritalStatus"/>
+&nbsp;&nbsp;&nbsp;&nbsp; &lt;/RDF:PropertyType>
+&nbsp; &lt;/RDFS:allowedPropertyType>
+&lt;/RDFS:Class>
+
+&lt;RDFS:Class ID="MaritalStatus"/>
+
+&lt;MaritalStatus&nbsp; ID="Married"/>
+&lt;MaritalStatus&nbsp; ID="Divorced"/>
+&lt;MaritalStatus&nbsp; ID="Single"/>
+&lt;MaritalStatus&nbsp; ID="Widowed"/>
+
+
+&lt;/RDF:RDF></PRE>
+
+<H4>
+Example 2</H4>
+SearchQuery is a class.
+<BR>Every SearchQuery must have both a queryString whose value a String
+and a queryService whose value is a SearchService.
+<BR>A SearchService is a subclass of InternetService (which is defined
+elsewhere).
+<BR>A SearchQuery has some number of results (whose value is SearchResult).
+<BR>Each SearchResult has a title (value is a string), a rating (value
+is a percentage) and of course, the page itself.
+<PRE>
+&lt;?xml:namespace ns='http://www.w3.org/TR/WD-rdf-syntax/' prefix='RDF' ?>
+&lt;?xml:namespace ns='http://www.w3.org/TR/WD-rdf-schema/' prefix='RDFS' ?>
+
+&lt;RDF:RDF>
+
+&lt;RDFS:Class ID="SearchQuery">
+&nbsp;&nbsp; &lt;RDFS:allowedPropertyType>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;RDF:PropertyType ID="queryString">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;RDF:range RDF:HREF="http://www.w3.org/FictionalSchemas/useful_types#String"/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;RDFS:necessity RDF:HREF="http://www.w3.org/TR/WD-rdf-schema#OneOrMore"/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/RDF:PropertyType>
+&nbsp;&nbsp; &lt;/RDFS:allowedPropertyType>
+&nbsp;&nbsp; &lt;RDFS:allowedPropertyType>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;RDF:PropertyType ID="queryService">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;RDFS:necessity RDF:HREF="http://www.w3.org/TR/WD-rdf-schema#OneOrMore"/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;RDFS:range>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;RDFS:Class ID="SearchService">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;RDFS:subClassOf RDF:HREF="http://www.foo.org/Sch1.rdf#InternetService"/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/RDFS:Class>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/RDFS:range>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/RDF:PropertyType>
+&nbsp;&nbsp; &lt;/RDFS:allowedPropertyType>
+&nbsp;&nbsp; &lt;RDFS:allowedPropertyType>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;RDF:PropertyType ID="result">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;RDFS:range>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;RDFS:Class ID="SearchResult">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;RDFS:subClassOf RDF:HREF="http://www.w3.org/TR/WD-rdf-syntax#Resource"/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;RDFS:allowedPropertyType>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;RDF:PropertyType ID="queryResultPage">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;RDFS:necessity RDF:HREF="http://www.w3.org/TR/WD-rdf-schema#OneOrMore"/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;RDFS:range RDF:HREF="http://www.w3.org/FictionalSchemas/useful_types#WebPage"/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/RDF:PropertyType>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/RDFS:allowedPropertyType>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;RDFS:allowedPropertyType>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;RDF:PropertyType ID="queryResultTitle">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;RDFS:necessity RDF:HREF="http://www.w3.org/TR/WD-rdf-schema#OneOrMore"/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;RDFS:range RDF:HREF="http://www.w3.org/FictionalSchemas/useful_types#String"/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/RDF:PropertyType>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/RDFS:allowedPropertyType>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;RDFS:allowedPropertyType>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;RDF:PropertyType ID="queryResultRating">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;RDFS:necessity RDF:HREF="http://www.w3.org/TR/WD-rdf-schema#ZeroOrMore"/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;RDFS:range RDF:HREF="http://www.w3.org/FictionalSchemas/useful_types#FloatZeroToOne"/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/RDF:PropertyType>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/RDFS:allowedPropertyType>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/RDFS:Class>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/RDFS:range>
+&nbsp;&nbsp;&nbsp;&nbsp; &lt;/RDF:PropertyType>
+&nbsp;&nbsp; &lt;/RDFS:allowedPropertyType>
+&lt;/RDFS:Class>
+&lt;/RDF:RDF></PRE>
+
+<HR>
+<H2>
+Appendix C: Open Issues</H2>
+The following issues are currently under consideration by the RDF Schema
+working group, and will be covered in more detail in a future version of
+this document.
+<BR><A NAME="c1"></A>
+<H3>
+C.3. Alternatives for expressing cardinality</H3>
+The number of distinct properties of a particular type that a resource
+has is defined by "Cardinality". There are a number of possible alternative
+mechanisms for expressing cardinality (e.g. a fixed, minimum, or maximum
+number, etc). While it is agreed that the expression of cardinality is
+necessary, the specifics of this expression are still being discussed.
+Currently, the RDF schema group is reviewing cardinality constraints that
+are expressed in both the Unified Modelling Language [<A HREF="#refs">UML</A>]
+and the XML-Data note [<A HREF="#refs">XML-Data</A>].
+<BR><A NAME="c8"></A>
+<H3>
+C.8. Versioning</H3>
+The Resource Description Framework is intended to be flexible and easily
+extensible; this suggests that a great variety of schemas will be created
+and that new and improved versions of these schemas will be a common occurence
+on the Web. Since changing a schema risks breaking other RDF graphs which
+depend on that schema, this specification requires that a new URI is used
+whenever an RDF schema is changed. In effect, changing a schema creates
+a new one; new schemas should have their own URI to avoid ambiguity. Since
+an RDF Schema URI unambiguously identifies a single version of a schema,
+RDF processors (and Web caches) should be able to safely store copies of
+RDF schema graphs for an indefinite period.
+
+<P>The problems of RDF schema evolution share many characteristics with
+XML DTD version management and the general problem of Web resource versioning.
+Is is expected that a general approach to these issues will presented in
+a future version of this document, in co-ordination with other W3C activities.
+Future versions of this document may also offer RDF specific guidelines:
+for example, describing how a schema could document its relationship to
+preceding versions.
+<BR><A NAME="c9"></A>
+<H3>
+C.9. Thesauri and large schemas</H3>
+Thesauri are a well known example of hierarchical systems for representing
+the relationships between concepts. The RDF Schema specification provides
+sufficient resources for creating machine readable representations of thesauri
+(and other faceted classification systems). Some practical issue for deploying
+these large schemas are yet to be resolved.
+
+<P>In particular: should it be possible to avoid requiring RDF aware user-agents
+to download the entire large schema across the network when dereferencing
+a schema URI? In particular: how, if it all, might a schema namespace URI
+be modified to obtain alternate forms or fragments of the schema? (one
+possible scenario being the use of the XML-Link [<A HREF="#refs">XML-Link</A>]
+'|' fragment identifier).
+<BR><A NAME="c11"></A>
+<H3>
+C.11. What does a schema look like on the Web?</H3>
+The RDF Schema group is currently discussing the actual representation
+of a schema. XML namespace mechanisms provide the ability to point to RDF
+Schemas. What exactly will they be pointing at? Is a RDF Schema a single
+document with both HTML, for human readability, and an embedded instance
+of RDF for machine processability? Are there multiple documents? Are there
+both human-readable and machine-processable portions of RDF that are handled
+through content negotiation?
+<BR><A NAME="c12"></A>
+<H3>
+C.12. Class Sealing</H3>
+
+<DIV CLASS="PUBLIC">We would like to define a mechanism for 'sealing' an
+RDF Class, so that it becomes illegal to make certain RDF statements involving
+it. This is loosely analogous to the notion of 'final' classes in Java
+/ OO programming. We might, for example, want to stop people creating subclasses
+of the class, or creating property types which have that class as their
+domain. The degree of sophistication required of the class sealing mechanism
+is as yet unclear: we might (for example) wish to consider the feasibility
+of using digital signatures in this context.</DIV>
+
+<H3>
+C.19. Property Value Inheritance</H3>
+In order to represent the PICS generic concept, RDF Schemas need to be
+able to specify inheritance of property values.
+<BR><A NAME="c21"></A>
+<H3>
+C.21. Interactions with External Type Systems</H3>
+The RDF Schema mechanism defines a basic type system. It was not developed
+to provide every imaginable capability. Instead, in the interests of simplicity
+and performance, it will be only as expressive as needed to meet the requirements
+of PICS. (Support for PICS <I>generic</I> capability, which we expect to
+be in the next public release of this document, will provide enough sophistication
+for most applications).
+
+<P>The RDF Schema mechanism will need to interact with many externally
+developed typing systems. There are two broad categories of such systems.
+The first are externally defined "primitive data types", such as IEEE floating
+point numbers, Integers, Boolean values, Dates and Times, etc. The second
+category are external "type systems", which provide features such as inheritance,
+type inferencing, etc.
+
+<P>At this time we have not even begun to consider the second category.
+Several factors make it difficult to decide on the appropriate interactions
+with the first category. RDF models are exchanged as XML document instances.
+The XML Working group has expressed an interest in working on the problem
+of data typing, to provide the ability to specify that element content
+should be interpreted as an integer, a date, a float, left as a string,
+etc. The interactions between data typing efforts in XML and RDF is currently
+being discussed by the W3 staff, so this document does not provide a specification
+for those interactions that is as firm as the specification for elements
+such as RDFS:Class, RDFS:subClassOf, etc.
+
+<P>However, it is the rough consensus of the RDF Schema WG that it would
+be useful to show that the current schema system can actually accommodate
+externally defined primitive data types. Therefore, figure 1, and the relevant
+portion of the text of the specification, was modified to give a provisional
+indication of how external types might be handled. The reader is advised
+that those portions of the specification are highly subject to change,
+even more so than the rest of this specification. All of those sections
+have been explicitly marked to refer to this open issue.
+<BR><A NAME="c22"></A>
+<H3>
+C.22. RDFS:String</H3>
+The treatment of RDFS:String is still under discussion by the working group,
+and there is a known inconsistency in the definitions in Appendix A. The
+range of RDFS:range is RDFS:Class, RDFS:String is intended to be used as
+the value of RDFS:range properties, but RDFS:String is not a Class. This
+will be corrected, and the status of RDFS:String will be clarified, in
+a later version of this document.
+<BR><A NAME="c23"></A>
+<H3>
+C.23. Context-specific constraints</H3>
+In the current draft, constraints on property types (range and necessity)
+apply across all uses of the property type. Some user communities have
+expressed an interest in the ability to further constrain a property type
+in the context a particular class. For example, instances of Animal may
+have the property biologicalParent. The range of biologicalParent is Animal,
+i.e., the values of biologicalParent properties are instances of Animal.
+If we could further constrain the range of a property type in the context
+of a particular Class, we could express a further constraint that the range
+of biologicalParent in the context of Person is Person, i.e., the value
+of biologicalParent properties for Person has to be a Person. Feedback
+on this issue is solicited.
+<BR><A NAME="c24"></A>
+<H3>
+C.24. Interactions between subclassing and constraints</H3>
+We believe that there are important interactions between subclassing and
+at least some constraints, but we do not specify these interactions.
+<BR>
+<HR>
+<H2>
+Appendix D: Dublin Core</H2>
+The following represents an initial schema for the simple Dublin Core Element
+Set [<A HREF="#refs">DC</A>].
+
+<P>This schema is provided as the foundation for the Dublin Core semantics.
+It is believed to be all that is needed to serve as the foundation for
+future, more elaborate definitions. Future extensions are likely to specify
+the structure of the values of the properties, which will involve defining
+classes, the property types that apply to those classes, and some constraints
+on the property values.
+<PRE>
+
+
+&lt;?xml:namespace ns="http://www.w3.org/TR/WD-RDF-Syntax/" prefix="RDF"?>
+&lt;?xml:namespace ns="http://www.w3.org/TR/WD-RDF-Schema/" prefix="RDFS"?>
+
+&lt;!-- Declaration of the Dublin Core Element Schema Definition -->
+
+&lt;RDF:RDF>
+&lt;RDF:Description ID = "Title">
+&nbsp; &lt;RDF:instanceOf RDF:href="http://www.w3.org/TR/WD-RDF-Syntax#PropertyType"/>
+&nbsp; &lt;RDFS:necessity RDF:href="http://www.w3.org/TR/WD-RDF-Schema#ZeroOrMore"/>
+&nbsp; &lt;RDFS:Comment>The name given to the resource, usually by the Creator
+&nbsp; or Publisher.&lt;/RDFS:Comment>
+&lt;/RDF:Description>
+
+&lt;RDF:Description ID = "Creator">
+&nbsp; &lt;RDF:instanceOf RDF:href="http://www.w3.org/TR/WD-RDF-Syntax#PropertyType"/>
+&nbsp; &lt;RDFS:necessity RDF:href="http://www.w3.org/TR/WD-RDF-Schema#ZeroOrMore"/>
+&nbsp; &lt;RDFS:Comment>The person or organization primarily responsible for
+&nbsp; creating the intellectual content of the resource. For example,
+&nbsp; authors in the case of written documents, artists, photographers, or
+&nbsp; illustrators in the case of visual resources.&lt;/RDFS:Comment>
+&lt;/RDF:Description>
+
+&lt;RDF:Description ID = "Subject">
+&nbsp; &lt;RDF:instanceOf RDF:href="http://www.w3.org/TR/WD-RDF-Syntax#PropertyType"/>
+&nbsp; &lt;RDFS:necessity RDF:href="http://www.w3.org/TR/WD-RDF-Schema#ZeroOrMore"/>
+&nbsp; &lt;RDFS:Comment>The topic of the resource. Typically, subject will be
+&nbsp; expressed as keywords or phrases that describe the subject or
+&nbsp; content of the resource. The use of controlled vocabularies and
+&nbsp; formal classification schemes is encouraged.&lt;/RDFS:Comment>
+&lt;/RDF:Description>
+
+&lt;RDF:Description ID = "Description">
+&nbsp; &lt;RDF:instanceOf RDF:href="http://www.w3.org/TR/WD-RDF-Syntax#PropertyType"/>
+&nbsp; &lt;RDFS:necessity RDF:href="http://www.w3.org/TR/WD-RDF-Schema#ZeroOrMore"/>
+&nbsp; &lt;RDFS:Comment> A textual description of the content of the resource,
+&nbsp; including abstracts in the case of document-like objects or content
+&nbsp; descriptions in the case of visual resources.&lt;/RDFS:Comment>
+&lt;/RDF:Description>
+
+&lt;RDF:Description ID = "Publisher">
+&nbsp; &lt;RDF:instanceOf RDF:href="http://www.w3.org/TR/WD-RDF-Syntax#PropertyType"/>
+&nbsp; &lt;RDFS:necessity RDF:href="http://www.w3.org/TR/WD-RDF-Schema#ZeroOrMore"/>
+&nbsp; &lt;RDFS:Comment>The entity responsible for making the resource
+&nbsp; available in its present form, such as a publishing house, a
+&nbsp; university department, or a corporate entity.&lt;/RDFS:Comment>
+&lt;/RDF:Description>
+
+&lt;RDF:Description ID = "Contributor">
+&nbsp; &lt;RDF:instanceOf RDF:href="http://www.w3.org/TR/WD-RDF-Syntax#PropertyType"/>
+&nbsp; &lt;RDFS:necessity RDF:href="http://www.w3.org/TR/WD-RDF-Schema#ZeroOrMore"/>
+&nbsp; &lt;RDFS:Comment>A person or organization not specified in a Creator
+&nbsp; element who has made significant intellectual contributions to the
+&nbsp; resource but whose contribution is secondary to any person or
+&nbsp; organization specified in a Creator element (for example, editor,
+&nbsp; transcriber, and illustrator).&lt;/RDFS:Comment>
+&lt;/RDF:Description>
+
+&lt;RDF:Description ID = "Date">
+&nbsp; &lt;RDF:instanceOf RDF:href="http://www.w3.org/TR/WD-RDF-Syntax#PropertyType"/>
+&nbsp; &lt;RDFS:necessity RDF:href="http://www.w3.org/TR/WD-RDF-Schema#ZeroOrMore"/>
+&nbsp; &lt;RDFS:Comment>A date associated with the creation or availability of
+&nbsp; the resource. Such a date is not to be confused with one belonging
+&nbsp; in the Coverage element, which would be associated with the resource
+&nbsp; only insofar as the intellectual content is somehow about that
+&nbsp; date. Recommended best practice is defined in a profile of ISO 8601
+&nbsp; [Date and Time Formats (based on ISO8601), W3C Technical Note,
+&nbsp; http://www.w3.org/TR/NOTE-datetime] that includes (among others)
+&nbsp; dates of the forms YYYY and YYYY-MM-DD. In this scheme, for example,
+&nbsp; the date 1994-11-05 corresponds to November 5, 1994.&lt;/RDFS:Comment>
+&lt;/RDF:Description>
+
+&lt;RDF:Description ID = "Type">
+&nbsp; &lt;RDF:instanceOf RDF:href="http://www.w3.org/TR/WD-RDF-Syntax#PropertyType"/>
+&nbsp; &lt;RDFS:necessity RDF:href="http://www.w3.org/TR/WD-RDF-Schema#ZeroOrMore"/>
+&nbsp; &lt;RDFS:Comment>The category of the resource, such as home page,
+&nbsp; novel, poem, working paper, technical report, essay, dictionary. For
+&nbsp; the sake of interoperability, Type should be selected from an
+&nbsp; enumerated list that is currently under development in the workshop
+&nbsp; series.&lt;/RDFS:Comment>
+&lt;/RDF:Description>
+
+&lt;RDF:Description ID = "Format">
+&nbsp; &lt;RDF:instanceOf RDF:href="http://www.w3.org/TR/WD-RDF-Syntax#PropertyType"/>
+&nbsp; &lt;RDFS:necessity RDF:href="http://www.w3.org/TR/WD-RDF-Schema#ZeroOrMore"/>
+&nbsp; &lt;RDFS:Comment>The data format of the resource, used to identify the
+&nbsp; software and possibly hardware that might be needed to display or
+&nbsp; operate the resource. For the sake of interoperability, Format
+&nbsp; should be selected from an enumerated list that is currently under
+&nbsp; development in the workshop series.&lt;/RDFS:Comment>
+&lt;/RDF:Description>
+
+
+&lt;RDF:Description ID = "Identifier">
+&nbsp; &lt;RDF:instanceOf RDF:href="http://www.w3.org/TR/WD-RDF-Syntax#PropertyType"/>
+&nbsp; &lt;RDFS:necessity RDF:href="http://www.w3.org/TR/WD-RDF-Schema#ZeroOrMore"/>
+&nbsp; &lt;RDFS:Comment>A string or number used to uniquely identify the
+&nbsp; resource. Examples for networked resources include URLs and URNs
+&nbsp; (when implemented). Other globally-unique identifiers, such as
+&nbsp; International Standard Book Numbers (ISBN) or other formal names are
+&nbsp; also candidates for this element.&lt;/RDFS:Comment>
+&lt;/RDF:Description>
+
+&lt;RDF:Description ID = "Source">
+&nbsp; &lt;RDF:instanceOf RDF:href="http://www.w3.org/TR/WD-RDF-Syntax#PropertyType"/>
+&nbsp; &lt;RDFS:necessity RDF:href="http://www.w3.org/TR/WD-RDF-Schema#ZeroOrMore"/>
+&nbsp; &lt;RDFS:Comment>Information about a second resource from which the
+&nbsp; present resource is derived. While it is generally recommended that
+&nbsp; elements contain information about the present resource only, this
+&nbsp; element may contain a date, creator, format, identifier, or other
+&nbsp; metadata for the second resource when it is considered important for
+&nbsp; discovery of the present resource; recommended best practice is to
+&nbsp; use the Relation element instead.&nbsp; For example, it is possible to
+&nbsp; use a Source date of 1603 in a description of a 1996 film adaptation
+&nbsp; of a Shakespearean play, but it is preferred instead to use Relation
+&nbsp; "IsBasedOn" with a reference to a separate resource whose
+&nbsp; description contains a Date of 1603. Source is not applicable if the
+&nbsp; present resource is in its original form.&lt;/RDFS:Comment>
+&lt;/RDF:Description>
+
+&lt;RDF:Description ID = "Language">
+&nbsp; &lt;RDF:instanceOf RDF:href="http://www.w3.org/TR/WD-RDF-Syntax#PropertyType"/>
+&nbsp; &lt;RDFS:necessity RDF:href="http://www.w3.org/TR/WD-RDF-Schema#ZeroOrMore"/>
+&nbsp; &lt;RDFS:Comment>The language of the intellectual content of the
+&nbsp; resource. Where practical, the content of this field should coincide
+&nbsp; with RFC 1766 [Tags for the Identification of Languages,
+&nbsp; http://ds.internic.net/rfc/rfc1766.txt ]; examples include en, de,
+&nbsp; es, fi, fr, ja, th, and zh.&lt;/RDFS:Comment>
+&lt;/RDF:Description>
+
+&lt;RDF:Description ID = "Relation">
+&nbsp; &lt;RDF:instanceOf RDF:href="http://www.w3.org/TR/WD-RDF-Syntax#PropertyType"/>
+&nbsp; &lt;RDFS:necessity RDF:href="http://www.w3.org/TR/WD-RDF-Schema#ZeroOrMore"/>
+&nbsp; &lt;RDFS:Comment>An identifier of a second resource and its
+&nbsp; relationship to the present resource. This element permits links
+&nbsp; between related resources and resource descriptions to be
+&nbsp; indicated. Examples include an edition of a work (IsVersionOf), a
+&nbsp; translation of a work (IsBasedOn), a chapter of a book (IsPartOf),
+&nbsp; and a mechanical transformation of a dataset into an image
+&nbsp; (IsFormatOf). For the sake of interoperability, relationships should
+&nbsp; be selected from an enumerated list that is currently under
+&nbsp; development in the workshop series.&lt;/RDFS:Comment>
+&lt;/RDF:Description>
+
+&lt;RDF:Description ID = "Coverage">
+&nbsp; &lt;RDF:instanceOf RDF:href="http://www.w3.org/TR/WD-RDF-Syntax#PropertyType"/>
+&nbsp; &lt;RDFS:necessity RDF:href="http://www.w3.org/TR/WD-RDF-Schema#ZeroOrMore"/>
+&nbsp; &lt;RDFS:Comment>The spatial or temporal characteristics of the
+&nbsp; intellectual content of the resource. Spatial coverage refers to a
+&nbsp; physical region (e.g., celestial sector); use coordinates (e.g.,
+&nbsp; longitude and latitude) or place names that are from a controlled
+&nbsp; list or are fully spelled out. Temporal coverage refers to what the
+&nbsp; resource is about rather than when it was created or made available
+&nbsp; (the latter belonging in the Date element); use the same date/time
+&nbsp; format (often a range) [Date and Time Formats (based on ISO8601),
+&nbsp; W3C Technical Note, http://www.w3.org/TR/NOTE-datetime] as
+&nbsp; recommended for the Date element or time periods that are from a
+&nbsp; controlled list or are fully spelled out.&lt;/RDFS:Comment>
+&lt;/RDF:Description>
+
+&lt;RDF:Description ID = "Rights">
+&nbsp; &lt;RDF:instanceOf RDF:href="http://www.w3.org/TR/WD-RDF-Syntax#PropertyType"/>
+&nbsp; &lt;RDFS:necessity RDF:href="http://www.w3.org/TR/WD-RDF-Schema#ZeroOrMore"/>
+&nbsp; &lt;RDFS:Comment>A rights management statement, an identifier that
+&nbsp; links to a rights management statement, or an identifier that links
+&nbsp; to a service providing information about rights management for the
+&nbsp; resource.&lt;/RDFS:Comment>
+&lt;/RDF:Description>
+&lt;/RDF:RDF></PRE>
+
+<HR><A NAME="refs"></A>
+<H2>
+Appendix E: References</H2>
+
+<DL>
+<DT>
+[RDFMS]</DT>
+
+<DD>
+Resource Description Framework (RDF) Model and Syntax; <A HREF="http://www.w3.org/TR/WD-rdf-syntax/">http://www.w3.org/TR/WD-rdf-syntax/</A></DD>
+
+<DT>
+[NIAM]</DT>
+
+<DD>
+G. M. Nijssen and Terry Halpin, Conceptual Schema and Relational Database
+Design, (Prentice Hall, Sydney:1989)</DD>
+
+<DT>
+[CycL]</DT>
+
+<DD>
+CycL: The CYC Representation Language; <A HREF="http://www.cyc.com/tech.html#cycl">http://www.cyc.com/tech.html#cycl</A></DD>
+
+<DT>
+[KIF]</DT>
+
+<DD>
+Knowledge Interchange Format (KIF); <A HREF="http://logic.stanford.edu/kif/kif.html">http://logic.stanford.edu/kif/kif.html</A></DD>
+
+<DT>
+[PICS]</DT>
+
+<DD>
+Platform for Internet Content Selection; <A HREF="http://www.w3.org/PICS/">http://www.w3.org/PICS/</A></DD>
+
+<DT>
+[DC]</DT>
+
+<DD>
+The Dublin Core initiative; <A HREF="http://purl.oclc.org/metadata/dublin_core">http://purl.oclc.org/metadata/dublin_core</A></DD>
+
+<DT>
+[UML]</DT>
+
+<DD>
+Unified Modelling Language (UML); <A HREF="http://www.rational.com/uml/resources.html">http://www.rational.com/uml/resources.html</A></DD>
+
+<DT>
+[XML-Data]</DT>
+
+<DD>
+XML Data; <A HREF="http://www.w3.org/Submission/1998/01/">http://www.w3.org/Submission/1998/01/</A></DD>
+
+<DT>
+[XML-Link]</DT>
+
+<DD>
+XML Linking Language (XLink) <A HREF="http://www.w3.org/TR/WD-xml-link">http://www.w3.org/TR/WD-xml-link</A></DD>
+</DL>
+
+</BODY>
+</HTML>

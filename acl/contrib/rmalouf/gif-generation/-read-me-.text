@@ -1,0 +1,15 @@
+Howdy,
+
+I've just cooked up a simple ACL interface to the gd GIF generation
+library that some of you might be interested in.  Unlike the CWEST gd
+interface, this one will send a GIF to a Lisp stream, which lets a
+cl-http server generate images on the fly without creating any
+temporary files.  It's not very well tested, so let me know if you
+have any trouble with it.  You can get the code from:
+
+	ftp://ftp-csli.stanford.edu/pub/TMP/gd.tar.gz
+
+Enjoy!
+
+Rob Malouf
+malouf@stanford.edu

@@ -1,0 +1,38 @@
+
+Common Lisp Hypermedia Server (CL-HTTP)
+
+1. Getting Started
+
+Quick TCP/IP Start: Load the file mac-start-server.lisp into MCL 3.0.
+This will compile the server and launch it running the demo Web
+structure.  This assumes you're running MacTCP over TCP/IP.
+
+Once you get the Common Lisp Hypermedia Server running, it will serve
+its own documentation when you access the URL
+http://your.host.domain/cl-http/cl-http.html
+
+Configuring the server is explained in detail by
+http://your.host.domain/cl-http/configure.html.
+
+You can use the local file option of your Web browser to read the
+configuration instructions before starting the server. This file is
+found in the subdirectory of the cl-http distribution:
+
+        /mac-cl-http-n-n/www/cl-http/configure.html
+
+If you have questions, you may direct them to the developer group at
+www-cl@ai.mit.edu. You can join this group by sending a message to
+www-cl-request@ai.mit.edu containing "subscribe www-cl" in the message
+body.
+
+Current versions of the server may be obtained via FTP from:
+
+ftp://ftp.ai.mit.edu/pub/users/jcma/cl-http/
+
+Netscape 1.1 304 Loop: Netscape 1.1 can get into a loop attempting to
+refresh its cache with any server and this includes CL-HTTP. A work
+around is to clear the cache using from the preferences dialog, quit
+Netscape and restart. This works in most cases but not all. In other
+cases, make sure that your time and time zone are correctly configured,
+and if all else fails, set the caching to never check documents.
+

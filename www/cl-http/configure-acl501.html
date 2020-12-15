@@ -1,0 +1,136 @@
+<html>
+
+<head>
+<title>Configuring Allegro CL 5</title>
+<meta name="GENERATOR" content="Microsoft FrontPage 3.0">
+</head>
+
+<body>
+
+<h1>Configuring Allegro CL 5.0.1 cl-http</h1>
+
+<p>Before building cl-http be sure to check the list of patches in the <a
+href="/cl-http/sources/acl501/-read-me-.text">acl501 read me</a> file and install them if
+necessary.</p>
+
+<p>There are three principle ways of using <strong>cl-http</strong> within <strong>acl</strong>:
+
+<ol>
+  <li>As a developer of <strong>cl-http</strong> who may be modifying <strong>cl-http</strong>
+    soure code as well as his own code</li>
+  <li>Loading <strong>cl-http</strong> into an existing application.</li>
+  <li>Using <strong>cl-http </strong>as a standalone web server.</li>
+</ol>
+
+<p>We'll describe ways of building <strong>cl-http</strong> that is best for each case
+above.</p>
+
+<p>&nbsp;</p>
+
+<h2>1. cl-http developer</h2>
+
+<p>The simplest way to get <strong>cl-http</strong> up and running is to start lisp,
+change to the <strong>acl501</strong> directory of the cl-http source and load start.lisp</p>
+
+<pre>user(1): <strong>:cd /import/cl-http-70-16-rel/acl501</strong>
+user(2): <strong>:ld start</strong></pre>
+
+<p>This will compile (if necessary) and load in the compiled version of the <strong>cl-http</strong>
+source, then start the server on port <strong>8000</strong> and then load in the sample <strong>cl-http</strong>
+pages.&nbsp;&nbsp; Starting the server may fail for a few reasons: 
+
+<ol>
+  <li>The port <strong>8000</strong> is already in use by another process</li>
+  <li>The <strong>dns</strong> name of the machine can't be determined.&nbsp;&nbsp; This port
+    of <strong>cl-http</strong> tries to automatically determine the <strong>dns</strong> name
+    of the machine on which it's running.&nbsp; This is usually successful but it can fail if
+    the <strong>dns</strong> libraries on the machine are written in a certain way.&nbsp; </li>
+</ol>
+
+<p>If the server fails to start the error message will tell you what caused it to fail.
+&nbsp; You'll have to start the server manually using the <strong>http:start</strong>
+function.&nbsp; See the steps below for how that it done.&nbsp;&nbsp; You may want to
+create your own version of the <strong>start.lisp</strong> file that passes the necessary
+arguments to <strong>http:start</strong> so that it will startup on your machine.</p>
+
+<p>Another way to load and start <strong>cl-http</strong> is to:</p>
+
+<pre>user(1): <strong>:cd /import/cl-http-70-16-rel/acl501</strong>
+user(2): <strong>:ld load
+</strong>user(3):<strong> (build-cl-http)
+</strong>user(4):<strong> (http:start)
+</strong>user(5):<strong> (load-test)</strong></pre>
+
+<p>This is very similar to what <strong>start.lisp </strong>does.&nbsp; </p>
+
+<p>The <strong>http:start</strong> function takes a number of keyword arguments, the most
+important being:</p>
+
+<table border="1" width="100%">
+  <tr>
+    <td width="14%">:port</td>
+    <td width="86%">The port on which the server should listen for connections.&nbsp;&nbsp; On
+    Unix a process must be run as <strong>root</strong> to listen to ports less than 1024.
+    &nbsp;&nbsp; The default value for this parameter is 80.</td>
+  </tr>
+  <tr>
+    <td width="14%">:host</td>
+    <td width="86%">The <strong>dns</strong> name of this host.&nbsp;&nbsp; Generally it's
+    best to not specify this value and let <strong>cl-http</strong> figure it out, however if
+    it can't then you must supply the value</td>
+  </tr>
+</table>
+
+<p>&nbsp;</p>
+
+<p>The <strong>(load-test)</strong> step above loads in the sample <strong>cl-http </strong>pages
+that describe <strong>cl-http</strong> itself.&nbsp;&nbsp; These pages can only be loaded
+after the server has been started.</p>
+
+<p>&nbsp;</p>
+
+<h2>2. Using cl-http in an application</h2>
+
+<p>If you want to add <strong>cl-http</strong> to an existing application then it's best
+to compile all of the <strong>cl-http</strong> files into one large file: <strong>cl-http.fasl</strong>.
+&nbsp;&nbsp; This is done by</p>
+
+<pre>user(1): <strong>:cd /import/cl-http-70-16-rel/acl501</strong>
+user(2): <strong>:ld load
+</strong>user(3):<strong> (build-cl-http :create-fasl t)</strong></pre>
+
+<p>The last step creates <strong>cl-http.fasl</strong> that you can then load into your
+application.</p>
+
+<p>&nbsp;</p>
+
+<h2>3. Using <strong>cl-http </strong>as a standalone application</h2>
+
+<p>We've included in <strong>load.lisp</strong> an example of how to create a standalone <strong>cl-http</strong>
+application.&nbsp;&nbsp; This example is meant as a template.&nbsp; Our sample server
+doesn't serve anything.&nbsp; </p>
+
+<p>The first step in creating the standalone application is creating <strong>cl-http.fasl</strong>
+as described in step <strong>2.&nbsp;&nbsp; </strong>We'll assume that you haven't done
+that and show that in the steps below:</p>
+
+<pre>user(1): <strong>:cd /import/cl-http-70-16-rel/acl501</strong>
+user(2): <strong>:ld load
+</strong>user(3):<strong> (build-cl-http :create-fasl t)
+</strong>user(4):<strong> (makeapp)</strong></pre>
+
+<p>The <strong>makeapp</strong> function is defined in <strong>load.lisp</strong> and
+you'll want to study this function and alter it to create your own standalone application.
+&nbsp; The result of the <strong>makeapp</strong> function will be a set of files in the <strong>acl501/cl-http-app
+</strong>directory.&nbsp;&nbsp;&nbsp; These files contain an executable and support files
+that when run will start up a <strong>cl-http</strong> server.&nbsp; </p>
+
+<p>&nbsp;</p>
+
+<p>&nbsp;</p>
+
+<p>&nbsp;</p>
+
+<p>&nbsp;</p>
+</body>
+</html>

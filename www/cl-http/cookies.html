@@ -1,0 +1,131 @@
+<HTML>
+<HEAD>
+<TITLE>Client-Side Cookies</TITLE>
+</HEAD>
+
+<BODY bgcolor="#FFFFFF" text="#000000">  
+
+<H1>Client-Side Cookies</H1>
+
+<P><img src="/cl-http/icons/line-rain.gif"></P>
+
+<H2>Introduction</H2>
+
+<P>Client-side cookies are a mechanism by which servers can both store and
+retrieve information on the client side of the connection.  Servers can send
+cookies specific to URLs on the site, and cookie-capable clients (<i>e.g.</i>
+Netscape) will transmit cookies stored from previous sessions each time they
+reconnect to the URls. As a client moves around a site, the server can send
+cookies in response to different actions so the client stores state that the
+server may need later.  The client stores the cookies in its "cookies" file,
+and if the same URL is later revisited, sends the cookies back to the server.
+The server may use this information to customize behavior or page layout
+according to particular users' preferences or earlier actions.  </P>
+
+<P>Uses for cookies include: 
+<UL>
+<LI><B>Shopping Carts</B> that store intended purchases as different parts of a site are visited.</LI>
+<LI><B>Maps</B> of a client's paths around your site.</LI>
+<LI><B>A Mail Archive</B> tailored so messages previously read can be left out.</LI>
+</UL>
+
+<P><img src="/cl-http/icons/line-rain.gif"></P>
+
+<H2>Using Cookies With CL-HTTP</H2>
+
+<P>The macro <A
+HREF="/cl-http/show-documentation?HTTP:WITH-COOKIE-VALUES">http:with-cookie-values</A>
+and functions <A
+HREF="/cl-http/show-documentation?HTTP:SET-COOKIE-HTTP-HEADERS">
+http:set-cookie-http-headers</A> provide a convenient interfaces for CL-HTTP
+developer to use cookies in response functions.  Together, these two
+facilities allow the application to store information on the client and access
+that information in response functions.  </P>
+
+<DL>
+
+<P><DT><img src="/cl-http/icons/pinkball.gif"> <B><A
+HREF="/cl-http/show-documentation?HTTP:WITH-COOKIE-VALUES">http:with-cookie-values</A></B>
+is a macro which is wrapped around code that uses the cookie values.   If the
+the cookies are known at compile time, they can be passed in as the
+<I>variables</I> argument to <A
+HREF="/cl-http/show-documentation?HTTP:WITH-COOKIE-VALUES">http:with-cookie-values</A>
+macro.  In this case, local variable by those names will be bound in the run
+time to the cookie values sent by the client or NIL cookies are unavailable If
+the cookie names are determined at runtime, the local macro <I>get-cookie</I>
+may be used to access the cookie value. The developer may also access the
+variable http:cookies, http:current-user-agent, and
+http:current-user-agent-version within the scope of the macro.</P>
+
+<P><DT><img src="/cl-http/icons/pinkball.gif"> <B><A
+HREF="/cl-http/show-documentation?HTTP:SET-COOKIE-HTTP-HEADERS">http:set-cookie-http-headers</A></B>
+is a function that, when given a list of cookies with each cookie in the form
+of (name value &key expires domain path secure), returns the header plist.
+The header plist is what is passed in to the :additional-headers field of the
+<A HREF="/cl-http/show-documentation?HTTP:WITH-SUCCESSFUL-RESPONSE">
+http:with-successful-response</A> macro, so that the set-cookie header is sent
+out to the client.  </P>
+
+</DL>
+
+<p> Application may wish to use <a
+href="/cl-http/show-documentation?HTTP:WRITE-TO-ARMOR-PLATED-STRING">
+http:write-to-armor-plated-string</a> and <a
+href="/cl-http/show-documentation?HTTP:READ-FROM-ARMOR-PLATED-STRING">
+http:read-from-armor-plated-string</a> to protect Lisp data from damage in
+transit.
+
+<P><img src="/cl-http/icons/line-rain.gif"></P>
+
+<H2>Example</H2>
+
+<P>You can try an example using cookies called <A
+HREF="/cl-http/computed-cookie-form.html">computed-cookie-form</A>.  The
+source code for this example is available in <A
+HREF="/cl-http/sources/examples/exports.lisp">http:examples;exports.lisp</A>,
+under the subheading Client-Side Cookies.
+
+<P><img src="/cl-http/icons/line-rain.gif"></P>
+
+<DL>
+
+<P><DT><img src="/cl-http/icons/blueball.gif"> <B>Security Issues</B>:
+Security issues about cookies from a client perspective have been raised
+recently.  The following two links are articles about this and the third is a
+more informal look at possible problems.
+
+<P><UL>
+
+<LI> <A HREF="http://www.macweek.com/mw_1011/gw_net_tricks.html"> Mac Week
+Article</A></LI>
+
+<LI> <A HREF="http://www.webweek.com/96Jun03/comm/cookies.html"> Web Week
+Article</A></LI>
+
+<LI> <A HREF="http://emf.net/~mal/cookiesinfo.html"> Malcolm's Guide to
+Persistent Cookies</A>, also has links to uses of cookies.</LI>
+
+</UL>  </P>  </P>
+
+<P><DT><img src="/cl-http/icons/blueball.gif"> <B>More Information</B>: The
+following links provide more information about cookies in general.
+
+<P><UL>
+
+<LI> <A HREF="http://www.netscape.com/newsref/std/cookie_spec.html"> Client
+Side State - HTTP Cookies</A>, by Netscape, is the specification used by most
+implementations of cookies, including CL-HTTP.</LI>
+
+<LI> <A HREF="http://www.illuminatus.com/cookie_pages/cookie.cgi"> Andy's HTTP
+Cookie Info</A> has an example of cookies using Perl script, and also
+important info on the quirks of various browsers that have cookie
+capability.</LI>
+
+</UL> </P>  </P>
+
+</DL>
+
+<P><img src="/cl-http/icons/line-rain.gif"></P>
+
+</BODY>
+</HTML>

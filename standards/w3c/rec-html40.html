@@ -1,0 +1,1049 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html lang="en">
+<!-- $Id: cover.src,v 1.88 1998/04/24 19:08:10 lehors Exp $ -->
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<TITLE>HTML 4.0 Specification</TITLE>
+<LINK rel="next" href="about.html">
+<LINK rel="contents" href="cover.html#toc">
+<LINK rel="STYLESHEET" href="style/default.css" type="text/css">
+</HEAD>
+
+<body background="images/recbg.jpeg">
+<div class="navbar" align="center">
+&nbsp;<a href="about.html">next</a> &nbsp; <a href="#toc">table of contents</a> &nbsp; <a href="index/elements.html">elements</a> &nbsp; <a href="index/attributes.html">attributes</a> &nbsp; <a href="index/list.html">index</a>
+<hr>
+</div>
+
+
+<p align="right"><a href="http://www.w3.org/"><img
+src="images/w3c_home.gif" alt="W3C" align="left" border="0"
+hspace="0"></a>REC-html40-19980424<br clear="all"><!-- yikes... --></p>
+
+<h1 align="center">HTML 4.0 Specification</h1>
+<P align="center">
+<strong>W3C Recommendation, revised on <i>24-Apr-1998</i></strong></P>
+
+<dl>
+<dt>This version:
+<dd><a href="http://www.w3.org/TR/1998/REC-html40-19980424">http://www.w3.org/TR/1998/REC-html40-19980424</a>
+<dt>Latest version:
+<dd><a href="http://www.w3.org/TR/REC-html40">http://www.w3.org/TR/REC-html40</a>
+<dt>Previous version:
+<dd><a href="http://www.w3.org/TR/REC-html40-971218">http://www.w3.org/TR/REC-html40-971218</a>
+
+<dt>Editors:
+<dd><a href="http://www.w3.org/People/Raggett">Dave Raggett</a> &lt;<a href="mailto:dsr@w3.org">dsr@w3.org</a>&gt;
+<br><a href="http://www.w3.org/People/Arnaud">Arnaud Le Hors</a> &lt;<a href="mailto:lehors@w3.org">lehors@w3.org</a>&gt;
+<br><a href="http://www.w3.org/People/Jacobs">Ian Jacobs</a> &lt;<a href="mailto:ij@w3.org">ij@w3.org</a>&gt;
+</dl>
+
+<h2>Abstract</h2> 
+
+<p>This specification defines the HyperText Markup Language (HTML),
+version 4.0, the publishing language of the World Wide Web. In addition
+to the text, multimedia, and hyperlink features of the previous versions
+of HTML, HTML 4.0 supports more multimedia options, scripting languages,
+style sheets, better printing facilities, and documents that are more
+accessible to users with disabilities. HTML 4.0 also takes great strides
+towards the internationalization of documents, with the goal of making
+the Web truly World Wide.
+
+<p>HTML 4.0 is an SGML application conforming to International
+Standard ISO 8879 -- Standard Generalized Markup Language <a
+rel="biblioentry" href="./references.html#ref-ISO8879"
+class="normref">[ISO8879]</a>.</p>
+
+<h2>Status of this document</h2>
+
+<p>This document has been reviewed by W3C Members and other interested
+parties and has been endorsed by the Director as a W3C
+Recommendation. It is a stable document and may be used as reference
+material or cited as a normative reference from another
+document. W3C's role in making the Recommendation is to draw attention
+to the specification and to promote its widespread deployment. This
+enhances the functionality and interoperability of the Web.
+
+<P>W3C recommends that user agents and authors (and in particular,
+authoring tools) produce HTML 4.0 documents rather than HTML 3.2
+documents (see <a rel="biblioentry"
+href="./references.html#ref-HTML32" class="informref">[HTML32]</a>).
+For reasons of backwards compatibility, W3C also recommends that tools
+interpreting HTML 4.0 continue to support HTML 3.2 and HTML 2.0 as
+well.
+
+<P>A list of current W3C Recommendations and other technical documents
+can be found at <a href="http://www.w3.org/TR">http://www.w3.org/TR</a>.
+
+<P>Public discussion on HTML features takes place on <a
+href="http://www.w3.org/MarkUp/Forums#www-html">www-html@w3.org</a>.
+
+<P><em>This document is a revised version of the document first released on
+18 December 1997. <a href="appendix/changes.html#19980424">Changes from the
+original version</a> are only editorial in nature.</em>
+
+<h3>Available formats</h3>
+<p>The HTML 4.0 W3C Recommendation is also available in the
+following formats:
+
+<dl>
+<dt>A plain text file:
+<dd><a href="html40.txt">http://www.w3.org/TR/1998/REC-html40-19980424/html40.txt</a>
+(735Kb),
+<dt>A gzip'ed tar file containing HTML documents:
+<dd><a href="html40.tgz">http://www.w3.org/TR/1998/REC-html40-19980424/html40.tgz</a>
+(357Kb),
+<dt>A zip file containing HTML documents
+(this is a '.zip' file not an '.exe'):
+<dd><a href="html40.zip">http://www.w3.org/TR/1998/REC-html40-19980424/html40.zip</a>
+(389Kb),
+<dt>A gzip'ed Postscript file:
+<dd><a href="html40.ps.gz">http://www.w3.org/TR/1998/REC-html40-19980424/html40.ps.gz</a>
+(600Kb, 367 pages),
+<dt>A PDF file:
+<dd><a href="html40.pdf">http://www.w3.org/TR/1998/REC-html40-19980424/html40.pdf</a>
+(2.1Mb) file.
+</dl>
+
+<P>In case of a discrepancy between electronic and printed forms of
+the specification, the electronic version is the definitive version.
+
+<h3>Available languages</h3> 
+
+<P>The English version of this specification is the only normative
+version. However, for translations of this document, see <a
+href="http://www.w3.org/MarkUp/html40-updates/translations.html">http://www.w3.org/MarkUp/html40-updates/translations.html</a>.</p>
+
+
+<h3>Errata</h3>
+
+<dl>
+<dt>The list of known errors in this specification is available at:
+<dd><a
+href="http://www.w3.org/MarkUp/html40-updates/REC-html40-19980424-errata.html">http://www.w3.org/MarkUp/html40-updates/REC-html40-19980424-errata.html</a>
+</dl>
+
+<p>Please report errors in this document to <a
+href="mailto:www-html-editor@w3.org">www-html-editor@w3.org</a>. 
+</p>
+
+<!--NewPage--><!-- this is for html2ps -->
+<h2><a name="toc">Table of Contents</a></h2>
+<ol>
+<li><a class="tocxref" href="about.html" rel="chapter">About the HTML 4.0 Specification</a>
+<ol>
+<li><a class="tocxref" href="about.html#h-1.1">How the specification is organized</a>
+<li><a class="tocxref" href="about.html#h-1.2">Document conventions</a>
+<ol>
+<li><a class="tocxref" href="about.html#h-1.2.1">Elements and attributes</a>
+<li><a class="tocxref" href="about.html#h-1.2.2">Notes and examples</a>
+</ol>
+<li><a class="tocxref" href="about.html#h-1.3">Acknowledgments</a>
+<li><a class="tocxref" href="about.html#h-1.4">Copyright Notice</a>
+</ol>
+<li><a class="tocxref" href="intro/intro.html" rel="chapter">Introduction to HTML 4.0</a>
+<ol>
+<li><a class="tocxref" href="intro/intro.html#h-2.1">What is the World Wide Web?</a>
+<ol>
+<li><a class="tocxref" href="intro/intro.html#h-2.1.1">Introduction to URIs</a>
+<li><a class="tocxref" href="intro/intro.html#h-2.1.2">Fragment identifiers</a>
+<li><a class="tocxref" href="intro/intro.html#h-2.1.3">Relative URIs</a>
+</ol>
+<li><a class="tocxref" href="intro/intro.html#h-2.2">What is HTML?</a>
+<ol>
+<li><a class="tocxref" href="intro/intro.html#h-2.2.1">A brief history of HTML</a>
+</ol>
+<li><a class="tocxref" href="intro/intro.html#h-2.3">HTML 4.0</a>
+<ol>
+<li><a class="tocxref" href="intro/intro.html#h-2.3.1">Internationalization</a>
+<li><a class="tocxref" href="intro/intro.html#h-2.3.2">
+<span class="index-inst" title="accessibility::features in HTML 4.0">
+Accessibility</span></a>
+<li><a class="tocxref" href="intro/intro.html#h-2.3.3">Tables</a>
+<li><a class="tocxref" href="intro/intro.html#h-2.3.4">Compound documents</a>
+<li><a class="tocxref" href="intro/intro.html#h-2.3.5">Style sheets</a>
+<li><a class="tocxref" href="intro/intro.html#h-2.3.6">Scripting</a>
+<li><a class="tocxref" href="intro/intro.html#h-2.3.7">Printing</a>
+</ol>
+<li><a class="tocxref" href="intro/intro.html#h-2.4">Authoring documents with HTML 4.0</a>
+<ol>
+<li><a class="tocxref" href="intro/intro.html#h-2.4.1">Separate structure and presentation</a>
+<li><a class="tocxref" href="intro/intro.html#h-2.4.2">Consider universal accessibility to the Web</a>
+<li><a class="tocxref" href="intro/intro.html#h-2.4.3">Help user agents with incremental rendering</a>
+</ol>
+</ol>
+<li><a class="tocxref" href="intro/sgmltut.html" rel="chapter">On SGML and HTML</a>
+<ol>
+<li><a class="tocxref" href="intro/sgmltut.html#h-3.1">Introduction to SGML</a>
+<li><a class="tocxref" href="intro/sgmltut.html#h-3.2">SGML constructs used in HTML</a>
+<ol>
+<li><a class="tocxref" href="intro/sgmltut.html#h-3.2.1">Elements</a>
+<li><a class="tocxref" href="intro/sgmltut.html#h-3.2.2">Attributes</a>
+<li><a class="tocxref" href="intro/sgmltut.html#h-3.2.3">Character references</a>
+<li><a class="tocxref" href="intro/sgmltut.html#h-3.2.4">Comments</a>
+</ol>
+<li><a class="tocxref" href="intro/sgmltut.html#h-3.3">How to read the HTML DTD</a>
+<ol>
+<li><a class="tocxref" href="intro/sgmltut.html#h-3.3.1">DTD Comments</a>
+<li><a class="tocxref" href="intro/sgmltut.html#h-3.3.2">Parameter entity definitions</a>
+<li><a class="tocxref" href="intro/sgmltut.html#h-3.3.3">Element declarations</a>
+<ul>
+<li><a class="tocxref" href="intro/sgmltut.html#h-3.3.3.1">Content model definitions</a>
+</ul>
+<li><a class="tocxref" href="intro/sgmltut.html#h-3.3.4">Attribute declarations</a>
+<ul>
+<li><a class="tocxref" href="intro/sgmltut.html#h-3.3.4.1">DTD entities in attribute definitions</a>
+<li><a class="tocxref" href="intro/sgmltut.html#h-3.3.4.2"><span class="index-def" title="boolean
+attribute|attribute::boolean"><dfn>Boolean attributes</dfn></span></a>
+</ul>
+</ol>
+</ol>
+<li><a class="tocxref" href="conform.html" rel="chapter">Conformance: requirements
+and recommendations</a>
+<ol>
+<li><a class="tocxref" href="conform.html#h-4.1">Definitions</a>
+<li><a class="tocxref" href="conform.html#h-4.2">SGML</a>
+<li><a class="tocxref" href="conform.html#h-4.3"><span class="index-def" title="text/html">The text/html content type</span></a>
+</ol>
+<li><a class="tocxref" href="charset.html" rel="chapter">HTML Document Representation
+</a> <em>- Character sets, character encodings, and entities</em>
+<ol>
+<li><a class="tocxref" href="charset.html#h-5.1">The Document Character Set</a>
+<li><a class="tocxref" href="charset.html#h-5.2">Character encodings</a>
+<ol>
+<li><a class="tocxref" href="charset.html#h-5.2.1"><span class="index-inst" title="character encoding::choice of">
+Choosing an encoding</span></a>
+<ul>
+<li><a class="tocxref" href="charset.html#h-5.2.1.1">Notes on specific encodings</a>
+</ul>
+<li><a class="tocxref" href="charset.html#h-5.2.2"><span class="index-inst" title="character encoding::specification
+of">Specifying the character encoding
+</span></a>
+</ol>
+<li><a class="tocxref" href="charset.html#h-5.3">Character references</a>
+<ol>
+<li><a class="tocxref" href="charset.html#h-5.3.1">Numeric character references</a>
+<li><a class="tocxref" href="charset.html#h-5.3.2">Character entity references</a>
+</ol>
+<li><a class="tocxref" href="charset.html#h-5.4">Undisplayable characters</a>
+</ol>
+<li><a class="tocxref" href="types.html" rel="chapter">Basic HTML data
+ types</a> <em>- Character data, colors, lengths, URIs, content types, etc.</em>
+<ol>
+<li><a class="tocxref" href="types.html#h-6.1">Case information</a>
+<li><a class="tocxref" href="types.html#h-6.2">SGML basic types</a>
+<li><a class="tocxref" href="types.html#h-6.3">Text strings</a>
+<li><a class="tocxref" href="types.html#h-6.4">URIs</a>
+<li><a class="tocxref" href="types.html#h-6.5">Colors</a>
+<ol>
+<li><a class="tocxref" href="types.html#h-6.5.1">Notes on using colors</a>
+</ol>
+<li><a class="tocxref" href="types.html#h-6.6">Lengths</a>
+<li><a class="tocxref" href="types.html#h-6.7">Content types (MIME types)</a>
+<li><a class="tocxref" href="types.html#h-6.8">Language codes</a>
+<li><a class="tocxref" href="types.html#h-6.9">Character encodings</a>
+<li><a class="tocxref" href="types.html#h-6.10">Single characters</a>
+<li><a class="tocxref" href="types.html#h-6.11">
+<span class="index-inst" title="date::format of|time::format of">
+Dates and times</span></a>
+<li><a class="tocxref" href="types.html#h-6.12">Link types</a>
+<li><a class="tocxref" href="types.html#h-6.13">Media descriptors</a>
+<li><a class="tocxref" href="types.html#h-6.14">
+<span class="index-inst" title="script::data">
+Script data</span></a>
+<li><a class="tocxref" href="types.html#h-6.15"><span class="index-inst" title="style sheet::data">
+Style sheet data</span></a>
+<li><a class="tocxref" href="types.html#h-6.16">Frame target names</a>
+</ol>
+<li><a class="tocxref" href="struct/global.html" rel="chapter">The global structure of an HTML document</a> <em>- The HEAD and BODY of a document
+</em>
+<ol>
+<li><a class="tocxref" href="struct/global.html#h-7.1">Introduction to the structure of an HTML document</a>
+<li><a class="tocxref" href="struct/global.html#h-7.2">HTML version information</a>
+<li><a class="tocxref" href="struct/global.html#h-7.3">The <samp class="einst2">HTML</samp> element</a>
+<li><a class="tocxref" href="struct/global.html#h-7.4">The document head</a>
+<ol>
+<li><a class="tocxref" href="struct/global.html#h-7.4.1">The <samp class="einst2">HEAD</samp> element</a>
+<li><a class="tocxref" href="struct/global.html#h-7.4.2">The <samp class="einst2">TITLE</samp>
+element</a>
+<li><a class="tocxref" href="struct/global.html#h-7.4.3">The <samp>title</samp> attribute</a>
+<li><a class="tocxref" href="struct/global.html#h-7.4.4">Meta data</a>
+<ul>
+<li><a class="tocxref" href="struct/global.html#h-7.4.4.1">Specifying meta data</a>
+<li><a class="tocxref" href="struct/global.html#h-7.4.4.2">The <samp class="einst2">META</samp> element</a>
+<li><a class="tocxref" href="struct/global.html#h-7.4.4.3">Meta data profiles</a>
+</ul>
+</ol>
+<li><a class="tocxref" href="struct/global.html#h-7.5">The document body</a>
+<ol>
+<li><a class="tocxref" href="struct/global.html#h-7.5.1">The <samp class="einst2">BODY</samp> element</a>
+<li><a class="tocxref" href="struct/global.html#h-7.5.2">Element identifiers: the <samp>id</samp>
+and <samp>class</samp> attributes</a>
+<li><a class="tocxref" href="struct/global.html#h-7.5.3">Block-level and inline elements</a>
+<li><a class="tocxref" href="struct/global.html#h-7.5.4">Grouping elements: the <samp class="einst2">DIV</samp> and <samp class="einst2">SPAN</samp> elements</a>
+<li><a class="tocxref" href="struct/global.html#h-7.5.5">Headings: The <samp class="einst2">H1</samp>,
+<samp class="einst2">H2</samp>,
+<samp class="einst2">H3</samp>,
+<samp class="einst2">H4</samp>,
+<samp class="einst2">H5</samp>,
+<samp class="einst2">H6</samp> elements</a>
+<li><a class="tocxref" href="struct/global.html#h-7.5.6">The <samp class="einst2">ADDRESS</samp>
+element</a>
+</ol>
+</ol>
+<li><a class="tocxref" href="struct/dirlang.html" rel="chapter">Language information and text direction</a> <em>-
+        International considerations for text</em>
+<ol>
+<li><a class="tocxref" href="struct/dirlang.html#h-8.1">Specifying the language of content: the
+            <samp>lang</samp> attribute</a>
+<ol>
+<li><a class="tocxref" href="struct/dirlang.html#h-8.1.1"><span class="index-def" title="language::codes to specify"> Language codes</span></a>
+<li><a class="tocxref" href="struct/dirlang.html#h-8.1.2">Inheritance of language codes</a>
+<li><a class="tocxref" href="struct/dirlang.html#h-8.1.3">Interpretation of language codes</a>
+</ol>
+<li><a class="tocxref" href="struct/dirlang.html#h-8.2">Specifying the direction of text and tables: the 
+              <samp>dir</samp> attribute</a>
+<ol>
+<li><a class="tocxref" href="struct/dirlang.html#h-8.2.1"><span class="index-inst" title="bidirection::Unicode
+algorithm|Unicode bidirectional algorithm">Introduction to the
+bidirectional algorithm </span></a>
+<li><a class="tocxref" href="struct/dirlang.html#h-8.2.2">
+<span class="index-inst" title="block-level::and
+bidirection|direction::inheritance of for nested elements">Inheritance of text direction
+information</span></a>
+<li><a class="tocxref" href="struct/dirlang.html#h-8.2.3">Setting the direction of embedded text</a>
+<li><a class="tocxref" href="struct/dirlang.html#h-8.2.4">Overriding the bidirectional algorithm: the <samp class="einst2">BDO</samp> element</a>
+<li><a class="tocxref" href="struct/dirlang.html#h-8.2.5"><span class="index-inst" title="character reference::for
+directionality"> Character references for directionality and joining
+control</span></a>
+<li><a class="tocxref" href="struct/dirlang.html#h-8.2.6">
+<span class="index-inst" title="style sheet::and
+bidirection|bidirection::and style sheets">The
+effect of style sheets on bidirectionality</span></a>
+</ol>
+</ol>
+<li><a class="tocxref" href="struct/text.html" rel="chapter">Text</a> <em>- Paragraphs, Lines, and Phrases </em>
+<ol>
+<li><a class="tocxref" href="struct/text.html#h-9.1">
+<span class="index-def" title="white space">White
+space</span></a>
+<li><a class="tocxref" href="struct/text.html#h-9.2">Structured text</a>
+<ol>
+<li><a class="tocxref" href="struct/text.html#h-9.2.1">Phrase elements: <samp class="einst2">EM</SAMP>,
+<samp class="einst2">STRONG</SAMP>, <samp class="einst2">DFN</SAMP>, <samp class="einst2">CODE</SAMP>, <samp class="einst2">SAMP</SAMP>, 
+<samp class="einst2">KBD</SAMP>, <SAMP class=
+"edef">VAR</SAMP>, <samp class="einst2">CITE</SAMP>, <samp class="einst2">ABBR</SAMP>, and <samp class="einst2">ACRONYM</SAMP></a>
+<li><a class="tocxref" href="struct/text.html#h-9.2.2">Quotations: The <samp class="einst2">
+BLOCKQUOTE</SAMP> and <samp class="einst2">Q</SAMP>
+elements</a>
+<ul>
+<li><a class="tocxref" href="struct/text.html#h-9.2.2.1">
+<span class="index-inst" title="quoted text::rendering of">
+Rendering quotations</span></a>
+</ul>
+<li><a class="tocxref" href="struct/text.html#h-9.2.3">Subscripts and superscripts: the <SAMP class
+="edef">SUB</SAMP> and <samp class="einst2">
+SUP</SAMP> elements</a>
+</ol>
+<li><a class="tocxref" href="struct/text.html#h-9.3">Lines and Paragraphs</a>
+<ol>
+<li><a class="tocxref" href="struct/text.html#h-9.3.1">Paragraphs: the <samp class="einst2">P</SAMP>
+ element</a>
+<li><a class="tocxref" href="struct/text.html#h-9.3.2">Controlling line breaks</a>
+<ul>
+<li><a class="tocxref" href="struct/text.html#h-9.3.2.1">
+<span class="index-inst" title="line break::forcing">Forcing</span> a
+line break: the <samp class="einst2"> BR</SAMP>
+element</a>
+<li><a class="tocxref" href="struct/text.html#h-9.3.2.2">
+<span class="index-inst" title="line break::prohibiting">
+Prohibiting a line break</span></a>
+</ul>
+<li><a class="tocxref" href="struct/text.html#h-9.3.3">
+<span class="index-inst" title="hyphenation">
+Hyphenation</span></a>
+<li><a class="tocxref" href="struct/text.html#h-9.3.4">Preformatted text: The <samp class="einst2">PRE</SAMP> element</a>
+<li><a class="tocxref" href="struct/text.html#h-9.3.5">
+<span class="index-inst" title="paragraph::visual rendering of">
+Visual rendering of paragraphs</span></a>
+</ol>
+<li><a class="tocxref" href="struct/text.html#h-9.4">Marking document changes: The INS and DEL elements</a>
+</ol>
+<li><a class="tocxref" href="struct/lists.html" rel="chapter">Lists</a> <em>- Unordered, Ordered, and Definition Lists </em>
+<ol>
+<li><a class="tocxref" href="struct/lists.html#h-10.1">Introduction to lists</a>
+<li><a class="tocxref" href="struct/lists.html#h-10.2"><span class="index-def" title="list::unordered">
+Unordered lists</span> (<samp class="einst2">UL</samp>),
+<span class="index-def" title="list::ordered">
+ordered lists</span> (<samp class="einst2">OL</samp>), and list items (<samp class="einst2">LI</samp>)</a>
+<li><a class="tocxref" href="struct/lists.html#h-10.3">
+<span class="index-def" title="list::definition list">
+Definition lists</span>: the <samp class="einst2">DL</samp>,
+<samp class="einst2">DT</samp>,
+and 
+<samp class="einst2">DD</samp> elements</a>
+<ol>
+<li><a class="tocxref" href="struct/lists.html#h-10.3.1"><span class="index-inst" title="list::visual rendering of"> Visual
+rendering of lists</span></a>
+</ol>
+<li><a class="tocxref" href="struct/lists.html#h-10.4">The <samp class="einst2">DIR</samp> and <samp class="einst2">MENU</samp> elements</a>
+</ol>
+<li><a class="tocxref" href="struct/tables.html" rel="chapter">Tables</a>
+<ol>
+<li><a class="tocxref" href="struct/tables.html#h-11.1">Introduction to tables</a>
+<li><a class="tocxref" href="struct/tables.html#h-11.2">Elements for constructing tables</a>
+<ol>
+<li><a class="tocxref" href="struct/tables.html#h-11.2.1">The <samp class="einst2">TABLE</SAMP>
+element</a>
+<ul>
+<li><a class="tocxref" href="struct/tables.html#h-11.2.1.1">Table directionality</a>
+</ul>
+<li><a class="tocxref" href="struct/tables.html#h-11.2.2">Table Captions: The <samp class="einst2">CAPTION</SAMP> element</a>
+<li><a class="tocxref" href="struct/tables.html#h-11.2.3">Row groups: the <samp class="einst2">THEAD</SAMP>, <samp class="einst2">TFOOT</SAMP>, and <samp class="einst2">TBODY</SAMP> elements</a>
+<li><a class="tocxref" href="struct/tables.html#h-11.2.4">Column groups: the <samp class="einst2">COLGROUP</SAMP> and <samp class="einst2">COL</SAMP> elements
+</a>
+<ul>
+<li><a class="tocxref" href="struct/tables.html#h-11.2.4.1">The <samp class="einst2">COLGROUP</SAMP>
+ element</a>
+<li><a class="tocxref" href="struct/tables.html#h-11.2.4.2">The <samp class="einst2">COL</SAMP>
+element</a>
+<li><a class="tocxref" href="struct/tables.html#h-11.2.4.3">
+<span class="index-inst" title="column::number of in a
+table|table::number of columns"> Calculating the
+number of columns in a table</span></a>
+<li><a class="tocxref" href="struct/tables.html#h-11.2.4.4">
+<span class="index-inst" title="column::width of in a
+table|table::width of columns"> Calculating the
+width of columns</span></a>
+</ul>
+<li><a class="tocxref" href="struct/tables.html#h-11.2.5">Table rows: The <samp class="einst2">TR</SAMP> element</a>
+<li><a class="tocxref" href="struct/tables.html#h-11.2.6">Table cells: The <samp class="einst2">TH</SAMP> and <samp class="einst2">TD</SAMP> elements</a>
+<ul>
+<li><a class="tocxref" href="struct/tables.html#h-11.2.6.1">
+<span class="index-inst" title="table::cells that span several
+rows/columns">Cells that span several rows or columns</span></a>
+</ul>
+</ol>
+<li><a class="tocxref" href="struct/tables.html#h-11.3">
+<span class="index-inst" title="table::visual rendering of">
+Table formatting by visual user
+agents</span></a>
+<ol>
+<li><a class="tocxref" href="struct/tables.html#h-11.3.1">
+<span class="index-inst" title="table::borders and rules
+of|border::around a table|rule::between table cells">Borders and rules</span></a>
+<li><a class="tocxref" href="struct/tables.html#h-11.3.2">
+<span class="index-inst" title="table::alignment of
+contents|alignment::of table contents">Horizontal
+and vertical alignment</span></a>
+<ul>
+<li><a class="tocxref" href="struct/tables.html#h-11.3.2.1">Inheritance of alignment specifications</a>
+</ul>
+<li><a class="tocxref" href="struct/tables.html#h-11.3.3">
+<span class="index-inst" title="white space::around table contents|
+table::cell margins">Cell margins</span></a>
+</ol>
+<li><a class="tocxref" href="struct/tables.html#h-11.4">
+<span class="index-inst" title="table::non-visual rendering of">
+Table rendering by non-visual user
+agents</span></a>
+<ol>
+<li><a class="tocxref" href="struct/tables.html#h-11.4.1">Associating header information with data
+cells</a>
+<li><a class="tocxref" href="struct/tables.html#h-11.4.2"><span class="index-inst" title="table::categorization of cells">
+Categorizing cells</span></a>
+<li><a class="tocxref" href="struct/tables.html#h-11.4.3">
+<span class="index-inst" title="table::algorithm to find heading">
+Algorithm to find heading information</span></a>
+</ol>
+<li><a class="tocxref" href="struct/tables.html#h-11.5">Sample table</a>
+</ol>
+<li><a class="tocxref" href="struct/links.html" rel="chapter">Links</a> <em>- Hypertext and Media-Independent Links 
+</em>
+<ol>
+<li><a class="tocxref" href="struct/links.html#h-12.1">Introduction to links and anchors
+</a>
+<ol>
+<li><a class="tocxref" href="struct/links.html#h-12.1.1">Visiting a linked resource</a>
+<li><a class="tocxref" href="struct/links.html#h-12.1.2"><span class="index-inst" title="link::used to define relationship">
+Other link relationships</span></a>
+<li><a class="tocxref" href="struct/links.html#h-12.1.3">Specifying anchors and links</a>
+<li><a class="tocxref" href="struct/links.html#h-12.1.4">
+<span class="index-inst" title="link::title of">
+Link titles</span></a>
+<li><a class="tocxref" href="struct/links.html#h-12.1.5">
+<span class="index-inst" title="link::and character encoding|character
+encoding::of links">Internationalization and links</span></a>
+</ol>
+<li><a class="tocxref" href="struct/links.html#h-12.2">The <samp class="einst2">A</SAMP> element
+</a>
+<ol>
+<li><a class="tocxref" href="struct/links.html#h-12.2.1">
+<span class="index-inst" title="anchor::syntax of name">
+Syntax of anchor names</span></a>
+<li><a class="tocxref" href="struct/links.html#h-12.2.2">
+<span class="index-inst" title="link::nesting illegal">
+Nested links are illegal</span></a>
+<li><a class="tocxref" href="struct/links.html#h-12.2.3">
+<span class="index-inst" title="anchor::creation with id attribute">
+Anchors with the <SAMP>id</SAMP>
+attribute</span></a>
+<li><a class="tocxref" href="struct/links.html#h-12.2.4">
+<span class="index-inst" title="error::unavailable resource">
+Unavailable and unidentifiable resources</span></a>
+</ol>
+<li><a class="tocxref" href="struct/links.html#h-12.3">Document relationships: the <samp class="einst2">LINK</SAMP> element</a>
+<ol>
+<li><a class="tocxref" href="struct/links.html#h-12.3.1">
+<span class="index-inst" title="link::forward and reverse">
+Forward and reverse links</span></a>
+<li><a class="tocxref" href="struct/links.html#h-12.3.2">
+<span class="index-inst" title="link::and external style sheets|style
+sheet::external through links">Links and
+external style sheets</span></a>
+<li><a class="tocxref" href="struct/links.html#h-12.3.3">
+<span class="index-inst" title="search engine::and links">
+Links and search engines</span></a>
+</ol>
+<li><a class="tocxref" href="struct/links.html#h-12.4">Path information: the <samp class="einst2">
+BASE</SAMP> element</a>
+<ol>
+<li><a class="tocxref" href="struct/links.html#h-12.4.1">
+<span class="index-def" title="URI::resolution of relative|resolution 
+of relative URI">Resolving relative
+URIs</span></a>
+</ol>
+</ol>
+<li><a class="tocxref" href="struct/objects.html" rel="chapter">Objects, Images, and Applets</a>
+<ol>
+<li><a class="tocxref" href="struct/objects.html#h-13.1">Introduction to objects, images, and applets</a>
+<li><a class="tocxref" href="struct/objects.html#h-13.2">Including an image: the <samp class="einst2">IMG</samp> element</a>
+<li><a class="tocxref" href="struct/objects.html#h-13.3">Generic inclusion: the <samp class="einst2">OBJECT</samp> element</a>
+<ol>
+<li><a class="tocxref" href="struct/objects.html#h-13.3.1">
+<span class="index-inst" title="object::fallback rendering
+of|object::rules for embedded"> Rules for rendering objects</span></a>
+<li><a class="tocxref" href="struct/objects.html#h-13.3.2">
+<span class="index-inst" title="object::initialization">
+Object initialization:</span> the <samp class="einst2">PARAM</samp> element</a>
+<li><a class="tocxref" href="struct/objects.html#h-13.3.3">
+<span class="index-inst" title="object::naming schemes for">
+Global naming schemes for objects</span></a>
+<li><a class="tocxref" href="struct/objects.html#h-13.3.4">
+<span class="index-inst" title="object::statically declared">
+Object declarations and
+instantiations</span></a>
+</ol>
+<li><a class="tocxref" href="struct/objects.html#h-13.4">Including an applet: the <samp class="einst2">APPLET</samp> element</a>
+<li><a class="tocxref" href="struct/objects.html#h-13.5">Notes on embedded documents</a>
+<li><a class="tocxref" href="struct/objects.html#h-13.6">
+<span class="index-def" title="image map">
+Image maps</span></a>
+<ol>
+<li><a class="tocxref" href="struct/objects.html#h-13.6.1">Client-side image maps:
+the <samp class="einst2">MAP</samp>
+and <samp class="einst2">AREA</samp>
+elements</a>
+<ul>
+<li><a class="tocxref" href="struct/objects.html#h-13.6.1.1">Client-side image map examples</a>
+</ul>
+<li><a class="tocxref" href="struct/objects.html#h-13.6.2">
+<span class="index-inst" title="image map::server side|server-side
+image map">Server-side image maps</span></a>
+</ol>
+<li><a class="tocxref" href="struct/objects.html#h-13.7">
+<span class="index-inst" title="image::visual rendering
+of|object::visual rendering of">Visual presentation
+of images, objects, and applets</span></a>
+<ol>
+<li><a class="tocxref" href="struct/objects.html#h-13.7.1">
+<span class="index-inst" title="image::width and height
+of|object::width and height of">Width and
+height</span></a>
+<li><a class="tocxref" href="struct/objects.html#h-13.7.2">
+<span class="index-inst" title="white space::around images and
+objects|image::white space around|object::white space around">
+White space around images and objects</span></a>
+<li><a class="tocxref" href="struct/objects.html#h-13.7.3">
+<span class="index-inst" title="border::around image|border::around
+object|image::border around|object::border around">
+Borders</span></a>
+<li><a class="tocxref" href="struct/objects.html#h-13.7.4">
+<span class="index-inst" title="alignment::of images|alignment::of
+objects|object::alignment of|image::alignment of"> Alignment</span></a>
+</ol>
+<li><a class="tocxref" href="struct/objects.html#h-13.8">
+<span class="index-inst" title="alternate
+text::specifying|accessibility::alternate text"> How to specify alternate text</span></a>
+</ol>
+<li><a class="tocxref" href="present/styles.html" rel="chapter">Style Sheets</a> <em>- 
+Adding style to HTML documents </em>
+<ol>
+<li><a class="tocxref" href="present/styles.html#h-14.1">
+<span class="index-inst" title="style sheet::introduction to">
+Introduction to style sheets</span></a>
+<li><a class="tocxref" href="present/styles.html#h-14.2">Adding style to HTML</a>
+<ol>
+<li><a class="tocxref" href="present/styles.html#h-14.2.1">
+<span class="index-inst" title="default::style sheet language|style
+sheet language::default|HTTP::Content-Style-Type header|Content-Style-Type header">Setting the default style sheet
+language</span></a>
+<li><a class="tocxref" href="present/styles.html#h-14.2.2">Inline style information</a>
+<li><a class="tocxref" href="present/styles.html#h-14.2.3">Header style information: the <samp class="einst2">STYLE</samp> element</a>
+<li><a class="tocxref" href="present/styles.html#h-14.2.4">
+<span class="index-inst" title="media::used with style sheets|style
+sheet::target media for">Media
+types</span></a>
+</ol>
+<li><a class="tocxref" href="present/styles.html#h-14.3">
+<span class="index-inst" title="style sheet::external">External style sheets</span></a>
+<ol>
+<li><a class="tocxref" href="present/styles.html#h-14.3.1">Preferred and alternate style sheets</a>
+<li><a class="tocxref" href="present/styles.html#h-14.3.2">
+<span class="index-inst" title="style sheet::specification
+of external|link::and external style sheets">Specifying external style
+sheets</span></a>
+</ol>
+<li><a class="tocxref" href="present/styles.html#h-14.4">
+<span class="index-inst" title="style sheet::cascading|cascading style
+sheets">Cascading style sheets</span></a>
+<ol>
+<li><a class="tocxref" href="present/styles.html#h-14.4.1">
+<span class="index-inst" title="media::and external style
+sheets|link::and media-dependent style sheets"> Media-dependent cascades</span></a>
+<li><a class="tocxref" href="present/styles.html#h-14.4.2">Inheritance and cascading</a>
+</ol>
+<li><a class="tocxref" href="present/styles.html#h-14.5">
+<span class="index-inst" title="user agent::and style data|style sheet::comments to
+hide|comments::used to hide style sheet data">Hiding
+style data from user agents</span></a>
+<li><a class="tocxref" href="present/styles.html#h-14.6">
+<span class="index-inst" title="HTTP::used to link external style
+sheets">Linking to style sheets with HTTP headers</span></a>
+</ol>
+<li><a class="tocxref" href="present/graphics.html" rel="chapter">Alignment, font styles, and horizontal rules</a>
+<ol>
+<li><a class="tocxref" href="present/graphics.html#h-15.1">Formatting</a>
+<ol>
+<li><a class="tocxref" href="present/graphics.html#h-15.1.1">
+<span class="index-inst" title="background color|color::background">
+Background color</span></a>
+<li><a class="tocxref" href="present/graphics.html#h-15.1.2">
+<span class="index-inst" title="alignment::of block-level elements">Alignment</span></a>
+<li><a class="tocxref" href="present/graphics.html#h-15.1.3">Floating objects</a>
+<ul>
+<li><a class="tocxref" href="present/graphics.html#h-15.1.3.1">
+<span class="index-inst" title="alignment::floats|floating objects">
+Float an object</span></a>
+<li><a class="tocxref" href="present/graphics.html#h-15.1.3.2"><span class="index-inst" title="text::floating|alignment::floating
+text|floating text">Float text around an object</span></a>
+</ul>
+</ol>
+<li><a class="tocxref" href="present/graphics.html#h-15.2">
+<span class="index-inst" title="font::style with HTML">
+Fonts</span></a>
+<ol>
+<li><a class="tocxref" href="present/graphics.html#h-15.2.1">Font style elements: the <samp class="einst2">TT</samp>, <samp class="einst2">I</samp>, <samp class="einst2-B">B</samp>, <samp class="einst2">BIG</samp>, <samp class="einst2">SMALL</samp>, <samp class="einst2">STRIKE</samp>, <samp class="einst2">S</samp>, and <samp class="einst2">U</samp> elements</a>
+<li><a class="tocxref" href="present/graphics.html#h-15.2.2">Font modifier elements: <samp class="einst2">FONT</samp> and <samp class="einst2">BASEFONT</samp></a>
+</ol>
+<li><a class="tocxref" href="present/graphics.html#h-15.3">
+<span class="index-inst" title="rule::between block-level elements">
+Rules: the <samp class="einst2">HR</samp>
+element</span></a>
+</ol>
+<li><a class="tocxref" href="present/frames.html" rel="chapter">Frames</a> <em>- Multi-view presentation of documents
+</em>
+<ol>
+<li><a class="tocxref" href="present/frames.html#h-16.1"><span class="index-inst" title="frame::introduction to">
+Introduction to frames</span></a>
+<li><a class="tocxref" href="present/frames.html#h-16.2">Layout of frames</a>
+<ol>
+<li><a class="tocxref" href="present/frames.html#h-16.2.1">The <samp class="einst2">FRAMESET</samp>
+      element</a>
+<ul>
+<li><a class="tocxref" href="present/frames.html#h-16.2.1.1">Rows and columns</a>
+<li><a class="tocxref" href="present/frames.html#h-16.2.1.2"><span class="index-inst" title="frameset::nested">
+Nested frame sets</span></a>
+<li><a class="tocxref" href="present/frames.html#h-16.2.1.3"><span class="index-inst" title="object::in HEAD|frameset::sharing
+data among">Sharing data among
+frames</span></a>
+</ul>
+<li><a class="tocxref" href="present/frames.html#h-16.2.2">The <samp class="einst2">FRAME</samp>
+element</a>
+<ul>
+<li><a class="tocxref" href="present/frames.html#h-16.2.2.1"><span class="index-inst" title="frame::initial contents of">
+Setting the initial contents of a frame</span></a>
+<li><a class="tocxref" href="present/frames.html#h-16.2.2.2">Visual rendering of a frame</a>
+</ul>
+</ol>
+<li><a class="tocxref" href="present/frames.html#h-16.3">
+<span class="index-inst" title="frame::target of document|target
+frame::specification of">Specifying target frame
+information</span></a>
+<ol>
+<li><a class="tocxref" href="present/frames.html#h-16.3.1"><span class="index-inst" title="target
+frame::default|default::target frame|link::default target for">Setting
+the default target for links</span></a>
+<li><a class="tocxref" href="present/frames.html#h-16.3.2">
+<span class="index-inst" title="target frame::semantics
+of|link::semantics with target frame">Target semantics</span></a>
+</ol>
+<li><a class="tocxref" href="present/frames.html#h-16.4">
+<span class="index-inst" title="frameset::alternate content 
+for|accessibility::and alternate frame content"> 
+Alternate content</span></a>
+<ol>
+<li><a class="tocxref" href="present/frames.html#h-16.4.1">The <samp class="einst2">NOFRAMES</samp>
+element</a>
+<li><a class="tocxref" href="present/frames.html#h-16.4.2"><span class="index-inst" title="accessibility::and long frame
+descriptions|frame::long description of|image::not directly in frame">
+Long descriptions of frames</span></a>
+</ol>
+<li><a class="tocxref" href="present/frames.html#h-16.5"><span class="index-inst" title="frame::inline|document::ways to
+include">Inline frames:</span> the <samp class="einst2">IFRAME</samp> element</a>
+</ol>
+<li><a class="tocxref" href="interact/forms.html" rel="chapter">Forms</a> <em>- User-input Forms:
+        Text Fields, Buttons, Menus, and more </em>
+<ol>
+<li><a class="tocxref" href="interact/forms.html#h-17.1">Introduction to forms</a>
+<li><a class="tocxref" href="interact/forms.html#h-17.2">Controls</a>
+<ol>
+<li><a class="tocxref" href="interact/forms.html#h-17.2.1">
+<span class="index-inst" title="control::types of|form::control types">
+Control types</span></a>
+</ol>
+<li><a class="tocxref" href="interact/forms.html#h-17.3">The <samp class="einst2">FORM</samp> element</a>
+<li><a class="tocxref" href="interact/forms.html#h-17.4">The <samp class="einst2">INPUT</samp> element</a>
+<ol>
+<li><a class="tocxref" href="interact/forms.html#h-17.4.1">Control types created with INPUT</a>
+<li><a class="tocxref" href="interact/forms.html#h-17.4.2">Examples of forms containing INPUT controls</a>
+</ol>
+<li><a class="tocxref" href="interact/forms.html#h-17.5">The <samp class="einst2">BUTTON</samp> element </a>
+<li><a class="tocxref" href="interact/forms.html#h-17.6">The <samp class="einst2">SELECT</samp>,
+<samp class="einst2">OPTGROUP</samp>,
+and <samp class="einst2">OPTION</samp> elements</a>
+<ol>
+<li><a class="tocxref" href="interact/forms.html#h-17.6.1">
+<span class="index-inst" title="menu::preselected options">
+Preselected options</span></a>
+</ol>
+<li><a class="tocxref" href="interact/forms.html#h-17.7">The <samp class="einst2">TEXTAREA</samp>
+element</a>
+<li><a class="tocxref" href="interact/forms.html#h-17.8">The <samp class="einst2">ISINDEX</samp>
+element</a>
+<li><a class="tocxref" href="interact/forms.html#h-17.9">
+<span class="index-inst" title="form::adding labels to">
+Labels</span></a>
+<ol>
+<li><a class="tocxref" href="interact/forms.html#h-17.9.1">The <samp class="einst2">LABEL</samp> element</a>
+</ol>
+<li><a class="tocxref" href="interact/forms.html#h-17.10">Adding structure to forms:
+the <samp class="einst2">FIELDSET</samp>
+and <samp class="einst2">LEGEND</samp>
+elements</a>
+<li><a class="tocxref" href="interact/forms.html#h-17.11">
+<span class="index-def" title="focus|control::giving focus to">
+Giving focus to an element</span></a>
+<ol>
+<li><a class="tocxref" href="interact/forms.html#h-17.11.1">
+<span class="index-def" title="control::tabbing navigation|tabbing
+navigation|form::navigating through controls"> Tabbing navigation</span></a>
+<li><a class="tocxref" href="interact/forms.html#h-17.11.2">
+<span class="index-def" title="access key|control::access key
+for|accessibility::access keys">Access
+keys</span></a>
+</ol>
+<li><a class="tocxref" href="interact/forms.html#h-17.12">Disabled and read-only controls</a>
+<ol>
+<li><a class="tocxref" href="interact/forms.html#h-17.12.1">
+<span class="index-inst" title="control::disabled|disabled controls">
+Disabled controls</span></a>
+<li><a class="tocxref" href="interact/forms.html#h-17.12.2">
+<span class="index-inst" title="control::read only|read only controls">
+Read-only controls</span></a>
+</ol>
+<li><a class="tocxref" href="interact/forms.html#h-17.13">
+<span class="index-inst" title="form::submission of">
+Form submission</span></a>
+<ol>
+<li><a class="tocxref" href="interact/forms.html#h-17.13.1">
+<span class="index-inst" title="form::submission method
+of|GET::and form submission|POST::and form submission|HTTP::GET and
+POST with forms">Form submission method</span></a>
+<li><a class="tocxref" href="interact/forms.html#h-17.13.2">
+<span class="index-inst" title="control::successful|successful
+control|form::values submitted"> Successful controls</span></a>
+<li><a class="tocxref" href="interact/forms.html#h-17.13.3">
+<span class="index-inst" title="form::processing controls of">
+Processing form data</span></a>
+<ul>
+<li><a class="tocxref" href="interact/forms.html#h-17.13.3.1">Step one: Identify the successful
+controls</a>
+<li><a class="tocxref" href="interact/forms.html#h-17.13.3.2">Step two: Build a form data set</a>
+<li><a class="tocxref" href="interact/forms.html#h-17.13.3.3">
+<span class="index-inst" title="form::encoding data of|form data
+set::encoding">Step three: Encode the form
+data set</span></a>
+<li><a class="tocxref" href="interact/forms.html#h-17.13.3.4">
+<span class="index-inst" title="form::methods and actions">
+Step four: Submit the encoded form data set</span></a>
+</ul>
+<li><a class="tocxref" href="interact/forms.html#h-17.13.4">
+<span class="index-inst" title="form::content types for
+encoding|content types::for encoding form data">Form content types</span></a>
+<ul>
+<li><a class="tocxref" href="interact/forms.html#h-17.13.4.1"><span class="index-def"
+title="application/x-www-form-urlencoded|content type::application/x-www-form-urlencoded">application/x-www-form-urlencoded</span>
+</a>
+<li><a class="tocxref" href="interact/forms.html#h-17.13.4.2">
+<span class="index-def" title="multipart/form-data|content
+type::multipart/form-data">multipart/form-data</span>
+</a>
+</ul>
+</ol>
+</ol>
+<li><a class="tocxref" href="interact/scripts.html" rel="chapter">Scripts</a> <em>-
+Animated Documents and
+Smart Forms </em>
+<ol>
+<li><a class="tocxref" href="interact/scripts.html#h-18.1">
+<span class="index-inst" title="script::introduction to">
+Introduction to scripts</span></a>
+<li><a class="tocxref" href="interact/scripts.html#h-18.2">Designing documents for user agents that support scripting</a>
+<ol>
+<li><a class="tocxref" href="interact/scripts.html#h-18.2.1">The <samp class="einst2">SCRIPT</SAMP>
+element</a>
+<li><a class="tocxref" href="interact/scripts.html#h-18.2.2">
+<span class="index-inst" title="scripting language::specification
+of|language::of script">Specifying the scripting language</span></a>
+<ul>
+<li><a class="tocxref" href="interact/scripts.html#h-18.2.2.1">
+<span class="index-inst" title="default::scripting language|scripting
+language::default">The default scripting
+language</span>
+</a>
+<li><a class="tocxref" href="interact/scripts.html#h-18.2.2.2">
+<span class="index-inst" title="scripting language::local declaration">
+Local declaration of a scripting language</span></a>
+<li><a class="tocxref" href="interact/scripts.html#h-18.2.2.3">
+<span class="index-inst" title="element::references from
+scripts|script::references to elements"> References
+to HTML elements from a script</span></a>
+</ul>
+<li><a class="tocxref" href="interact/scripts.html#h-18.2.3">
+<span class="index-inst" title="events|intrinsic events">
+Intrinsic events</span></a>
+<li><a class="tocxref" href="interact/scripts.html#h-18.2.4">
+<span class="index-inst" title="document::dynamic modification with
+script|script::used to modify document">Dynamic modification of
+documents</span></a>
+</ol>
+<li><a class="tocxref" href="interact/scripts.html#h-18.3">
+<span class="index-inst" title="script::when unsupported">
+Designing documents for user agents that don't support
+scripting</span></a>
+<ol>
+<li><a class="tocxref" href="interact/scripts.html#h-18.3.1">The <samp class="einst2">NOSCRIPT</SAMP>
+ element</a>
+<li><a class="tocxref" href="interact/scripts.html#h-18.3.2">
+<span class="index-inst" title="user agent::and script
+data|comments::used to hide script data|script::comments to
+hide">Hiding script data from user agents</span></a>
+</ol>
+</ol>
+<li><a class="tocxref" href="sgml/intro.html" rel="chapter">SGML reference information for HTML</a> <em>- Formal
+definition of HTML and validation </em>
+<ol>
+<li><a class="tocxref" href="sgml/intro.html#h-19.1">
+<span class="index-inst" title="document::SGML
+validation|SGML::document validation">Document
+Validation</span></a>
+<li><a class="tocxref" href="sgml/intro.html#h-19.2">
+<span class="index-inst" title="SGML::catalog for HTML|catalog for
+HTML">Sample SGML catalog</span></a>
+</ol>
+<li><a class="tocxref" href="sgml/sgmldecl.html" rel="chapter">
+<span class="index-def" title="SGML::declaration of HTML 4.0">
+SGML Declaration of HTML 4.0</span></a>
+<ol>
+<li><a class="tocxref" href="sgml/sgmldecl.html#h-20.1">SGML Declaration</a>
+</ol>
+<li><a class="tocxref" href="sgml/dtd.html" rel="chapter">
+<span class="index-def" title="strict DTD::definition of|document
+type definition::strict">Document Type Definition
+</span>
+</a>
+<li><a class="tocxref" href="sgml/loosedtd.html" rel="chapter">
+<span class="index-def" title="transitional DTD::definition of|document type definition::transitional">Transitional Document Type
+Definition</span></a>
+<li><a class="tocxref" href="sgml/framesetdtd.html" rel="chapter">
+<span class="index-def" title="frameset::DTD, definition of|document type definition::frameset">Frameset Document Type Definition</span></a>
+<li><a class="tocxref" href="sgml/entities.html" rel="chapter">Character entity references in
+        HTML 4.0</a>
+<ol>
+<li><a class="tocxref" href="sgml/entities.html#h-24.1">Introduction to character entity references</a>
+<li><a class="tocxref" href="sgml/entities.html#h-24.2">Character entity references for ISO 8859-1 characters</a>
+<ol>
+<li><a class="tocxref" href="sgml/entities.html#h-24.2.1">The list of characters</a>
+</ol>
+<li><a class="tocxref" href="sgml/entities.html#h-24.3">Character entity references for symbols, mathematical symbols,
+and Greek letters</a>
+<ol>
+<li><a class="tocxref" href="sgml/entities.html#h-24.3.1">The list of characters</a>
+</ol>
+<li><a class="tocxref" href="sgml/entities.html#h-24.4">Character entity references for markup-significant
+and internationalization characters</a>
+<ol>
+<li><a class="tocxref" href="sgml/entities.html#h-24.4.1">The list of characters</a>
+</ol>
+</ol>
+</ol>
+<ol type="A">
+<li><a class="tocxref" href="appendix/changes.html" rel="chapter">Changes</a>
+<ol>
+<li><a class="tocxref" href="appendix/changes.html#h-A.1">Changes between HTML 3.2 and HTML 4.0</a>
+<ol>
+<li><a class="tocxref" href="appendix/changes.html#h-A.1.1">Changes to elements</a>
+<ul>
+<li><a class="tocxref" href="appendix/changes.html#h-A.1.1.1">New elements</a>
+<li><a class="tocxref" href="appendix/changes.html#h-A.1.1.2"><span class="index-inst" title="deprecated::elements|element::list of
+deprecated">Deprecated elements</span></a>
+<li><a class="tocxref" href="appendix/changes.html#h-A.1.1.3"><span class="index-inst" title="obsolete::elements|element::list of
+obsolete">Obsolete elements</span></a>
+</ul>
+<li><a class="tocxref" href="appendix/changes.html#h-A.1.2">Changes to attributes</a>
+<li><a class="tocxref" href="appendix/changes.html#h-A.1.3">Changes for accessibility</a>
+<li><a class="tocxref" href="appendix/changes.html#h-A.1.4">Changes for meta data</a>
+<li><a class="tocxref" href="appendix/changes.html#h-A.1.5">Changes for text</a>
+<li><a class="tocxref" href="appendix/changes.html#h-A.1.6">Changes for links</a>
+<li><a class="tocxref" href="appendix/changes.html#h-A.1.7">Changes for tables</a>
+<li><a class="tocxref" href="appendix/changes.html#h-A.1.8">Changes for images, objects, and image maps</a>
+<li><a class="tocxref" href="appendix/changes.html#h-A.1.9">Changes for forms</a>
+<li><a class="tocxref" href="appendix/changes.html#h-A.1.10">Changes for style sheets</a>
+<li><a class="tocxref" href="appendix/changes.html#h-A.1.11">Changes for frames</a>
+<li><a class="tocxref" href="appendix/changes.html#h-A.1.12">Changes for scripting</a>
+<li><a class="tocxref" href="appendix/changes.html#h-A.1.13">Changes for internationalization</a>
+</ol>
+<li><a class="tocxref" href="appendix/changes.html#h-A.2">Changes from the 18 December 1997 specification</a>
+<ol>
+<li><a class="tocxref" href="appendix/changes.html#h-A.2.1">Errors that were corrected</a>
+<li><a class="tocxref" href="appendix/changes.html#h-A.2.2">Minor typographical errors that were corrected</a>
+</ol>
+</ol>
+<li><a class="tocxref" href="appendix/notes.html" rel="chapter">Performance, Implementation, and Design Notes</a>
+<ol>
+<li><a class="tocxref" href="appendix/notes.html#h-B.1">Notes on invalid documents</a>
+<li><a class="tocxref" href="appendix/notes.html#h-B.2">Special characters in URI attribute values</a>
+<ol>
+<li><a class="tocxref" href="appendix/notes.html#h-B.2.1">
+<span class="index-inst" title="URI::non-ASCII characters in attribute
+                    values"> Non-ASCII
+                    characters in URI attribute values</span></a>
+<li><a class="tocxref" href="appendix/notes.html#h-B.2.2">Ampersands in URI attribute values</a>
+</ol>
+<li><a class="tocxref" href="appendix/notes.html#h-B.3">
+<span class="index-inst" title="SGML::implementation notes">
+SGML implementation notes</span></a>
+<ol>
+<li><a class="tocxref" href="appendix/notes.html#h-B.3.1"><span class="index-inst" title="SGML::treatment of line breaks">
+Line breaks</span></a>
+<li><a class="tocxref" href="appendix/notes.html#h-B.3.2">
+<span class="index-inst" title="HTML::specifying data external to"> Specifying non-HTML data</span></a>
+<ul>
+<li><a class="tocxref" href="appendix/notes.html#h-B.3.2.1">Element content</a>
+<li><a class="tocxref" href="appendix/notes.html#h-B.3.2.2">Attribute values</a>
+</ul>
+<li><a class="tocxref" href="appendix/notes.html#h-B.3.3"><span class="index-inst" title="SGML::features with limited
+support">SGML features with limited
+support</span></a>
+<li><a class="tocxref" href="appendix/notes.html#h-B.3.4">
+<span class="index-inst" title="boolean attribute|notes about
+minimized">Boolean attributes</span></a>
+<li><a class="tocxref" href="appendix/notes.html#h-B.3.5">Marked Sections</a>
+<li><a class="tocxref" href="appendix/notes.html#h-B.3.6">Processing Instructions</a>
+<li><a class="tocxref" href="appendix/notes.html#h-B.3.7">Shorthand markup</a>
+</ol>
+<li><a class="tocxref" href="appendix/notes.html#h-B.4">
+<span class="index-inst" title="search engine::helping">
+Notes on helping search engines index your Web
+site</span></a>
+<ol>
+<li><a class="tocxref" href="appendix/notes.html#h-B.4.1">
+<span class="index-inst" title="search robot::helping">
+Search robots</span></a>
+<ul>
+<li><a class="tocxref" href="appendix/notes.html#h-B.4.1.1">The robots.txt file</a>
+<li><a class="tocxref" href="appendix/notes.html#h-B.4.1.2">Robots and the META element</a>
+</ul>
+</ol>
+<li><a class="tocxref" href="appendix/notes.html#h-B.5">Notes on tables</a>
+<ol>
+<li><a class="tocxref" href="appendix/notes.html#h-B.5.1">Design rationale</a>
+<ul>
+<li><a class="tocxref" href="appendix/notes.html#h-B.5.1.1">Dynamic reformatting</a>
+<li><a class="tocxref" href="appendix/notes.html#h-B.5.1.2">
+<span class="index-inst" title="table::incremental display notes">
+Incremental display</span></a>
+<li><a class="tocxref" href="appendix/notes.html#h-B.5.1.3">Structure and presentation</a>
+<li><a class="tocxref" href="appendix/notes.html#h-B.5.1.4">Row and column groups</a>
+<li><a class="tocxref" href="appendix/notes.html#h-B.5.1.5">Accessibility</a>
+</ul>
+<li><a class="tocxref" href="appendix/notes.html#h-B.5.2">
+<span class="index-inst" title="table::layout algorithms for">
+Recommended Layout Algorithms</span></a>
+<ul>
+<li><a class="tocxref" href="appendix/notes.html#h-B.5.2.1">Fixed Layout Algorithm</a>
+<li><a class="tocxref" href="appendix/notes.html#h-B.5.2.2">Autolayout Algorithm</a>
+</ul>
+</ol>
+<li><a class="tocxref" href="appendix/notes.html#h-B.6">
+<span class="index-inst" title="form::display notes">
+Notes on forms</span></a>
+<ol>
+<li><a class="tocxref" href="appendix/notes.html#h-B.6.1">Incremental display</a>
+<li><a class="tocxref" href="appendix/notes.html#h-B.6.2">Future projects</a>
+</ol>
+<li><a class="tocxref" href="appendix/notes.html#h-B.7">
+<span class="index-inst" title="script::implementation notes">
+Notes on scripting</span></a>
+<ol>
+<li><a class="tocxref" href="appendix/notes.html#h-B.7.1">
+<span class="index-inst" title="script::reserved syntax for">
+Reserved syntax for future script macros</span></a>
+<ul>
+<li><a class="tocxref" href="appendix/notes.html#h-B.7.1.1">Current Practice for Script Macros</a>
+</ul>
+</ol>
+<li><a class="tocxref" href="appendix/notes.html#h-B.8">Notes on frames</a>
+<li><a class="tocxref" href="appendix/notes.html#h-B.9">Notes on accessibility</a>
+<li><a class="tocxref" href="appendix/notes.html#h-B.10">
+<span class="index-inst" title="security::notes on|">
+Notes on security</span></a>
+<ol>
+<li><a class="tocxref" href="appendix/notes.html#h-B.10.1">Security issues for forms</a>
+</ol>
+</ol>
+</ol>
+<ul class="toc">
+<li><a class="tocxref" href="references.html" rel="chapter">References</a>
+<ol>
+<li><a class="tocxref" href="references.html#h-1.1">Normative references</a>
+<li><a class="tocxref" href="references.html#h-1.2">Informative references</a>
+</ol>
+<li><a class="tocxref" href="index/elements.html" rel="chapter">Index of Elements</a>
+<li><a class="tocxref" href="index/attributes.html" rel="chapter">Index of Attributes</a>
+<li><a class="tocxref" href="index/list.html" rel="chapter">Index</a>
+</ul>
+
+
+<P align="center" class=policyfooter>
+<A href="about.html#copyright">Copyright</A> &nbsp;&copy;&nbsp; 1997 <A
+href="http://www.w3.org">W3C</A> (<A
+href="http://www.lcs.mit.edu">MIT</A>, <A
+href="http://www.inria.fr/">INRIA</A>, <A
+href="http://www.keio.ac.jp/">Keio</A> ), All Rights Reserved.</P>
+<div class="navbar" align="center">
+<hr><a href="about.html">next</a> &nbsp; <a href="#toc">table of contents</a> &nbsp; <a href="index/elements.html">elements</a> &nbsp; <a href="index/attributes.html">attributes</a> &nbsp; <a href="index/list.html">index</a>
+</div>
+</body>
+</html>
